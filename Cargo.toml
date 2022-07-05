@@ -1,10 +1,6 @@
 [package]
-name = "canduma"
-version = "0.2.0"
-authors = [
-    "Julien Lenne <contact.lenne@gmail.com>",
-    "Sylvain Tedoldi <sylvain.foss@contact.tedoldi.fr>",
-]
+name = "eye"
+version = "0.1.0"
 edition = "2018"
 
 [dependencies]

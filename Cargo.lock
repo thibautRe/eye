@@ -365,35 +365,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "canduma"
-version = "0.2.0"
-dependencies = [
- "actix-web",
- "anyhow",
- "argon2rs",
- "chrono",
- "diesel",
- "dotenv",
- "env_logger",
- "futures",
- "juniper",
- "lazy_static",
- "log",
- "num",
- "r2d2",
- "rand 0.7.3",
- "regex",
- "serde",
- "serde_derive",
- "serde_json",
- "shrinkwraprs",
- "structopt",
- "thiserror",
- "time 0.2.27",
- "uuid 0.7.4",
-]
-
-[[package]]
 name = "cc"
 version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -590,6 +561,35 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
+]
+
+[[package]]
+name = "eye"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "anyhow",
+ "argon2rs",
+ "chrono",
+ "diesel",
+ "dotenv",
+ "env_logger",
+ "futures",
+ "juniper",
+ "lazy_static",
+ "log",
+ "num",
+ "r2d2",
+ "rand 0.7.3",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "shrinkwraprs",
+ "structopt",
+ "thiserror",
+ "time 0.2.27",
+ "uuid 0.7.4",
 ]
 
 [[package]]
