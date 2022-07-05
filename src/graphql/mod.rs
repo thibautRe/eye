@@ -1,6 +1,7 @@
 use actix_web::web;
 
 mod handler;
+mod resolvers;
 pub mod model;
 
 pub(super) fn route(cfg: &mut web::ServiceConfig) {
