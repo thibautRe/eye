@@ -24,7 +24,7 @@ pub(super) async fn graphql(
         .body(json))
 }
 
-pub(super) fn playground(opt: web::Data<Opt>) -> HttpResponse {
+pub(super) async fn playground(opt: web::Data<Opt>) -> HttpResponse {
     let html = playground_source(&format!("http://{}:{}/graphql", opt.host, opt.port));
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")

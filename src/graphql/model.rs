@@ -22,11 +22,11 @@ impl Context {
     }
 }
 
-pub(crate) struct QueryRoot;
+pub(crate) struct Query;
 
 #[juniper::object(Context = Context)]
-impl QueryRoot {
-    pub fn users(
+impl Query {
+    fn users(
         context: &Context,
         limit: Option<i32>,
         offset: Option<i32>,
@@ -44,18 +44,13 @@ pub(crate) struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
-    pub fn double(context: &Context, number: i32) -> ServiceResult<i32> {
-        Ok(number * 2)
+    pub fn double(number: i32) -> i32 {
+        number * 2
     }
-    // pub fn register(context: &Context, data: UserData) -> ServiceResult<SlimUser> {
-    //     let conn: &PgConnection = &context.db;
-
-    //     Ok(create_user(data, conn)?)
-    // }
 }
 
-pub(crate) type Schema = juniper::RootNode<'static, QueryRoot, Mutation>;
+pub(crate) type Schema = juniper::RootNode<'static, Query, Mutation>;
 
 pub(crate) fn create_schema() -> Schema {
-    Schema::new(QueryRoot {}, Mutation {})
+    Schema::new(Query {}, Mutation {})
 }

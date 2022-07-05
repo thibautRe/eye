@@ -1,5 +1,4 @@
 use crate::schema::*;
-use crate::user::util::{make_hash, make_salt};
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 
@@ -25,7 +24,6 @@ pub struct InsertableUser {
 pub struct UserData {
     pub name: String,
     pub email: String,
-    pub password: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
@@ -48,12 +46,9 @@ impl From<UserData> for InsertableUser {
         let UserData {
             name,
             email,
-            password,
             ..
         } = user_data;
 
-        let salt = make_salt();
-        let hash = make_hash(&password, &salt).to_vec();
         let now = chrono::Local::now().naive_local();
         Self {
             email,

@@ -12,6 +12,7 @@ mod schema;
 mod user;
 
 use actix_web::middleware::Logger;
+use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 
 #[actix_web::main]
@@ -43,10 +44,10 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             // Database
-            .data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             .app_data(schema)
             // Options
-            .data(opt.clone())
+            .app_data(Data::new(opt.clone()))
             // Error logging
             .wrap(Logger::default())
             // authorization
