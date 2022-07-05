@@ -9,5 +9,5 @@ pub type Pool = diesel::r2d2::Pool<ConnectionManager>;
 pub type PooledConnection = diesel::r2d2::PooledConnection<ConnectionManager>;
 
 pub fn db_connection(pool: &Pool) -> Result<PooledConnection, ServiceError> {
-    Ok(pool.get().map_err(|_| ServiceError::UnableToConnectToDb)?)
+  Ok(pool.get().map_err(|_| ServiceError::UnableToConnectToDb)?)
 }

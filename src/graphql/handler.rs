@@ -7,26 +7,28 @@ use juniper::http::playground::playground_source;
 use juniper::http::GraphQLRequest;
 
 pub(super) async fn graphql(
-    st: web::Data<Schema>,
-    data: web::Json<GraphQLRequest>,
-    user: LoggedUser,
-    pool: web::Data<Pool>,
+  st: web::Data<Schema>,
+  data: web::Json<GraphQLRequest>,
+  user: LoggedUser,
+  pool: web::Data<Pool>,
 ) -> Result<HttpResponse, Error> {
-    let db_pool = db_connection(&pool)?;
+  let db_pool = db_connection(&pool)?;
 
-    let ctx = Context::new(user, db_pool);
+  let ctx = Context::new(user, db_pool);
 
-    let res = data.execute(&st, &ctx);
-    let json = serde_json::to_string(&res).map_err(error::ErrorInternalServerError)?;
+  let res = data.execute(&st, &ctx);
+  let json = serde_json::to_string(&res).map_err(error::ErrorInternalServerError)?;
 
-    Ok(HttpResponse::Ok()
-        .content_type("application/json")
-        .body(json))
+  Ok(
+    HttpResponse::Ok()
+      .content_type("application/json")
+      .body(json),
+  )
 }
 
 pub(super) async fn playground(opt: web::Data<Opt>) -> HttpResponse {
-    let html = playground_source(&format!("http://{}:{}/graphql", opt.host, opt.port));
-    HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(html)
+  let html = playground_source(&format!("http://{}:{}/graphql", opt.host, opt.port));
+  HttpResponse::Ok()
+    .content_type("text/html; charset=utf-8")
+    .body(html)
 }

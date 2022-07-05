@@ -1,1 +1,4 @@
+DROP TABLE IF EXISTS pictures;
+DROP TABLE IF EXISTS camera_lenses;
+DROP TABLE IF EXISTS camera_bodies;
 DROP TABLE IF EXISTS users;
