@@ -2,7 +2,7 @@ use crate::schema::*;
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct User {
   pub id: i32,
   pub email: String,
@@ -20,13 +20,13 @@ pub struct InsertableUser {
   pub name: String,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct UserData {
   pub name: String,
   pub email: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
   pub id: i32,
   pub email: String,

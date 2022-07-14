@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "start": "yarn start:web",
+    "start:rs": "cargo run",
     "start:web": "yarn web start",
     "web": "yarn workspace @thibautre/eye-web"
   },

@@ -1,18 +1,18 @@
-use diesel::{prelude::*, QueryDsl};
+use diesel::{
+  dsl::{Eq, Filter},
+  prelude::*,
+};
 
-use crate::{database::PooledConnection, schema::camera_bodies};
+use crate::schema::camera_bodies;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
-pub struct CameraBody {
+#[derive(Debug, Serialize, Deserialize, Queryable)]
+pub struct DbCameraBody {
   pub id: i32,
   pub name: String,
 }
 
-impl CameraBody {
-  pub fn get_by_id(id: i32, conn: &PooledConnection) -> Option<Self> {
-    camera_bodies::table
-      .filter(camera_bodies::id.eq(id))
-      .first(conn)
-      .ok()
+impl DbCameraBody {
+  pub fn get_by_id(id: i32) -> Filter<camera_bodies::table, Eq<camera_bodies::id, i32>> {
+    camera_bodies::table.filter(camera_bodies::id.eq(id))
   }
 }

@@ -6,7 +6,7 @@ extern crate serde_derive;
 mod cli_args;
 mod database;
 mod errors;
-mod graphql;
+// mod graphql;
 mod models;
 // mod jwt;
 mod schema;
@@ -32,7 +32,6 @@ async fn main() -> std::io::Result<()> {
 
   // Database
   let pool = database::pool::establish_connection(opt.clone());
-  let schema = std::sync::Arc::new(crate::graphql::model::create_schema());
 
   // Server port
   let host = opt.host.clone();
@@ -41,12 +40,10 @@ async fn main() -> std::io::Result<()> {
   // Server
   let server = HttpServer::new(move || {
     // prevents double Arc
-    let schema: web::Data<graphql::model::Schema> = schema.clone().into();
 
     App::new()
       // Database
       .app_data(Data::new(pool.clone()))
-      .app_data(schema)
       // Options
       .app_data(Data::new(opt.clone()))
       // Error logging
@@ -64,7 +61,7 @@ async fn main() -> std::io::Result<()> {
       // ))
       // Sets routes via secondary files
       // .configure(user::route)
-      .configure(graphql::route)
+      // .configure(graphql::route)
   })
   // Running at `format!("{}:{}",port,"0.0.0.0")`
   .bind((host.clone(), port))

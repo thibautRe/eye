@@ -1,8 +1,15 @@
 use crate::{
+  diesel::prelude::*,
   errors::ServiceResult,
   graphql::model::Context,
-  user::{model::User, service as user}, models::camera_body::CameraBody,
+  models::camera_body::DbCameraBody,
+  user::{model::User, service as user},
 };
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+struct GraphQLCameraBody {
+  pub id: i32,
+  pub name: String,
+}
 
 pub(crate) struct Query;
 
@@ -17,7 +24,7 @@ impl Query {
     user::list::find_all_users(&context, limit, offset)
   }
 
-  fn camera_body_by_id(context: &Context, id: i32) -> ServiceResult<Option<CameraBody>> {
-    Ok(CameraBody::get_by_id(id, &context.db))
+  fn camera_body_by_id(context: &Context, id: i32) -> ServiceResult<Option<GraphQLCameraBody>> {
+    Ok(DbCameraBody::get_by_id(id).first(&*context.db).ok())
   }
 }

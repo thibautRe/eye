@@ -1,6 +1,5 @@
 use actix_web::{error::ResponseError, HttpResponse};
 use diesel::result::Error as DBError;
-use juniper::graphql_value;
 use std::convert::From;
 use thiserror::Error;
 
@@ -17,37 +16,6 @@ pub enum ServiceError {
 
   #[error("Unable to connect to DB")]
   UnableToConnectToDb,
-}
-
-impl juniper::IntoFieldError for ServiceError {
-  fn into_field_error(self) -> juniper::FieldError {
-    match self {
-      ServiceError::Unauthorized => juniper::FieldError::new(
-        "Unauthorized",
-        graphql_value!({
-            "type": "NO_ACCESS"
-        }),
-      ),
-      ServiceError::BadRequest(s) => juniper::FieldError::new(
-        s,
-        graphql_value!({
-            "type": "BAD_REQUEST"
-        }),
-      ),
-      ServiceError::InternalServerError => juniper::FieldError::new(
-        "Internal Error",
-        graphql_value!({
-            "type": "INTERNAL_ERROR"
-        }),
-      ),
-      ServiceError::UnableToConnectToDb => juniper::FieldError::new(
-        "Unable to connect to DB",
-        graphql_value!({
-            "type": "DB_CONNECTION_ERROR"
-        }),
-      ),
-    }
-  }
 }
 
 // impl ResponseError trait allows to convert our errors into http responses with appropriate data

@@ -575,7 +575,6 @@ dependencies = [
  "dotenv",
  "env_logger",
  "futures",
- "juniper",
  "lazy_static",
  "log",
  "num",
@@ -852,7 +851,6 @@ checksum = "bc633605454125dec4b66843673f01c7df2b89479b32e0ed634e43a91cff62a5"
 dependencies = [
  "autocfg 1.0.1",
  "hashbrown",
- "serde",
 ]
 
 [[package]]
@@ -892,33 +890,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af25a77299a7f711a01975c35a6a424eb6862092cc2d6c72c4ed6cbc56dfc1fa"
 dependencies = [
  "libc",
-]
-
-[[package]]
-name = "juniper"
-version = "0.14.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f662ba51e2fbc3d6dd1ca66be70b44963606a34473156abddcb0351fc6caa668"
-dependencies = [
- "chrono",
- "fnv",
- "indexmap",
- "juniper_codegen",
- "serde",
- "serde_derive",
- "url",
- "uuid 0.7.4",
-]
-
-[[package]]
-name = "juniper_codegen"
-version = "0.14.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d40af234d8e971a9d7dda93ffbcc8a44a93f17e69e3067f72ce7a6894c41d51b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
