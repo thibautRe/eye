@@ -15,4 +15,8 @@ pub(crate) struct Opt {
   /// Database URL
   #[structopt(long, env = "DATABASE_URL")]
   pub database_url: String,
+
+  /// JWT secret
+  #[structopt(long, env = "JWT_SECRET")]
+  pub jwt_secret: String,
 }

@@ -4,7 +4,6 @@ Boilerplate taken from https://github.com/clifinger/canduma.
 
 ## Install
 
-
 Install diesel-cli:
 
 ```sh
@@ -17,4 +16,21 @@ cp .env.example .env
 
 diesel migration run
 cargo run
+```
+
+## Generate a JWT secret
+
+Run this in your browser
+
+```js
+;(() => {
+  const GUID_LENGTH = 100
+  const bytes = crypto.getRandomValues(new Uint8Array(GUID_LENGTH))
+  let output = ``
+  for (let i = 0; i < GUID_LENGTH; i++) {
+    const code = bytes[i] & 31
+    output += String.fromCharCode(code < 10 ? code + 48 : code + 87)
+  }
+  return output
+})()
 ```
