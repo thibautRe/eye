@@ -1,20 +1,20 @@
-import { globalStyle, style, styleVariants } from '@vanilla-extract/css'
+import { globalStyle, style, styleVariants } from "@vanilla-extract/css"
 
 const stack = style(
   {
-    display: 'flex',
+    display: "flex",
 
     // Useful reset if the stack is being used as a "ul" element
-    listStyle: 'none',
+    listStyle: "none",
     padding: 0,
     margin: 0,
   },
-  'stack'
+  "stack",
 )
 
 export const stackD = styleVariants({
-  h: [stack, { flexDirection: 'row' }],
-  v: [stack, { flexDirection: 'column' }],
+  h: [stack, { flexDirection: "row" }],
+  v: [stack, { flexDirection: "column" }],
 })
 
 export const varDistName = `--stack-dist`

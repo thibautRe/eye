@@ -1,3 +1,3 @@
 export enum LSKeys {
-  JWT = 'JWT',
+  JWT = "JWT",
 }

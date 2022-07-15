@@ -7,36 +7,37 @@ import {
   Show,
   Suspense,
   VoidComponent,
-} from 'solid-js'
+} from "solid-js"
+import { apiGenJwt } from "./api"
 
-import { Stack } from './components/Stack/Stack'
-import { StylesProvider } from './components/Styles/StylesProvider'
-import { TextInput } from './components/TextInput/TextInput'
-import { KnownUser, user } from './providers/Identity'
+import { Stack } from "./components/Stack/Stack"
+import { StylesProvider } from "./components/Styles/StylesProvider"
+import { TextInput } from "./components/TextInput/TextInput"
+import { KnownUser, user } from "./providers/Identity"
 
 interface Book {
   name: string
   author: string
 }
 const initBookList: Book[] = [
-  { name: 'The Hobbit', author: 'J.R.R. Tolkien' },
-  { name: 'Living a Feminist Life', author: 'Sarah Ahmed' },
+  { name: "The Hobbit", author: "J.R.R. Tolkien" },
+  { name: "Living a Feminist Life", author: "Sarah Ahmed" },
 ]
 const Bookshelf: VoidComponent = () => {
   const [books, setBooks] = createSignal<Book[]>(initBookList)
   return (
     <>
-      <AddBook onAddBook={(b) => setBooks((books) => [...books, b])} />
+      <AddBook onAddBook={b => setBooks(books => [...books, b])} />
       <BookList books={books()} />
     </>
   )
 }
 
-const BookList: VoidComponent<{ books: Book[] }> = (p) => {
+const BookList: VoidComponent<{ books: Book[] }> = p => {
   return (
     <ul>
       <For each={p.books}>
-        {(book) => (
+        {book => (
           <li>
             {book.name} ({book.author})
           </li>
@@ -46,13 +47,13 @@ const BookList: VoidComponent<{ books: Book[] }> = (p) => {
   )
 }
 
-const emptyBook: Book = { author: '', name: '' }
-const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = (p) => {
+const emptyBook: Book = { author: "", name: "" }
+const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = p => {
   const [book, setBook] = createSignal<Book>(emptyBook)
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={e => {
         e.preventDefault()
         if (!book().name || !book().author) return
         p.onAddBook(book())
@@ -60,15 +61,15 @@ const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = (p) => {
       }}
     >
       <Stack d="v" dist="s" style=" color : blue;">
-        <Stack dist="xs" style={{ 'background-color': 'red' }}>
+        <Stack dist="xs" style={{ "background-color": "red" }}>
           <label for="name">Name</label>
           <span>:</span>
         </Stack>
         <TextInput
           id="name"
           value={book().name}
-          onInput={(e) => {
-            setBook((b) => ({ ...b, name: e.currentTarget.value }))
+          onInput={e => {
+            setBook(b => ({ ...b, name: e.currentTarget.value }))
           }}
         />
       </Stack>
@@ -77,8 +78,8 @@ const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = (p) => {
       <TextInput
         id="author"
         value={book().author}
-        onInput={(e) => {
-          setBook((b) => ({ ...b, author: e.currentTarget.value }))
+        onInput={e => {
+          setBook(b => ({ ...b, author: e.currentTarget.value }))
         }}
       />
 
@@ -90,27 +91,21 @@ const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = (p) => {
 const UnkownUserName = () => {
   return <div>Unknown user</div>
 }
-const KnownUserName: VoidComponent<{ user: KnownUser }> = (p) => {
+const KnownUserName: VoidComponent<{ user: KnownUser }> = p => {
   return (
     <div>
       Name: <em>{p.user.jwt.name}</em>
     </div>
   )
 }
-const Name = () => {
-  return (
-    <Show when={user().type === 'known'} fallback={<UnkownUserName />}>
-      <KnownUserName user={user() as KnownUser} />
-    </Show>
-  )
-}
+const Name = () => (
+  <Show when={user().type === "known"} fallback={<UnkownUserName />}>
+    <KnownUserName user={user() as KnownUser} />
+  </Show>
+)
 
 const GenJwt: VoidComponent = () => {
-  const [res, setRes] = createResource(async () => {
-    const res = await fetch('/api/jwt_gen')
-    const txt = await res.text()
-    return txt
-  })
+  const [res] = createResource(apiGenJwt)
   return <div>{res()}</div>
 }
 
@@ -118,10 +113,10 @@ const App: Component = () => {
   return (
     <StylesProvider>
       <Suspense fallback={<div>Loading...</div>}>
-        <div style={{ 'max-width': '20rem' }}>
+        <div style={{ "max-width": "20rem" }}>
           <Bookshelf />
           <Name />
-          <ErrorBoundary fallback={'An error occured'}>
+          <ErrorBoundary fallback={"An error occured"}>
             <GenJwt />
           </ErrorBoundary>
         </div>

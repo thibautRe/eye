@@ -9,5 +9,11 @@
   },
   "workspaces": [
     "packages-js/*"
-  ]
+  ],
+  "prettier": {
+    "arrowParens": "avoid",
+    "semi": false,
+    "trailingComma": "all",
+    "singleQuote": false
+  }
 }
