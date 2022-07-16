@@ -111,7 +111,9 @@ const App: Component = () => {
     <StylesProvider>
       <Router>
         <Suspense fallback={<div>Loading...</div>}>
-          <AppRoutes />
+          <ErrorBoundary fallback={<div>An error occured</div>}>
+            <AppRoutes />
+          </ErrorBoundary>
         </Suspense>
       </Router>
     </StylesProvider>

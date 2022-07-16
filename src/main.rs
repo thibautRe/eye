@@ -26,6 +26,7 @@ enum Role {
 
 fn get_jwt(authorization: Option<&HeaderValue>, key: &JwtKey) -> Option<Claims> {
   if authorization.is_none() {
+    println!("JWT: No authorization");
     return None;
   }
   let decoded = decode::<Claims>(
@@ -34,6 +35,7 @@ fn get_jwt(authorization: Option<&HeaderValue>, key: &JwtKey) -> Option<Claims> 
     &Validation::new(Algorithm::HS256),
   );
   if decoded.is_err() {
+    println!("JWT: Decoding error: {}", decoded.err().unwrap());
     return None;
   }
   Some(decoded.unwrap().claims)

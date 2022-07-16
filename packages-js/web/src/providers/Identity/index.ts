@@ -17,6 +17,11 @@ const [user, setUser] = createSignal<User>({ type: "unknown" })
 
 export { user }
 
+export const isAdmin = () => {
+  const u = user()
+  return u.type === "known" && u.jwt.role === "admin"
+}
+
 export const initIdentity = () => {
   const url = new URL(window.location.href)
   const hashParams = new URLSearchParams(url.hash.slice(1))
