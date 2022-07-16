@@ -8,12 +8,13 @@ import {
   Suspense,
   VoidComponent,
 } from "solid-js"
+import { Router } from "solid-app-router"
 import { apiGenJwt } from "./api"
-
 import { Stack } from "./components/Stack/Stack"
 import { StylesProvider } from "./components/Styles/StylesProvider"
 import { TextInput } from "./components/TextInput/TextInput"
 import { KnownUser, user } from "./providers/Identity"
+import { AppRoutes } from "./components/Routes"
 
 interface Book {
   name: string
@@ -68,9 +69,7 @@ const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = p => {
         <TextInput
           id="name"
           value={book().name}
-          onInput={e => {
-            setBook(b => ({ ...b, name: e.currentTarget.value }))
-          }}
+          onInput={e => setBook(b => ({ ...b, name: e.currentTarget.value }))}
         />
       </Stack>
 
@@ -78,9 +77,7 @@ const AddBook: VoidComponent<{ onAddBook: (book: Book) => void }> = p => {
       <TextInput
         id="author"
         value={book().author}
-        onInput={e => {
-          setBook(b => ({ ...b, author: e.currentTarget.value }))
-        }}
+        onInput={e => setBook(b => ({ ...b, author: e.currentTarget.value }))}
       />
 
       <button type="submit">Add</button>
@@ -112,15 +109,11 @@ const GenJwt: VoidComponent = () => {
 const App: Component = () => {
   return (
     <StylesProvider>
-      <Suspense fallback={<div>Loading...</div>}>
-        <div style={{ "max-width": "20rem" }}>
-          <Bookshelf />
-          <Name />
-          <ErrorBoundary fallback={"An error occured"}>
-            <GenJwt />
-          </ErrorBoundary>
-        </div>
-      </Suspense>
+      <Router>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AppRoutes />
+        </Suspense>
+      </Router>
     </StylesProvider>
   )
 }

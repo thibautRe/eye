@@ -6,19 +6,17 @@ extern crate serde_derive;
 mod cli_args;
 mod database;
 mod errors;
-// mod graphql;
 mod models;
-// mod jwt;
 mod schema;
 mod user;
 
-use actix_web::http::header::Encoding;
+use actix_web::http::header::{HeaderValue, AUTHORIZATION};
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpRequest, HttpServer};
-use jsonwebtoken::{encode, EncodingKey};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Validation};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 enum Role {
   #[serde(rename = "admin")]
   Admin,
@@ -26,19 +24,48 @@ enum Role {
   User,
 }
 
+fn get_jwt(authorization: Option<&HeaderValue>, key: &JwtKey) -> Option<Claims> {
+  if authorization.is_none() {
+    return None;
+  }
+  let decoded = decode::<Claims>(
+    authorization.unwrap().to_str().unwrap(),
+    &key.decoding,
+    &Validation::new(Algorithm::HS256),
+  );
+  if decoded.is_err() {
+    return None;
+  }
+  Some(decoded.unwrap().claims)
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
+  exp: usize,
+
   id: String,
   name: String,
   role: Role,
 }
-async fn jwt_gen_route(data: web::Data<EncodingKey>) -> String {
+async fn jwt_gen_route(jwt_key: web::Data<JwtKey>, req: HttpRequest) -> impl Responder {
+  let authorization = req.headers().get(AUTHORIZATION);
+  let jwt = get_jwt(authorization, &jwt_key);
+  if jwt.is_none() || jwt.unwrap().role != Role::Admin {
+    return HttpResponse::Forbidden().finish();
+  }
   let claim = Claims {
     id: "1".into(),
     name: "Thibaut".into(),
     role: Role::Admin,
+    exp: 1689528095,
   };
-  encode(&Default::default(), &claim, &data).unwrap()
+  HttpResponse::Ok().body(encode(&Default::default(), &claim, &jwt_key.encoding).unwrap())
+}
+
+#[derive(Clone)]
+struct JwtKey {
+  encoding: EncodingKey,
+  decoding: DecodingKey,
 }
 
 #[actix_web::main]
@@ -62,7 +89,10 @@ async fn main() -> std::io::Result<()> {
   let host = opt.host.clone();
   let port = opt.port;
 
-  let jwt_key = EncodingKey::from_secret(opt.jwt_secret.as_ref());
+  let jwt_key = JwtKey {
+    encoding: EncodingKey::from_secret(opt.jwt_secret.as_ref()),
+    decoding: DecodingKey::from_secret(opt.jwt_secret.as_ref()),
+  };
 
   // Server
   let server = HttpServer::new(move || {

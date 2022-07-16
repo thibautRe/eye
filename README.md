@@ -18,6 +18,11 @@ diesel migration run
 cargo run
 ```
 
+Create a new migration:
+```sh
+diesel migration generate <name-of-migration>
+```
+
 ## Generate a JWT secret
 
 Run this in your browser
