@@ -1,20 +1,20 @@
 import { globalStyle, style, styleVariants } from "@vanilla-extract/css"
 
-const stack = style(
-  {
-    display: "flex",
-
-    // Useful reset if the stack is being used as a "ul" element
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-  },
-  "stack",
-)
+export const stack = style({ display: "flex" }, "stack")
 
 export const stackD = styleVariants({
-  h: [stack, { flexDirection: "row" }],
-  v: [stack, { flexDirection: "column" }],
+  h: { flexDirection: "row" },
+  v: { flexDirection: "column" },
+})
+export const stackA = styleVariants({
+  start: { alignItems: "flex-start" },
+  center: { alignItems: "center" },
+  end: { alignItems: "flex-end" },
+})
+export const stackJ = styleVariants({
+  start: { justifyContent: "flex-start" },
+  center: { justifyContent: "center" },
+  end: { justifyContent: "flex-end" },
 })
 
 export const varDistName = `--stack-dist`

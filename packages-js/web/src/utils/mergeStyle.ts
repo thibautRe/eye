@@ -1,4 +1,3 @@
-import { style } from "@vanilla-extract/css"
 import { JSX } from "solid-js/jsx-runtime"
 
 const styleStringToProp = (styleString: string): JSX.CSSProperties =>

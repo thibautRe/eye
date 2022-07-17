@@ -11,7 +11,6 @@ import {
 import { Router } from "solid-app-router"
 import { apiGenJwt } from "./api"
 import { Stack } from "./components/Stack/Stack"
-import { StylesProvider } from "./components/Styles/StylesProvider"
 import { TextInput } from "./components/TextInput/TextInput"
 import { KnownUser, user } from "./providers/Identity"
 import { AppRoutes } from "./components/Routes"
@@ -108,15 +107,13 @@ const GenJwt: VoidComponent = () => {
 
 const App: Component = () => {
   return (
-    <StylesProvider>
-      <Router>
-        <Suspense fallback={<div>Loading...</div>}>
-          <ErrorBoundary fallback={<div>An error occured</div>}>
-            <AppRoutes />
-          </ErrorBoundary>
-        </Suspense>
-      </Router>
-    </StylesProvider>
+    <Router>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ErrorBoundary fallback={<div>An error occured</div>}>
+          <AppRoutes />
+        </ErrorBoundary>
+      </Suspense>
+    </Router>
   )
 }
 
