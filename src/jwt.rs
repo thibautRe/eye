@@ -1,8 +1,12 @@
+use actix_web::{http::header::AUTHORIZATION, HttpRequest};
 use jsonwebtoken::{
-  decode, encode, errors::Result, Algorithm, DecodingKey, EncodingKey, TokenData, Validation,
+  decode, encode, errors, Algorithm, DecodingKey, EncodingKey, TokenData, Validation,
 };
 
-use crate::user::model::Role;
+use crate::{
+  errors::{ServiceError, ServiceResult},
+  user::model::Role,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -14,16 +18,38 @@ pub struct Claims {
 }
 
 impl Claims {
-  pub fn encode(self, jwt_key: &JwtKey) -> Result<String> {
+  pub fn encode(self, jwt_key: &JwtKey) -> errors::Result<String> {
     encode(&Default::default(), &self, &jwt_key.encoding)
   }
 
-  pub fn decode(token: &str, jwt_key: &JwtKey) -> Result<TokenData<Self>> {
+  pub fn decode(token: &str, jwt_key: &JwtKey) -> errors::Result<TokenData<Self>> {
     decode::<Self>(
       &token,
       &jwt_key.decoding,
       &Validation::new(Algorithm::HS256),
     )
+  }
+
+  pub fn from_request(req: &HttpRequest, key: &JwtKey) -> ServiceResult<Self> {
+    let authorization = req
+      .headers()
+      .get(AUTHORIZATION)
+      .ok_or(ServiceError::Unauthorized)?;
+    let decoded = Claims::decode(
+      authorization
+        .to_str()
+        .map_err(|op| ServiceError::InternalServerError(op.to_string()))?,
+      &key,
+    )?;
+    Ok(decoded.claims)
+  }
+
+  pub fn assert_admin(self) -> ServiceResult<Self> {
+    if self.role != Role::Admin {
+      Err(ServiceError::Unauthorized)
+    } else {
+      Ok(self)
+    }
   }
 }
 

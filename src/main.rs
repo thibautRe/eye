@@ -11,39 +11,25 @@ mod models;
 mod schema;
 mod user;
 
-use actix_web::http::header::AUTHORIZATION;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
+use errors::ServiceError;
 use jwt::{Claims, JwtKey};
 use user::model::Role;
 
-fn get_jwt(req: &HttpRequest, key: &JwtKey) -> Option<Claims> {
-  let authorization = req.headers().get(AUTHORIZATION);
-  if authorization.is_none() {
-    println!("JWT: No authorization");
-    return None;
-  }
-  let decoded = Claims::decode(authorization.unwrap().to_str().unwrap(), &key);
-  if decoded.is_err() {
-    println!("JWT: Decoding error: {}", decoded.err().unwrap());
-    return None;
-  }
-  Some(decoded.unwrap().claims)
-}
-
-async fn jwt_gen_route(jwt_key: web::Data<JwtKey>, req: HttpRequest) -> impl Responder {
-  let jwt = get_jwt(&req, &jwt_key);
-  if jwt.is_none() || jwt.unwrap().role != Role::Admin {
-    return HttpResponse::Forbidden().finish();
-  }
+async fn jwt_gen_route(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+) -> Result<HttpResponse, ServiceError> {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let claim = Claims {
     id: "1".into(),
     name: "Thibaut".into(),
     role: Role::Admin,
     exp: 1689528095,
   };
-  HttpResponse::Ok().body(claim.encode(&jwt_key).unwrap())
+  Ok(HttpResponse::Ok().body(claim.encode(&jwt_key)?))
 }
 
 #[actix_web::main]

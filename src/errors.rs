@@ -6,7 +6,7 @@ use thiserror::Error;
 #[derive(Debug, Error, Serialize)]
 pub enum ServiceError {
   #[error("Internal Server Error")]
-  InternalServerError,
+  InternalServerError(String),
 
   #[error("BadRequest: {0}")]
   BadRequest(String),
@@ -22,7 +22,7 @@ pub enum ServiceError {
 impl ResponseError for ServiceError {
   fn error_response(&self) -> HttpResponse {
     match self {
-      ServiceError::InternalServerError => {
+      ServiceError::InternalServerError(_) => {
         HttpResponse::InternalServerError().json("Internal Server Error, Please try later")
       }
       ServiceError::UnableToConnectToDb => {
@@ -42,6 +42,12 @@ impl From<uuid::parser::ParseError> for ServiceError {
   }
 }
 
+impl From<jsonwebtoken::errors::Error> for ServiceError {
+  fn from(err: jsonwebtoken::errors::Error) -> ServiceError {
+    ServiceError::InternalServerError(err.to_string())
+  }
+}
+
 impl From<DBError> for ServiceError {
   fn from(error: DBError) -> ServiceError {
     // Right now we just care about UniqueViolation from diesel
@@ -51,7 +57,7 @@ impl From<DBError> for ServiceError {
         let message = info.details().unwrap_or_else(|| info.message()).to_string();
         ServiceError::BadRequest(message)
       }
-      _ => ServiceError::InternalServerError,
+      _ => ServiceError::UnableToConnectToDb,
     }
   }
 }
