@@ -15,5 +15,6 @@
     "semi": false,
     "trailingComma": "all",
     "singleQuote": false
-  }
+  },
+  "packageManager": "yarn@3.2.1"
 }
