@@ -7,11 +7,11 @@ export const routes = {
 
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
-  AdminGenJwt: "/admin/gen_jwt",
+  AdminJwtGen: "/admin/jwt_gen",
 }
 
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
-const AdminGenJwt = withAdminFence(lazy(() => import("./Admin/GenJwt")))
+const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGen")))
 
 /** Creates a redirect component */
 const r = (href: string) => () => <Navigate href={href} />
@@ -24,7 +24,7 @@ export const AppRoutes = () => (
       component={withAdminFence(r(routes.AdminUsers))}
     />
     <Route path={routes.AdminUsers} component={AdminUsers} />
-    <Route path={routes.AdminGenJwt} component={AdminGenJwt} />
+    <Route path={routes.AdminJwtGen} component={AdminJwtGen} />
     <Route path="*" component={() => <h1>Not found</h1>} />
   </Routes>
 )

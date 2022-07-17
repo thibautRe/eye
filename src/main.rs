@@ -3,6 +3,7 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 
+mod api;
 mod cli_args;
 mod database;
 mod errors;
@@ -13,24 +14,8 @@ mod user;
 
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer};
-use errors::ServiceError;
-use jwt::{Claims, JwtKey};
-use user::model::Role;
-
-async fn jwt_gen_route(
-  jwt_key: web::Data<JwtKey>,
-  req: HttpRequest,
-) -> Result<HttpResponse, ServiceError> {
-  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
-  let claim = Claims {
-    id: "1".into(),
-    name: "Thibaut".into(),
-    role: Role::Admin,
-    exp: 1689528095,
-  };
-  Ok(HttpResponse::Ok().body(claim.encode(&jwt_key)?))
-}
+use actix_web::{web, App, HttpServer};
+use jwt::JwtKey;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -67,7 +52,7 @@ async fn main() -> std::io::Result<()> {
       .app_data(Data::new(jwt_key.clone()))
       // Error logging
       .wrap(Logger::default())
-      .route("/api/jwt_gen", web::get().to(jwt_gen_route))
+      .service(api::admin_jwt_gen_handler)
     // authorization
     // .wrap(IdentityService::new(
     //     CookieIdentityPolicy::new(cookie_secret_key.as_bytes())

@@ -9,7 +9,6 @@ import {
   VoidComponent,
 } from "solid-js"
 import { Router } from "solid-app-router"
-import { apiGenJwt } from "./api"
 import { Stack } from "./components/Stack/Stack"
 import { TextInput } from "./components/TextInput/TextInput"
 import { KnownUser, user } from "./providers/Identity"
@@ -99,11 +98,6 @@ const Name = () => (
     <KnownUserName user={user() as KnownUser} />
   </Show>
 )
-
-const GenJwt: VoidComponent = () => {
-  const [res] = createResource(apiGenJwt)
-  return <div>{res()}</div>
-}
 
 const App: Component = () => {
   return (

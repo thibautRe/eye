@@ -1,11 +1,11 @@
 import { createResource, Show } from "solid-js"
-import { apiGenJwt } from "../../../api"
+import { apiJwtGen } from "../../../api"
 import { Jwt } from "../../Jwt/Jwt"
 import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
 
 export default () => {
-  const [jwtRes] = createResource(apiGenJwt)
+  const [jwtRes] = createResource(apiJwtGen)
   return (
     <Show when={jwtRes()} fallback="No JWT">
       <Stack p="s" style={{ "max-width": "450px" }}>

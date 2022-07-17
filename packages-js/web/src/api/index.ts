@@ -1,7 +1,7 @@
 import { apiClientHeaders as headers } from "./client"
 
 const routes = {
-  genJwt: `/api/jwt_gen`,
+  genJwt: `/api/admin/jwt_gen`,
 }
 
 const assert_status_200 = (res: Response) => {
@@ -11,7 +11,7 @@ const assert_status_200 = (res: Response) => {
     )
 }
 
-export const apiGenJwt = async (): Promise<string> => {
+export const apiJwtGen = async (): Promise<string> => {
   const res = await fetch(routes.genJwt, { headers })
   assert_status_200(res)
   return await res.text()
