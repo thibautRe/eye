@@ -1,8 +1,23 @@
-import { Component, mergeProps, ParentComponent, splitProps } from "solid-js"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import {
+  Component,
+  createContext,
+  mergeProps,
+  ParentComponent,
+  splitProps,
+  useContext,
+} from "solid-js"
 import { mergeStyle } from "../../utils/mergeStyle"
 import { Box, BoxProps } from "../Box/Box"
 import { ThemeSpaceKey, vars } from "../Styles/theme.css"
-import { stack, stackD, stackA, stackJ, varDistName } from "./Stack.css"
+import { stack, stackD, stackA, stackJ, stackDepth, distVar } from "./Stack.css"
+
+/**
+ * In order to avoid issues with CSS variables in trees of Stacks,
+ * a context is used in order to alternate the CSS variables that
+ * the children should hook onto.
+ */
+const StackDepthContext = createContext(false)
 
 export interface StackOwnProps {
   /** direction of the Stack */
@@ -28,17 +43,25 @@ export const Stack: Component<StackProps> = p => {
     "classList",
     "style",
   ])
+  const depth = useContext(StackDepthContext)
+  const pingOrPong = () => (depth ? "ping" : "pong")
   return (
-    <Box
-      {...rest}
-      classList={{
-        [stack]: true,
-        [stackD[local.d]]: true,
-        [stackA[local.a]]: true,
-        [stackJ[local.j]]: true,
-        ...local.classList,
-      }}
-      style={mergeStyle(local.style, { [varDistName]: vars.space[local.dist] })}
-    />
+    <StackDepthContext.Provider value={!depth}>
+      <Box
+        {...rest}
+        classList={{
+          [stack]: true,
+          [stackD[local.d]]: true,
+          [stackA[local.a]]: true,
+          [stackJ[local.j]]: true,
+          [stackDepth[pingOrPong()]]: true,
+          ...local.classList,
+        }}
+        style={mergeStyle(
+          local.style,
+          assignInlineVars({ [distVar[pingOrPong()]]: vars.space[local.dist] }),
+        )}
+      />
+    </StackDepthContext.Provider>
   )
 }

@@ -1,4 +1,9 @@
-import { globalStyle, style, styleVariants } from "@vanilla-extract/css"
+import {
+  createVar,
+  globalStyle,
+  style,
+  styleVariants,
+} from "@vanilla-extract/css"
 
 export const stack = style({ display: "flex" }, "stack")
 
@@ -17,7 +22,18 @@ export const stackJ = styleVariants({
   end: { justifyContent: "flex-end" },
 })
 
-export const varDistName = `--stack-dist`
-const varDist = `var(${varDistName})`
-globalStyle(`${stackD.h} > *+*`, { marginLeft: varDist })
-globalStyle(`${stackD.v} > *+*`, { marginTop: varDist })
+export const stackDepth = styleVariants({
+  ping: {},
+  pong: {},
+})
+
+export const distVar = {
+  ping: createVar("stack-dist-ping"),
+  pong: createVar("stack-dist-pong"),
+}
+
+globalStyle(`${stackD.h}${stackDepth.ping} > *+*`, { marginLeft: distVar.ping })
+globalStyle(`${stackD.v}${stackDepth.ping} > *+*`, { marginTop: distVar.ping })
+
+globalStyle(`${stackD.h}${stackDepth.pong} > *+*`, { marginLeft: distVar.pong })
+globalStyle(`${stackD.v}${stackDepth.pong} > *+*`, { marginTop: distVar.pong })

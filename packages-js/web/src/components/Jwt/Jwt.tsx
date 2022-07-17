@@ -20,7 +20,7 @@ export const Jwt: VoidComponent<JwtProps> = p => {
     setTimeout(() => setCopied(false), 1500)
   }
   return (
-    <Stack dist="xs">
+    <Stack dist="xxs" bgColor="g5" fgColor="g7" ph="s" pv="xs" br="m" a="start">
       <T t="xs" class={jwt}>
         <Box fgColor="amber11">{p => <span {...p}>{jwtp1()}</span>}</Box>.
         <Box fgColor="amber12">{p => <span {...p}>{jwtp2()}</span>}</Box>.
