@@ -16,5 +16,8 @@
     "trailingComma": "all",
     "singleQuote": false
   },
+  "dependencies": {
+    "typescript": "^4.6.4"
+  },
   "packageManager": "yarn@3.2.1"
 }

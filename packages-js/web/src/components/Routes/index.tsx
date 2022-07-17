@@ -10,8 +10,8 @@ export const routes = {
   AdminGenJwt: "/admin/gen_jwt",
 }
 
-const AdminUsers = withAdminFence(lazy(() => import(`./Admin/Users`)))
-const AdminGenJwt = withAdminFence(lazy(() => import(`./Admin/GenJwt`)))
+const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
+const AdminGenJwt = withAdminFence(lazy(() => import("./Admin/GenJwt")))
 
 /** Creates a redirect component */
 const r = (href: string) => () => <Navigate href={href} />
