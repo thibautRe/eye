@@ -6,34 +6,25 @@ extern crate serde_derive;
 mod cli_args;
 mod database;
 mod errors;
+mod jwt;
 mod models;
 mod schema;
 mod user;
 
-use actix_web::http::header::{HeaderValue, AUTHORIZATION};
+use actix_web::http::header::AUTHORIZATION;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Validation};
+use jwt::{Claims, JwtKey};
+use user::model::Role;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
-enum Role {
-  #[serde(rename = "admin")]
-  Admin,
-  #[serde(rename = "user")]
-  User,
-}
-
-fn get_jwt(authorization: Option<&HeaderValue>, key: &JwtKey) -> Option<Claims> {
+fn get_jwt(req: &HttpRequest, key: &JwtKey) -> Option<Claims> {
+  let authorization = req.headers().get(AUTHORIZATION);
   if authorization.is_none() {
     println!("JWT: No authorization");
     return None;
   }
-  let decoded = decode::<Claims>(
-    authorization.unwrap().to_str().unwrap(),
-    &key.decoding,
-    &Validation::new(Algorithm::HS256),
-  );
+  let decoded = Claims::decode(authorization.unwrap().to_str().unwrap(), &key);
   if decoded.is_err() {
     println!("JWT: Decoding error: {}", decoded.err().unwrap());
     return None;
@@ -41,17 +32,8 @@ fn get_jwt(authorization: Option<&HeaderValue>, key: &JwtKey) -> Option<Claims> 
   Some(decoded.unwrap().claims)
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-  exp: usize,
-
-  id: String,
-  name: String,
-  role: Role,
-}
 async fn jwt_gen_route(jwt_key: web::Data<JwtKey>, req: HttpRequest) -> impl Responder {
-  let authorization = req.headers().get(AUTHORIZATION);
-  let jwt = get_jwt(authorization, &jwt_key);
+  let jwt = get_jwt(&req, &jwt_key);
   if jwt.is_none() || jwt.unwrap().role != Role::Admin {
     return HttpResponse::Forbidden().finish();
   }
@@ -61,13 +43,7 @@ async fn jwt_gen_route(jwt_key: web::Data<JwtKey>, req: HttpRequest) -> impl Res
     role: Role::Admin,
     exp: 1689528095,
   };
-  HttpResponse::Ok().body(encode(&Default::default(), &claim, &jwt_key.encoding).unwrap())
-}
-
-#[derive(Clone)]
-struct JwtKey {
-  encoding: EncodingKey,
-  decoding: DecodingKey,
+  HttpResponse::Ok().body(claim.encode(&jwt_key).unwrap())
 }
 
 #[actix_web::main]
@@ -91,10 +67,7 @@ async fn main() -> std::io::Result<()> {
   let host = opt.host.clone();
   let port = opt.port;
 
-  let jwt_key = JwtKey {
-    encoding: EncodingKey::from_secret(opt.jwt_secret.as_ref()),
-    decoding: DecodingKey::from_secret(opt.jwt_secret.as_ref()),
-  };
+  let jwt_key = JwtKey::from_secret(opt.jwt_secret.as_ref());
 
   // Server
   let server = HttpServer::new(move || {

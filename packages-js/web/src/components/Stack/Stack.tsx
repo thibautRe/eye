@@ -3,7 +3,6 @@ import {
   Component,
   createContext,
   mergeProps,
-  ParentComponent,
   splitProps,
   useContext,
 } from "solid-js"

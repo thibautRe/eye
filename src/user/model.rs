@@ -26,6 +26,14 @@ pub struct UserData {
   pub email: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum Role {
+  #[serde(rename = "admin")]
+  Admin,
+  #[serde(rename = "user")]
+  User,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
   pub id: i32,
