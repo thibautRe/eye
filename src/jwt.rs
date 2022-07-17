@@ -3,10 +3,15 @@ use jsonwebtoken::{
   decode, encode, errors, Algorithm, DecodingKey, EncodingKey, TokenData, Validation,
 };
 
-use crate::{
-  errors::{ServiceError, ServiceResult},
-  user::model::Role,
-};
+use crate::errors::{ServiceError, ServiceResult};
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum Role {
+  #[serde(rename = "admin")]
+  Admin,
+  #[serde(rename = "user")]
+  User,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {

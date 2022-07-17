@@ -1,7 +1,9 @@
+import { User } from "../types/user"
 import { apiClientHeaders as headers } from "./client"
 
 const routes = {
-  genJwt: `/api/admin/jwt_gen`,
+  adminJwtGen: `/api/admin/jwt_gen`,
+  adminUsers: `/api/admin/users`,
 }
 
 const assert_status_200 = (res: Response) => {
@@ -11,8 +13,13 @@ const assert_status_200 = (res: Response) => {
     )
 }
 
-export const apiJwtGen = async (): Promise<string> => {
-  const res = await fetch(routes.genJwt, { headers })
+export const apiAdminJwtGen = async (): Promise<string> => {
+  const res = await fetch(routes.adminJwtGen, { headers })
   assert_status_200(res)
   return await res.text()
+}
+export const apiAdminUsers = async (): Promise<User[]> => {
+  const res = await fetch(routes.adminUsers, { headers })
+  assert_status_200(res)
+  return await res.json()
 }

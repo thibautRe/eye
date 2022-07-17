@@ -10,11 +10,10 @@ mod errors;
 mod jwt;
 mod models;
 mod schema;
-mod user;
 
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use jwt::JwtKey;
 
 #[actix_web::main]
@@ -52,7 +51,7 @@ async fn main() -> std::io::Result<()> {
       .app_data(Data::new(jwt_key.clone()))
       // Error logging
       .wrap(Logger::default())
-      .service(api::admin_jwt_gen_handler)
+      .configure(api::api_service)
     // authorization
     // .wrap(IdentityService::new(
     //     CookieIdentityPolicy::new(cookie_secret_key.as_bytes())

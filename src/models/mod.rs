@@ -1,2 +1,3 @@
 pub mod camera_body;
-pub mod pictures;
+pub mod picture;
+pub mod user;
