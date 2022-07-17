@@ -1,4 +1,4 @@
-import { createResource } from "solid-js"
+import { createResource, Show } from "solid-js"
 import { apiAdminJwtGen } from "../../../api"
 import { AdminContainer } from "../../Admin/Container"
 import { Jwt } from "../../Jwt/Jwt"
@@ -8,13 +8,15 @@ import { T } from "../../T/T"
 export default () => {
   const [jwtRes] = createResource(apiAdminJwtGen)
   return (
-    <AdminContainer>
-      <Stack dist="s" a="start">
-        <T t="xs" pt="xs">
-          Token
-        </T>
-        <Jwt jwt={jwtRes()!} />
-      </Stack>
-    </AdminContainer>
+    <Show when={jwtRes()} fallback="No JWT">
+      <AdminContainer>
+        <Stack dist="s" a="start">
+          <T t="xs" pt="xs">
+            Token
+          </T>
+          <Jwt jwt={jwtRes()!} />
+        </Stack>
+      </AdminContainer>
+    </Show>
   )
 }
