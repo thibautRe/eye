@@ -7,7 +7,7 @@ import { Box } from "../Box/Box"
 export const AdminContainer: ParentComponent = p => {
   return (
     <Box p="m">
-      <Stack dist="l" a="start">
+      <Stack dist="l">
         <AdminNav />
         <div class={s.container}>{p.children}</div>
       </Stack>

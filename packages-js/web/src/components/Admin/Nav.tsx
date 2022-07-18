@@ -23,7 +23,7 @@ const AdminNavLink: ParentComponent<{ href: string }> = props => (
 
 export const AdminNav: VoidComponent = () => (
   <Box p="m" bgColor="g3" br="m" class={navcontainer}>
-    <Stack d="v" dist="xs" a="start">
+    <Stack d="v" dist="xs">
       <AdminNavLink href={routes.AdminUsers}>Users</AdminNavLink>
       <AdminNavLink href={routes.AdminJwtGen}>JWT Gen</AdminNavLink>
     </Stack>

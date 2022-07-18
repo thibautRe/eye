@@ -11,9 +11,9 @@ export default () => {
   return (
     <Show when={jwtRes()} fallback="No JWT">
       <AdminContainer>
-        <Stack d="v" dist="m" a="start">
+        <Stack d="v" dist="m">
           <PageTitle>JWT Gen</PageTitle>
-          <Stack dist="s" a="start">
+          <Stack dist="s">
             <T t="xs" pt="xs">
               Token
             </T>

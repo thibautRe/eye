@@ -15,7 +15,7 @@ export const Jwt: VoidComponent<JwtProps> = p => {
   const jwtp3 = () => p.jwt.split(".")[2]
 
   return (
-    <Stack dist="xxs" bgColor="g5" fgColor="g7" ph="s" pv="xs" br="m" a="start">
+    <Stack dist="xxs" bgColor="g5" fgColor="g7" ph="s" pv="xs" br="m">
       <T t="xs" class={jwt}>
         <Box fgColor="amber11">{p => <span {...p}>{jwtp1()}</span>}</Box>.
         <Box fgColor="amber12">{p => <span {...p}>{jwtp2()}</span>}</Box>.

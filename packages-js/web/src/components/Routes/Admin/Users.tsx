@@ -10,7 +10,7 @@ export default () => {
   return (
     <Show when={usersRes()} fallback="No users">
       <AdminContainer>
-        <Stack d="v" dist="m" a="start">
+        <Stack d="v" dist="m">
           <PageTitle>Users</PageTitle>
           <UserList users={usersRes()!} />
         </Stack>

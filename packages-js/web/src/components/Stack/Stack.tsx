@@ -31,7 +31,7 @@ export interface StackOwnProps {
 export interface StackProps extends StackOwnProps, BoxProps {}
 export const Stack: Component<StackProps> = p => {
   const props = mergeProps(
-    { d: "h", dist: "0", a: "center", j: "start" } as const,
+    { d: "h", dist: "0", a: "start", j: "start" } as const,
     p,
   )
   const [local, rest] = splitProps(props, [
