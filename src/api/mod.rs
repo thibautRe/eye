@@ -15,8 +15,7 @@ async fn admin_jwt_gen_handler(
 ) -> ServiceResult<HttpResponse> {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let claim = Claims {
-    id: "1".into(),
-    name: "Thibaut".into(),
+    user_id: 1,
     role: Role::Admin,
     exp: 1689528095,
   };

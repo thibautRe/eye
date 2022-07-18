@@ -17,8 +17,7 @@ pub enum Role {
 pub struct Claims {
   pub exp: usize,
 
-  pub id: String,
-  pub name: String,
+  pub user_id: usize,
   pub role: Role,
 }
 
@@ -50,11 +49,10 @@ impl Claims {
   }
 
   pub fn assert_admin(self) -> ServiceResult<Self> {
-    if self.role != Role::Admin {
-      Err(ServiceError::Unauthorized)
-    } else {
-      Ok(self)
+    if self.role == Role::Admin {
+      return Ok(self);
     }
+    Err(ServiceError::Unauthorized)
   }
 }
 
