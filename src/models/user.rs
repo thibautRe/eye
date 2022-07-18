@@ -17,6 +17,7 @@ pub struct User {
 }
 
 impl User {
+  #[allow(unused)]
   pub fn get_by_id(id: i32) -> Filter<users::table, Eq<users::id, i32>> {
     users::table.filter(users::id.eq(id))
   }

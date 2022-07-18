@@ -12,6 +12,7 @@ pub struct DbCameraBody {
 }
 
 impl DbCameraBody {
+  #[allow(unused)]
   pub fn get_by_id(id: i32) -> Filter<camera_bodies::table, Eq<camera_bodies::id, i32>> {
     camera_bodies::table.filter(camera_bodies::id.eq(id))
   }

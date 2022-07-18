@@ -14,6 +14,7 @@ pub struct Picture {
 }
 
 impl Picture {
+  #[allow(unused)]
   pub fn get_by_id(id: i32) -> Filter<pictures::table, Eq<pictures::id, i32>> {
     pictures::table.filter(pictures::id.eq(id))
   }
