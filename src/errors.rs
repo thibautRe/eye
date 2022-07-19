@@ -34,14 +34,6 @@ impl ResponseError for ServiceError {
   }
 }
 
-// we can return early in our handlers if UUID provided by the user is not valid
-// and provide a custom message
-impl From<uuid::parser::ParseError> for ServiceError {
-  fn from(_: uuid::parser::ParseError) -> ServiceError {
-    ServiceError::BadRequest("Invalid UUID".into())
-  }
-}
-
 impl From<jsonwebtoken::errors::Error> for ServiceError {
   fn from(err: jsonwebtoken::errors::Error) -> ServiceError {
     ServiceError::InternalServerError(err.to_string())

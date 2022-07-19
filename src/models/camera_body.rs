@@ -1,7 +1,4 @@
-use diesel::{
-  dsl::{Eq, Filter},
-  prelude::*,
-};
+use diesel::{dsl::*, prelude::*};
 
 use crate::schema::camera_bodies;
 

@@ -1,9 +1,5 @@
 use chrono::NaiveDateTime;
-use diesel::{
-  dsl::{Eq, Filter},
-  prelude::*,
-  QueryDsl,
-};
+use diesel::{dsl::*, prelude::*};
 
 use crate::schema::users;
 
