@@ -28,7 +28,7 @@ async fn main() -> std::io::Result<()> {
 
   // Sets options to environment variables
   let opt: Opt = {
-    use clap::StructOpt;
+    use clap::Parser;
     cli_args::Opt::from_args()
   };
 

@@ -1,21 +1,21 @@
-use clap::StructOpt;
+use clap::Parser;
 
-#[derive(StructOpt, Debug, Clone)]
-#[structopt(name = "eye")]
+#[derive(Parser, Debug, Clone)]
+#[clap(name = "eye")]
 pub struct Opt {
   /// Port to listen to
-  #[structopt(short, long, env = "PORT", default_value = "3000")]
+  #[clap(short, long, env = "PORT", default_value = "3000")]
   pub port: u16,
 
   /// host
-  #[structopt(long, env = "HOST", default_value = "localhost")]
+  #[clap(long, env = "HOST", default_value = "localhost")]
   pub host: String,
 
   /// Database URL
-  #[structopt(long, env = "DATABASE_URL")]
+  #[clap(long, env = "DATABASE_URL")]
   pub database_url: String,
 
   /// JWT secret
-  #[structopt(long, env = "JWT_SECRET")]
+  #[clap(long, env = "JWT_SECRET")]
   pub jwt_secret: String,
 }
