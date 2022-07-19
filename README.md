@@ -14,11 +14,15 @@ cargo install diesel_cli --no-default-features --features postgres
 # edit the .env values as needed
 cp .env.example .env
 
+# run migration
 diesel migration run
-cargo run
+
+# start api server
+cargo run serve
 ```
 
 Create a new migration:
+
 ```sh
 diesel migration generate <name-of-migration>
 ```

@@ -14,7 +14,7 @@ mod schema;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use cli_args::Opt;
+use cli_args::{Commands, Opt};
 use database::Pool;
 use jwt::JwtKey;
 
@@ -29,27 +29,37 @@ async fn main() -> std::io::Result<()> {
   // Sets options to environment variables
   let opt: Opt = {
     use clap::Parser;
-    cli_args::Opt::from_args()
+    Opt::from_args()
   };
 
-  let pool: Pool = database::pool::establish_connection(opt.clone());
-  let jwt_key = JwtKey::from_secret(opt.jwt_secret.as_ref());
-
-  start_server(pool.clone(), opt.clone(), jwt_key.clone()).await
+  match opt.command {
+    Commands::Serve {
+      port,
+      host,
+      jwt_secret,
+      database_url,
+    } => {
+      let pool: Pool = database::pool::establish_connection(&database_url);
+      let jwt_key = JwtKey::from_secret(jwt_secret.as_ref());
+      start_server(pool.clone(), jwt_key.clone(), host, port).await
+    }
+    Commands::ExtractPictures {} => Ok(()),
+  }
 }
 
-async fn start_server(pool: Pool, opt: Opt, jwt_key: JwtKey) -> Result<(), std::io::Error> {
-  let host = opt.host.clone();
-  let port = opt.port;
+async fn start_server(
+  pool: Pool,
+  jwt_key: JwtKey,
+  host: String,
+  port: u16,
+) -> Result<(), std::io::Error> {
+  let host = host.clone();
+  let port = port;
   // Server
   let server = HttpServer::new(move || {
     App::new()
-      // Database
       .app_data(Data::new(pool.clone()))
-      // Options
-      .app_data(Data::new(opt.clone()))
       .app_data(Data::new(jwt_key.clone()))
-      // Error logging
       .wrap(Logger::default())
       .configure(api::api_service)
   })
