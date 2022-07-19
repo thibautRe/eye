@@ -29,5 +29,9 @@ pub enum Commands {
   },
 
   /// Run picture extraction process
-  ExtractPictures {},
+  ExtractPictures {
+    /// Path to extract pictures from
+    #[clap(long, env = "EXTRACT_FROM")]
+    extract_from: String,
+  },
 }

@@ -17,6 +17,9 @@ use actix_web::{App, HttpServer};
 use cli_args::{Commands, Opt};
 use database::Pool;
 use jwt::JwtKey;
+use walkdir::WalkDir;
+
+type CommandReturn = Result<(), std::io::Error>;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -43,16 +46,19 @@ async fn main() -> std::io::Result<()> {
       let jwt_key = JwtKey::from_secret(jwt_secret.as_ref());
       start_server(pool.clone(), jwt_key.clone(), host, port).await
     }
-    Commands::ExtractPictures {} => Ok(()),
+    Commands::ExtractPictures { extract_from } => extract_pictures(extract_from),
   }
 }
 
-async fn start_server(
-  pool: Pool,
-  jwt_key: JwtKey,
-  host: String,
-  port: u16,
-) -> Result<(), std::io::Error> {
+fn extract_pictures(extract_from: String) -> CommandReturn {
+  for entry in WalkDir::new(extract_from) {
+    let entry = entry.unwrap();
+    println!("{}", entry.path().display());
+  }
+  Ok(())
+}
+
+async fn start_server(pool: Pool, jwt_key: JwtKey, host: String, port: u16) -> CommandReturn {
   let host = host.clone();
   let port = port;
   // Server
