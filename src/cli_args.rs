@@ -1,7 +1,7 @@
-use structopt::StructOpt;
+use clap::StructOpt;
 
 #[derive(StructOpt, Debug, Clone)]
-#[structopt(name = "canduma")]
+#[structopt(name = "eye")]
 pub struct Opt {
   /// Port to listen to
   #[structopt(short, long, env = "PORT", default_value = "3000")]
