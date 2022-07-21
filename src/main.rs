@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
     Opt::from_args()
   };
 
-  let pool: Pool = database::pool::establish_connection(&opt.database_url);
+  let pool: Pool = database::create_pool(&opt.database_url);
   println!("Db pool initialized");
 
   match opt.command {
