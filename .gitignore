@@ -18,6 +18,7 @@ package-lock.json
 
 dist/
 extract-from/
+.eye_cache/
 
 .pnp.*
 .yarn/*
