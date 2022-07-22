@@ -16,11 +16,15 @@ use std::path::Path;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
+use chrono::NaiveDateTime;
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::Pool;
+use diesel::{insert_into, RunQueryDsl};
 use image::imageops::FilterType;
 use jwt::JwtKey;
 use walkdir::WalkDir;
+
+use crate::models::picture::PicturesInsert;
 
 type CommandReturn = Result<(), std::io::Error>;
 
@@ -56,13 +60,21 @@ fn is_picture_file(file: &walkdir::DirEntry) -> bool {
 }
 
 fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
+  let db = database::db_connection(&pool).unwrap();
   for entry in WalkDir::new(args.extract_from)
     .follow_links(true)
     .into_iter()
     .filter_map(|e| e.ok())
     .filter(|e| is_picture_file(e))
   {
-    eprintln!("Resizing image {}...", entry.file_name().to_str().unwrap());
+    let entry_name = entry.file_name().to_str().unwrap();
+    let _pic = PicturesInsert {
+      name: Some(entry_name.into()),
+      ..Default::default()
+    }
+    .insert(&db)
+    .unwrap();
+    eprintln!("Resizing image {}...", entry_name);
     image::open(entry.path())
       .unwrap()
       .resize(1600, 1600, FilterType::Nearest)
