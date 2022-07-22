@@ -1,6 +1,6 @@
 # Eye
 
-Boilerplate taken from https://github.com/clifinger/canduma.
+Personal self-hosted website aimed to be run on an Olimex Board.
 
 ## Install
 
@@ -43,3 +43,7 @@ Run this in your browser
   return output
 })()
 ```
+
+## Acknowledgments
+
+- https://github.com/clifinger/canduma: Rust Boilerplate
