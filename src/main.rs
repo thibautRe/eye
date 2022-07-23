@@ -16,10 +16,8 @@ use std::path::Path;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use chrono::NaiveDateTime;
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::Pool;
-use diesel::{insert_into, RunQueryDsl};
 use image::imageops::FilterType;
 use jwt::JwtKey;
 use walkdir::WalkDir;
@@ -93,6 +91,7 @@ async fn start_server(args: ServeArgs, pool: Pool) -> CommandReturn {
     App::new()
       .app_data(Data::new(pool.clone()))
       .app_data(Data::new(jwt_key.clone()))
+      .app_data(Data::new(args.clone()))
       .wrap(Logger::default())
       .configure(api::api_service)
   })

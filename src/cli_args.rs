@@ -33,6 +33,11 @@ pub struct ServeArgs {
   /// JWT secret
   #[clap(long, env = "JWT_SECRET")]
   pub jwt_secret: String,
+
+  /// Prevent any JWT check from running
+  /// Can be useful to generate JWT tokens using the secret passed
+  #[clap(long)]
+  pub unsafe_no_jwt_checks: bool,
 }
 
 #[derive(Args, Debug, Clone)]

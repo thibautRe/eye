@@ -2,18 +2,24 @@ use actix_web::{get, web, HttpRequest, HttpResponse};
 use diesel::RunQueryDsl;
 
 use crate::{
+  cli_args::ServeArgs,
   database::{db_connection, Pool},
   errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::user::User,
 };
 
+type RouteResult = ServiceResult<HttpResponse>;
+
 #[get("/api/admin/jwt_gen")]
 async fn admin_jwt_gen_handler(
   jwt_key: web::Data<JwtKey>,
+  options: web::Data<ServeArgs>,
   req: HttpRequest,
-) -> ServiceResult<HttpResponse> {
+) -> RouteResult {
+  if !options.unsafe_no_jwt_checks {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  }
   let claim = Claims {
     user_id: 1,
     role: Role::Admin,
@@ -27,7 +33,7 @@ async fn admin_users_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
-) -> ServiceResult<HttpResponse> {
+) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let db_pool = db_connection(&pool)?;
   let users: Vec<User> = User::get_all().load(&db_pool)?;
