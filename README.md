@@ -25,6 +25,10 @@ Create a new migration:
 
 ```sh
 diesel migration generate <name-of-migration>
+# run migration
+diesel migration run
+# redo last migration
+diesel migration redo
 ```
 
 ## Generate a JWT secret
@@ -43,6 +47,9 @@ Run this in your browser
   return output
 })()
 ```
+
+Put the result in the `JWT_SECRET` env variable in `.env`.
+Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `localhost:3001/admin/jwt_gen#force-admin` to get a valid admin JWT.
 
 ## Acknowledgments
 
