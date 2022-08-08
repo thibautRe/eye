@@ -1,5 +1,6 @@
 import clipboardCopy from "clipboard-copy"
 import { VoidComponent } from "solid-js"
+import { updateIdentityX } from "../../providers/Identity"
 import { CopyableButton } from "../Admin/Buttons"
 import { Box } from "../Box/Box"
 import { Stack } from "../Stack/Stack"
@@ -21,7 +22,10 @@ export const Jwt: VoidComponent<JwtProps> = p => {
         <Box fgColor="amber12">{p => <span {...p}>{jwtp2()}</span>}</Box>.
         <Box fgColor="amber11">{p => <span {...p}>{jwtp3()}</span>}</Box>
       </T>
-      <CopyableButton onCopy={() => clipboardCopy(p.jwt)} />
+      <Stack d="v" dist="xxs">
+        <CopyableButton onCopy={() => clipboardCopy(p.jwt)} />
+        <button onClick={() => updateIdentityX(p.jwt)}>Use</button>
+      </Stack>
     </Stack>
   )
 }

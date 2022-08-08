@@ -49,7 +49,7 @@ Run this in your browser
 ```
 
 Put the result in the `JWT_SECRET` env variable in `.env`.
-Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `localhost:3001/admin/jwt_gen#force-admin` to get a valid admin JWT.
+Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `localhost:5750/admin/jwt_gen#force-admin` to get a valid admin JWT and hit the "use" button. You can then restart the cargo server without the flag.
 
 ## Acknowledgments
 

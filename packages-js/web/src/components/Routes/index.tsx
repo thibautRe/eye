@@ -5,11 +5,14 @@ import { withAdminFence } from "../AdminFence"
 export const routes = {
   Root: "/",
 
+  Pictures: "/pictures",
+
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
   AdminJwtGen: "/admin/jwt_gen",
 }
 
+const Pictures = lazy(() => import("./Pictures"))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGen")))
 
@@ -19,6 +22,7 @@ const r = (href: string) => () => <Navigate href={href} />
 export const AppRoutes = () => (
   <Routes>
     <Route path={routes.Root} component={() => <h1>Home</h1>} />
+    <Route path={routes.Pictures} component={Pictures} />
     <Route
       path={routes.AdminRoot}
       component={withAdminFence(r(routes.AdminUsers))}

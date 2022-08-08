@@ -25,6 +25,17 @@ export const isAdmin = () => {
   return u.type === "known" && u.jwt.role === "admin"
 }
 
+export const updateIdentityX = (tk: string) => {
+  const parsedJwt = toJWT(tk)
+  if (parsedJwt.ok) {
+    localStorage.setItem(LSKeys.JWT, tk)
+    setApiClientJwt(tk)
+    setUser({ type: "known", jwt: parsedJwt.jwt })
+  } else {
+    throw new Error(`Cannot parse JWT: ${parsedJwt.msg}`)
+  }
+}
+
 export const initIdentity = () => {
   const url = new URL(window.location.href)
   const hashParams = new URLSearchParams(url.hash.slice(1))
@@ -32,16 +43,7 @@ export const initIdentity = () => {
   if (tk) {
     hashParams.delete("tk")
     window.location.hash = hashParams.toString()
-
-    const parsedJwt = toJWT(tk)
-    if (parsedJwt.ok) {
-      localStorage.setItem(LSKeys.JWT, tk)
-      setApiClientJwt(tk)
-      setUser({ type: "known", jwt: parsedJwt.jwt })
-    } else {
-      throw new Error(`Cannot authenticate user: ${parsedJwt.msg}`)
-    }
-
+    updateIdentityX(tk)
     return
   }
 

@@ -13,6 +13,16 @@ table! {
 }
 
 table! {
+    picture_sizes (id) {
+        id -> Int4,
+        picture_id -> Int4,
+        file_path -> Text,
+        height -> Int4,
+        width -> Int4,
+    }
+}
+
+table! {
     pictures (id) {
         id -> Int4,
         name -> Nullable<Text>,
@@ -25,6 +35,11 @@ table! {
         shot_with_exposure_time -> Nullable<Varchar>,
         shot_with_iso -> Nullable<Int4>,
         uploaded_at -> Timestamp,
+        original_width -> Int4,
+        original_height -> Int4,
+        thumbnail_base64 -> Text,
+        original_file_path -> Text,
+        alt -> Text,
     }
 }
 
@@ -38,8 +53,15 @@ table! {
     }
 }
 
+joinable!(picture_sizes -> pictures (picture_id));
 joinable!(pictures -> camera_bodies (shot_by_camera_body_id));
 joinable!(pictures -> camera_lenses (shot_by_camera_lens_id));
 joinable!(pictures -> users (shot_by_user_id));
 
-allow_tables_to_appear_in_same_query!(camera_bodies, camera_lenses, pictures, users,);
+allow_tables_to_appear_in_same_query!(
+    camera_bodies,
+    camera_lenses,
+    picture_sizes,
+    pictures,
+    users,
+);

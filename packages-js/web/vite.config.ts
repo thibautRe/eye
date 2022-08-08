@@ -8,5 +8,8 @@ export default defineConfig({
     target: "esnext",
     polyfillDynamicImport: false,
   },
-  server: { proxy: { "/api": { target: "http://localhost:5748" } } },
+  server: {
+    proxy: { "/api": { target: "http://localhost:5748" } },
+    port: 5750,
+  },
 })
