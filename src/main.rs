@@ -69,20 +69,20 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     let dyn_img = image::open(entry.path()).unwrap();
     let pic = PictureInsert {
       name: Some(entry_name.into()),
-      shot_at: None,
-      shot_by_user_id: None,
-      shot_by_camera_body_id: None,
-      shot_by_camera_lens_id: None,
-      shot_with_aperture: None,
-      shot_with_focal_length: None,
-      shot_with_exposure_time: None,
-      shot_with_iso: None,
       uploaded_at: chrono::Local::now().naive_local(),
       original_file_path: entry.path().to_str().unwrap().into(),
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
-      thumbnail_base64: "".into(), // TODO
-      alt: "".into(),              // TODO
+      shot_at: None,                 // TODO
+      shot_by_user_id: None,         // TODO
+      shot_by_camera_body_id: None,  // TODO
+      shot_by_camera_lens_id: None,  // TODO
+      shot_with_aperture: None,      // TODO
+      shot_with_focal_length: None,  // TODO
+      shot_with_exposure_time: None, // TODO
+      shot_with_iso: None,           // TODO
+      thumbnail_base64: "".into(),   // TODO
+      alt: "".into(),                // TODO
     }
     .insert(&db)
     .unwrap();
