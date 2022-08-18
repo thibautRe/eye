@@ -1,1 +1,1 @@
-export * from "./PictureElement"
+export * from "./PictureComponent"
