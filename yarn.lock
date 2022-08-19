@@ -455,6 +455,7 @@ __metadata:
     "@vanilla-extract/css": ^1.7.2
     "@vanilla-extract/dynamic": ^2.0.2
     "@vanilla-extract/vite-plugin": ^3.2.1
+    blurhash: ^1.1.5
     clipboard-copy: ^4.0.1
     funtypes: ^5.0.3
     jwt-decode: ^3.1.2
@@ -660,6 +661,13 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 9706c088a283058a8a99e0bf91b0a2f75497f185980d9ffa8b304de1d9e58ebda7c72c07ebf01dadedaac5b2907b2c6f566f660d62bd336c3468e960403b9d65
+  languageName: node
+  linkType: hard
+
+"blurhash@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "blurhash@npm:1.1.5"
+  checksum: 8a647024948552e7250d4f123a0dc2a56941be476811c1c999b182cde01e6e15cc6938a8c523f1a2fea8c0dc12c1fffc1cf2001b86683e196bed03e88e176af2
   languageName: node
   linkType: hard
 

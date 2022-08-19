@@ -5,7 +5,7 @@ ADD
 ADD
   COLUMN original_height INT NOT NULL,
 ADD
-  COLUMN thumbnail_base64 TEXT NOT NULL,
+  COLUMN blurhash TEXT NOT NULL,
 ADD
   COLUMN original_file_path TEXT NOT NULL,
 ADD

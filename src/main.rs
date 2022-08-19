@@ -16,7 +16,7 @@ use std::path::Path;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::{Pool, PooledConnection};
-use image::{imageops::FilterType, DynamicImage, ImageError};
+use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageError};
 use jwt::JwtKey;
 use models::{
   picture::{Picture, PictureInsert},
@@ -67,12 +67,14 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
   {
     let entry_name = entry.file_name().to_str().unwrap();
     let dyn_img = image::open(entry.path()).unwrap();
+
     let pic = PictureInsert {
       name: Some(entry_name.into()),
       uploaded_at: chrono::Local::now().naive_local(),
       original_file_path: entry.path().to_str().unwrap().into(),
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
+      blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
       shot_at: None,                 // TODO
       shot_by_user_id: None,         // TODO
       shot_by_camera_body_id: None,  // TODO
@@ -81,20 +83,25 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       shot_with_focal_length: None,  // TODO
       shot_with_exposure_time: None, // TODO
       shot_with_iso: None,           // TODO
-      thumbnail_base64: "".into(),   // TODO
       alt: "".into(),                // TODO
     }
     .insert(&db)
     .unwrap();
 
+    create_subsize_picture(&pic, &dyn_img, 2500, Path::new(&args.cache_path), &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 1600, Path::new(&args.cache_path), &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 900, Path::new(&args.cache_path), &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 600, Path::new(&args.cache_path), &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 320, Path::new(&args.cache_path), &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 100, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 20, Path::new(&args.cache_path), &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 50, Path::new(&args.cache_path), &db).unwrap();
   }
   Ok(())
+}
+
+fn create_blurhash(img: DynamicImage) -> String {
+  let (width, height) = img.dimensions();
+  blurhash::encode(4, 3, width, height, &img.to_rgba8())
 }
 
 fn create_subsize_picture(

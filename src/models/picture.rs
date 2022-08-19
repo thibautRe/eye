@@ -19,7 +19,7 @@ pub struct Picture {
   pub uploaded_at: NaiveDateTime,
   pub original_width: i32,
   pub original_height: i32,
-  pub thumbnail_base64: String,
+  pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
 }
@@ -39,7 +39,7 @@ pub struct PictureInsert {
   pub uploaded_at: NaiveDateTime,
   pub original_width: i32,
   pub original_height: i32,
-  pub thumbnail_base64: String,
+  pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
 }
@@ -48,8 +48,10 @@ pub struct PictureInsert {
 pub struct PictureApiFull {
   pub id: i32,
   pub name: Option<String>,
+  pub width: i32,
+  pub height: i32,
   pub alt: String,
-  pub thumb: String,
+  pub blurhash: String,
   pub sizes: Vec<PictureSizeApi>,
 }
 
@@ -66,9 +68,11 @@ impl Picture {
   pub fn into_api_full(self, sizes: Vec<PictureSize>) -> PictureApiFull {
     PictureApiFull {
       id: self.id,
+      height: self.original_height,
+      width: self.original_width,
       alt: self.alt,
       name: self.name,
-      thumb: "".into(),
+      blurhash: self.blurhash,
       sizes: sizes.into_iter().map(|f| PictureSizeApi::from(f)).collect(),
     }
   }

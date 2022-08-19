@@ -1,6 +1,6 @@
 import { createResource, For } from "solid-js"
 import { apiGetPictures } from "../../../api"
-import { PictureComponent } from "../../Picture"
+import { Picture } from "../../Picture"
 import { Stack } from "../../Stack/Stack"
 
 export default () => {
@@ -9,12 +9,8 @@ export default () => {
     <Stack d="v">
       <For each={picturesRes()}>
         {picture => (
-          <Stack d="v" fgColor="g10">
-            <PictureComponent
-              picture={picture}
-              sizes="50vw"
-              style={{ width: "50vw" }}
-            />
+          <Stack d="v" fgColor="g10" style={{ width: "50vw" }}>
+            <Picture picture={picture} sizes="50vw" />
             <span>{picture.name}</span>
           </Stack>
         )}

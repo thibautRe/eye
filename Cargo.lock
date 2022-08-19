@@ -308,6 +308,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "blurhash"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8671e4c8bf59f8784aa27fe4c8e152f2a45dfeb91a52d114e5d104a451494bb4"
+
+[[package]]
 name = "brotli"
 version = "3.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -650,6 +656,7 @@ version = "0.1.0"
 dependencies = [
  "actix-files",
  "actix-web",
+ "blurhash",
  "chrono",
  "clap",
  "diesel",

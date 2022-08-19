@@ -37,7 +37,7 @@ table! {
         uploaded_at -> Timestamp,
         original_width -> Int4,
         original_height -> Int4,
-        thumbnail_base64 -> Text,
+        blurhash -> Text,
         original_file_path -> Text,
         alt -> Text,
     }
