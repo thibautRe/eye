@@ -10,14 +10,13 @@ export interface AspectRatioProps {
   /** width / height */
   aspectRatio: number
 }
-export const AspectRatio: ParentComponent<AspectRatioProps> = ({
-  aspectRatio,
-  children,
-}) => (
+export const AspectRatio: ParentComponent<AspectRatioProps> = props => (
   <div
     class={aspectRatioC}
-    style={assignInlineVars({ [aspectRatioVar]: `${100 / aspectRatio}%` })}
+    style={assignInlineVars({
+      [aspectRatioVar]: `${100 / props.aspectRatio}%`,
+    })}
   >
-    <div class={aspectRatioInnerC}>{children}</div>
+    <div class={aspectRatioInnerC}>{props.children}</div>
   </div>
 )
