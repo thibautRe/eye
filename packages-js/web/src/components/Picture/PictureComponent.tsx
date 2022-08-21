@@ -38,7 +38,12 @@ export const Picture: VoidComponent<PictureComponentProps> = props => {
   const blurhash = () => local.picture.blurhash
   return (
     <AspectRatio aspectRatio={local.picture.width / local.picture.height}>
-      <PictureBlurhash blurhash={blurhash()} class={pictureComponentBlurhash} />
+      <Show when={!isLoaded()}>
+        <PictureBlurhash
+          blurhash={blurhash()}
+          class={pictureComponentBlurhash}
+        />
+      </Show>
       <PictureComponent
         picture={local.picture}
         onload={() => setIsLoaded(true)}
