@@ -11,7 +11,7 @@ mod jwt;
 mod models;
 mod schema;
 
-use std::{path::Path, str::FromStr};
+use std::path::Path;
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
