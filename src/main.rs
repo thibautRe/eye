@@ -7,6 +7,7 @@ mod api;
 mod cli_args;
 mod database;
 mod errors;
+mod exif_helpers;
 mod jwt;
 mod models;
 mod schema;
@@ -17,6 +18,7 @@ use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::{Pool, PooledConnection};
 use diesel::RunQueryDsl;
+use exif_helpers::*;
 use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageError};
 use jwt::JwtKey;
 use models::{
@@ -94,57 +96,14 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
 
-      // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
-      shot_by_camera_lens_id: exif
-        .get_field(exif::Tag::LensModel, exif::In::PRIMARY)
-        .map(|f| match f.value {
-          exif::Value::Ascii(ref v) => lenses_by_name
-            .get(std::str::from_utf8(&v[0]).unwrap())
-            .map(|lens| lens.id),
-          _ => None,
-        })
+      shot_by_camera_lens_id: get_shot_by_camera_lens_name(&exif)
+        .map(|name| lenses_by_name.get(name).map(|lens| lens.id))
         .flatten(),
-      shot_at: exif
-        .get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY)
-        .map(|f| match f.value {
-          exif::Value::Ascii(ref v) => exif::DateTime::from_ascii(&v[0]).ok().map(|dt| {
-            chrono::NaiveDate::from_ymd(dt.year as i32, dt.month as u32, dt.day as u32).and_hms(
-              dt.hour as u32,
-              dt.minute as u32,
-              dt.second as u32,
-            )
-          }),
-          _ => None,
-        })
-        .flatten(),
-      shot_with_aperture: exif
-        .get_field(exif::Tag::FNumber, exif::In::PRIMARY)
-        .map(|ref f| match f.value {
-          exif::Value::Rational(ref v) => Some(v[0].to_f64().to_string()),
-          _ => None,
-        })
-        .flatten(),
-      shot_with_focal_length: exif
-        .get_field(exif::Tag::FocalLength, exif::In::PRIMARY)
-        .map(|f| match f.value {
-          exif::Value::Rational(ref v) => Some(v[0].to_f64() as i32),
-          _ => None,
-        })
-        .flatten(),
-      shot_with_exposure_time: exif
-        .get_field(exif::Tag::ExposureTime, exif::In::PRIMARY)
-        .map(|f| match f.value {
-          exif::Value::Rational(ref v) => Some(v[0].to_f64().to_string()),
-          _ => None,
-        })
-        .flatten(),
-      shot_with_iso: exif
-        .get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY)
-        .map(|f| match f.value {
-          exif::Value::Short(ref v) => Some(v[0] as i32),
-          _ => None,
-        })
-        .flatten(),
+      shot_at: get_shot_at(&exif),
+      shot_with_aperture: get_shot_with_fstop(&exif),
+      shot_with_focal_length: get_shot_with_focal_length(&exif),
+      shot_with_exposure_time: get_shot_with_exposure_time(&exif),
+      shot_with_iso: get_shot_with_iso(&exif),
     }
     .insert(&db)
     .unwrap();
