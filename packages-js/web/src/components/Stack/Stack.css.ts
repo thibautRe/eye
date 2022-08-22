@@ -6,6 +6,7 @@ import {
 } from "@vanilla-extract/css"
 
 export const stack = style({ display: "flex" }, "stack")
+export const stackWrap = style({ flexWrap: "wrap" })
 
 export const stackD = styleVariants({
   h: { flexDirection: "row" },

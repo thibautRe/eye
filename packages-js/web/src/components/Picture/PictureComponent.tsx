@@ -13,14 +13,14 @@ const makeSrcset = (p: PictureApi) => p.sizes.map(makeSizeSrc).join(",")
 const getFallbackSrc = (p: PictureApi) =>
   p.sizes.slice().sort((s1, s2) => s2.width - s1.width)[0]?.url
 
-export interface PictureComponentProps
+interface ImgComponentProps
   extends Omit<
     JSX.ImgHTMLAttributes<HTMLImageElement>,
     "alt" | "src" | "srcset"
   > {
   picture: PictureApi
 }
-export const PictureComponent: VoidComponent<PictureComponentProps> = props => {
+const ImgComponent: VoidComponent<ImgComponentProps> = props => {
   const [local, rest] = splitProps(props, ["picture"])
   return (
     <img
@@ -32,7 +32,9 @@ export const PictureComponent: VoidComponent<PictureComponentProps> = props => {
   )
 }
 
-export const Picture: VoidComponent<PictureComponentProps> = props => {
+export interface PictureProps
+  extends Omit<ImgComponentProps, "onload" | "style" | "class" | "classList"> {}
+export const Picture: VoidComponent<PictureProps> = props => {
   const [local, rest] = splitProps(props, ["picture"])
   const [isLoaded, setIsLoaded] = createSignal(false)
   const blurhash = () => local.picture.blurhash
@@ -44,9 +46,10 @@ export const Picture: VoidComponent<PictureComponentProps> = props => {
           class={pictureComponentBlurhash}
         />
       </Show>
-      <PictureComponent
+      <ImgComponent
         picture={local.picture}
         onload={() => setIsLoaded(true)}
+        style={{ opacity: isLoaded() ? 1 : 0.01 }}
         class={pictureComponent}
         {...rest}
       />

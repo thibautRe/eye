@@ -9,7 +9,15 @@ import {
 import { mergeStyle } from "../../utils/mergeStyle"
 import { Box, BoxProps } from "../Box/Box"
 import { ThemeSpaceKey, vars } from "../Styles/theme.css"
-import { stack, stackD, stackA, stackJ, stackDepth, distVar } from "./Stack.css"
+import {
+  stack,
+  stackD,
+  stackA,
+  stackJ,
+  stackDepth,
+  stackWrap,
+  distVar,
+} from "./Stack.css"
 
 /**
  * In order to avoid issues with CSS variables in trees of Stacks,
@@ -27,11 +35,13 @@ export interface StackOwnProps {
   a?: "start" | "center" | "end"
   /** justify-content */
   j?: "start" | "center" | "end"
+  /** flex-wrap */
+  wrap?: boolean
 }
 export interface StackProps extends StackOwnProps, BoxProps {}
 export const Stack: Component<StackProps> = p => {
   const props = mergeProps(
-    { d: "h", dist: "0", a: "start", j: "start" } as const,
+    { d: "h", dist: "0", a: "start", j: "start", wrap: false } as const,
     p,
   )
   const [local, rest] = splitProps(props, [
@@ -39,6 +49,7 @@ export const Stack: Component<StackProps> = p => {
     "dist",
     "a",
     "j",
+    "wrap",
     "classList",
     "style",
   ])
@@ -50,6 +61,7 @@ export const Stack: Component<StackProps> = p => {
         {...rest}
         classList={{
           [stack]: true,
+          [stackWrap]: local.wrap,
           [stackD[local.d]]: true,
           [stackA[local.a]]: true,
           [stackJ[local.j]]: true,
