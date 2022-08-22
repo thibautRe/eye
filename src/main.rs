@@ -83,8 +83,6 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       .read_from_container(&mut bufreader)
       .expect("Cannot parse EXIF data");
 
-    // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
-
     let pic = PictureInsert {
       name: Some(entry_name.into()),
       uploaded_at: chrono::Local::now().naive_local(),
@@ -92,8 +90,11 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
+      alt: "".into(),
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
+
+      // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
       shot_by_camera_lens_id: exif
         .get_field(exif::Tag::LensModel, exif::In::PRIMARY)
         .map(|f| match f.value {
@@ -144,7 +145,6 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
           _ => None,
         })
         .flatten(),
-      alt: "".into(),
     }
     .insert(&db)
     .unwrap();
