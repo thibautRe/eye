@@ -7,7 +7,7 @@ import {
   pictureComponentBlurhash,
 } from "./PictureComponent.css"
 
-const makeSizeSrc = (size: PictureSizeApi) => `${size.url} ${size.width / 2}w`
+const makeSizeSrc = (size: PictureSizeApi) => `${size.url} ${size.width}w`
 const makeSrcset = (p: PictureApi) => p.sizes.map(makeSizeSrc).join(",")
 
 const getFallbackSrc = (p: PictureApi) =>
