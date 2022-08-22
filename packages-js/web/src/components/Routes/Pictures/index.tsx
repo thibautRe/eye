@@ -1,6 +1,6 @@
 import { createResource, For } from "solid-js"
 import { apiGetPictures } from "../../../api"
-import { Picture } from "../../Picture"
+import { Picture, PictureMetadata } from "../../Picture"
 import { Stack } from "../../Stack/Stack"
 
 export default () => {
@@ -11,7 +11,10 @@ export default () => {
         {picture => (
           <Stack d="v" fgColor="g10" style={{ width: "50vw" }}>
             <Picture picture={picture} sizes="50vw" />
-            <span>{picture.name}</span>
+            <Stack dist="s">
+              <span>{picture.name}</span>
+              <PictureMetadata picture={picture} />
+            </Stack>
           </Stack>
         )}
       </For>

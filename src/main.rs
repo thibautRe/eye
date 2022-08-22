@@ -68,6 +68,19 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     let entry_name = entry.file_name().to_str().unwrap();
     let dyn_img = image::open(entry.path()).unwrap();
 
+    let file = std::fs::File::open(entry.path())?;
+    let mut bufreader = std::io::BufReader::new(&file);
+    let exif = exif::Reader::new()
+      .read_from_container(&mut bufreader)
+      .expect("Cannot parse EXIF data");
+
+    println!(
+      "PhotographicSensitivity: {:?}",
+      exif.get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY)
+    );
+
+    // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
+
     let pic = PictureInsert {
       name: Some(entry_name.into()),
       uploaded_at: chrono::Local::now().naive_local(),
@@ -75,15 +88,39 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
-      shot_at: None,                 // TODO
-      shot_by_user_id: None,         // TODO
-      shot_by_camera_body_id: None,  // TODO
-      shot_by_camera_lens_id: None,  // TODO
-      shot_with_aperture: None,      // TODO
-      shot_with_focal_length: None,  // TODO
-      shot_with_exposure_time: None, // TODO
-      shot_with_iso: None,           // TODO
-      alt: "".into(),                // TODO
+      shot_at: None,                // TODO
+      shot_by_user_id: None,        // TODO
+      shot_by_camera_body_id: None, // TODO
+      shot_by_camera_lens_id: None, // TODO
+      shot_with_aperture: exif
+        .get_field(exif::Tag::FNumber, exif::In::PRIMARY)
+        .map(|ref f| match f.value {
+          exif::Value::Rational(ref v) => Some(v[0].to_f64().to_string()),
+          _ => None,
+        })
+        .flatten(),
+      shot_with_focal_length: exif
+        .get_field(exif::Tag::FocalLength, exif::In::PRIMARY)
+        .map(|f| match f.value {
+          exif::Value::Rational(ref v) => Some(v[0].to_f64() as i32),
+          _ => None,
+        })
+        .flatten(),
+      shot_with_exposure_time: exif
+        .get_field(exif::Tag::ExposureTime, exif::In::PRIMARY)
+        .map(|f| match f.value {
+          exif::Value::Rational(ref v) => Some(v[0].to_f64().to_string()),
+          _ => None,
+        })
+        .flatten(),
+      shot_with_iso: exif
+        .get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY)
+        .map(|f| match f.value {
+          exif::Value::Short(ref v) => Some(v[0] as i32),
+          _ => None,
+        })
+        .flatten(),
+      alt: "".into(),
     }
     .insert(&db)
     .unwrap();

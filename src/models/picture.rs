@@ -45,6 +45,7 @@ pub struct PictureInsert {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PictureApiFull {
   pub id: i32,
   pub name: Option<String>,
@@ -53,6 +54,11 @@ pub struct PictureApiFull {
   pub alt: String,
   pub blurhash: String,
   pub sizes: Vec<PictureSizeApi>,
+
+  pub shot_with_aperture: Option<String>,
+  pub shot_with_focal_length: Option<i32>,
+  pub shot_with_exposure_time: Option<String>,
+  pub shot_with_iso: Option<i32>,
 }
 
 impl Picture {
@@ -74,6 +80,11 @@ impl Picture {
       name: self.name,
       blurhash: self.blurhash,
       sizes: sizes.into_iter().map(|f| PictureSizeApi::from(f)).collect(),
+
+      shot_with_aperture: self.shot_with_aperture,
+      shot_with_exposure_time: self.shot_with_exposure_time,
+      shot_with_focal_length: self.shot_with_focal_length,
+      shot_with_iso: self.shot_with_iso,
     }
   }
 }
