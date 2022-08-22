@@ -1,4 +1,4 @@
-import { PictureApi } from "../types/picture"
+import { parsePicture, PictureApi } from "../types/picture"
 import { User } from "../types/user"
 import { apiClientHeaders as headers } from "./client"
 
@@ -21,7 +21,8 @@ const get = async (route: string) =>
 const get_json = async <T = unknown>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
 
-export const apiGetPictures = () => get_json<PictureApi[]>(routes.pictures)
+export const apiGetPictures = () =>
+  get_json<PictureApi[]>(routes.pictures).then(r => r.map(parsePicture))
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
 export const apiAdminJwtGen = async () =>
   await (await get(routes.adminJwtGen)).text()

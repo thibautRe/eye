@@ -35,21 +35,30 @@ export const PictureFocalLength: PictureMetadataComponent = props => (
     <span>{props.picture.shotWithFocalLength}mm</span>
   </Show>
 )
+export const PictureShotAt: PictureMetadataComponent = props => (
+  <Show when={props.picture.shotAt}>
+    {shotAt => <span>{shotAt.toString()}</span>}
+  </Show>
+)
 
 export const PictureMetadata: PictureMetadataComponent = props => (
   <Show
     when={
+      props.picture.shotAt ||
       props.picture.shotWithIso ||
       props.picture.shotWithAperture ||
       props.picture.shotWithExposureTime ||
       props.picture.shotWithFocalLength
     }
   >
-    <Stack dist="xs">
-      <PictureIso picture={props.picture} />
-      <PictureAperture picture={props.picture} />
-      <PictureFocalLength picture={props.picture} />
-      <PictureExposure picture={props.picture} />
+    <Stack d="v" dist="xs">
+      <Stack dist="xs">
+        <PictureIso picture={props.picture} />
+        <PictureAperture picture={props.picture} />
+        <PictureFocalLength picture={props.picture} />
+        <PictureExposure picture={props.picture} />
+      </Stack>
+      <PictureShotAt picture={props.picture} />
     </Stack>
   </Show>
 )

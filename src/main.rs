@@ -11,7 +11,7 @@ mod jwt;
 mod models;
 mod schema;
 
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
@@ -74,11 +74,6 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       .read_from_container(&mut bufreader)
       .expect("Cannot parse EXIF data");
 
-    println!(
-      "PhotographicSensitivity: {:?}",
-      exif.get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY)
-    );
-
     // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
 
     let pic = PictureInsert {
@@ -88,10 +83,22 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
-      shot_at: None,                // TODO
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
       shot_by_camera_lens_id: None, // TODO
+      shot_at: exif
+        .get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY)
+        .map(|f| match f.value {
+          exif::Value::Ascii(ref v) => exif::DateTime::from_ascii(&v[0]).ok().map(|dt| {
+            chrono::NaiveDate::from_ymd(dt.year as i32, dt.month as u32, dt.day as u32).and_hms(
+              dt.hour as u32,
+              dt.minute as u32,
+              dt.second as u32,
+            )
+          }),
+          _ => None,
+        })
+        .flatten(),
       shot_with_aperture: exif
         .get_field(exif::Tag::FNumber, exif::In::PRIMARY)
         .map(|ref f| match f.value {

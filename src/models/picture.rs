@@ -55,6 +55,7 @@ pub struct PictureApiFull {
   pub blurhash: String,
   pub sizes: Vec<PictureSizeApi>,
 
+  pub shot_at: Option<NaiveDateTime>,
   pub shot_with_aperture: Option<String>,
   pub shot_with_focal_length: Option<i32>,
   pub shot_with_exposure_time: Option<String>,
@@ -81,6 +82,7 @@ impl Picture {
       blurhash: self.blurhash,
       sizes: sizes.into_iter().map(|f| PictureSizeApi::from(f)).collect(),
 
+      shot_at: self.shot_at,
       shot_with_aperture: self.shot_with_aperture,
       shot_with_exposure_time: self.shot_with_exposure_time,
       shot_with_focal_length: self.shot_with_focal_length,

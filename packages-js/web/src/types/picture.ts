@@ -12,9 +12,15 @@ export interface PictureApi {
   blurhash: string
   sizes: PictureSizeApi[]
 
+  shotAt?: Date
   shotWithAperture?: string
   shotWithFocalLength?: number
   /** Exposure time in ms */
   shotWithExposureTime?: string
   shotWithIso?: number
 }
+
+export const parsePicture = (pic: PictureApi): PictureApi => ({
+  ...pic,
+  shotAt: pic.shotAt && new Date(pic.shotAt),
+})
