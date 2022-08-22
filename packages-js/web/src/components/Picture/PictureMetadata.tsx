@@ -7,6 +7,11 @@ export interface PictureMetadataProps {
 }
 type PictureMetadataComponent = VoidComponent<PictureMetadataProps>
 
+export const PictureName: PictureMetadataComponent = props => (
+  <Show when={props.picture.name}>
+    <strong>{props.picture.name}</strong>
+  </Show>
+)
 export const PictureIso: PictureMetadataComponent = props => (
   <Show when={props.picture.shotWithIso}>
     <span>ISO-{props.picture.shotWithIso}</span>
@@ -40,25 +45,22 @@ export const PictureShotAt: PictureMetadataComponent = props => (
     {shotAt => <span>{shotAt.toString()}</span>}
   </Show>
 )
+export const PictureCameraLens: PictureMetadataComponent = props => (
+  <Show when={props.picture.shotWithCameraLens}>
+    {lens => <span>{lens.name}</span>}
+  </Show>
+)
 
 export const PictureMetadata: PictureMetadataComponent = props => (
-  <Show
-    when={
-      props.picture.shotAt ||
-      props.picture.shotWithIso ||
-      props.picture.shotWithAperture ||
-      props.picture.shotWithExposureTime ||
-      props.picture.shotWithFocalLength
-    }
-  >
-    <Stack d="v" dist="xs">
-      <Stack dist="xs">
-        <PictureIso picture={props.picture} />
-        <PictureAperture picture={props.picture} />
-        <PictureFocalLength picture={props.picture} />
-        <PictureExposure picture={props.picture} />
-      </Stack>
-      <PictureShotAt picture={props.picture} />
+  <Stack d="v" dist="xs">
+    <PictureName picture={props.picture} />
+    <Stack dist="xs">
+      <PictureIso picture={props.picture} />
+      <PictureAperture picture={props.picture} />
+      <PictureFocalLength picture={props.picture} />
+      <PictureExposure picture={props.picture} />
     </Stack>
-  </Show>
+    <PictureShotAt picture={props.picture} />
+    <PictureCameraLens picture={props.picture} />
+  </Stack>
 )

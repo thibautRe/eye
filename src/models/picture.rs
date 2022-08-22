@@ -1,7 +1,10 @@
 use chrono::NaiveDateTime;
 use diesel::{dsl::*, prelude::*};
 
-use super::picture_size::{PictureSize, PictureSizeApi};
+use super::{
+  camera_lenses::CameraLens,
+  picture_size::{PictureSize, PictureSizeApi},
+};
 use crate::{database::PooledConnection, schema::pictures};
 
 #[derive(Debug, Queryable)]
@@ -55,6 +58,7 @@ pub struct PictureApiFull {
   pub blurhash: String,
   pub sizes: Vec<PictureSizeApi>,
 
+  pub shot_with_camera_lens: Option<CameraLens>,
   pub shot_at: Option<NaiveDateTime>,
   pub shot_with_aperture: Option<String>,
   pub shot_with_focal_length: Option<i32>,
@@ -72,7 +76,11 @@ impl Picture {
     Picture::all().filter(pictures::id.eq(id))
   }
 
-  pub fn into_api_full(self, sizes: Vec<PictureSize>) -> PictureApiFull {
+  pub fn into_api_full(
+    self,
+    sizes: Vec<PictureSize>,
+    shot_with_camera_lens: Option<CameraLens>,
+  ) -> PictureApiFull {
     PictureApiFull {
       id: self.id,
       height: self.original_height,
@@ -82,6 +90,7 @@ impl Picture {
       blurhash: self.blurhash,
       sizes: sizes.into_iter().map(|f| PictureSizeApi::from(f)).collect(),
 
+      shot_with_camera_lens,
       shot_at: self.shot_at,
       shot_with_aperture: self.shot_with_aperture,
       shot_with_exposure_time: self.shot_with_exposure_time,

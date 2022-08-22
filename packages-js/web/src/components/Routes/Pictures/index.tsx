@@ -11,10 +11,7 @@ export default () => {
         {picture => (
           <Stack d="v" fgColor="g10" style={{ width: "30%" }}>
             <Picture picture={picture} sizes="28vw" />
-            <Stack dist="s">
-              <span>{picture.name}</span>
-              <PictureMetadata picture={picture} />
-            </Stack>
+            <PictureMetadata picture={picture} />
           </Stack>
         )}
       </For>

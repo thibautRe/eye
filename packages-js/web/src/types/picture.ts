@@ -3,6 +3,10 @@ export interface PictureSizeApi {
   height: number
   url: string
 }
+export interface CameraLens {
+  id: number
+  name: string
+}
 export interface PictureApi {
   id: number
   width: number
@@ -12,6 +16,7 @@ export interface PictureApi {
   blurhash: string
   sizes: PictureSizeApi[]
 
+  shotWithCameraLens?: CameraLens
   shotAt?: Date
   shotWithAperture?: string
   shotWithFocalLength?: number

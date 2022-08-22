@@ -7,11 +7,12 @@ use crate::{
   errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::{
+    camera_lenses::CameraLens,
     picture::{Picture, PictureApiFull},
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
   },
-  schema::picture_sizes,
+  schema::{camera_lenses, picture_sizes},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
@@ -53,12 +54,13 @@ async fn pictures_handler(
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?;
   let db_pool = db_connection(&pool)?;
-  let pictures_db: Vec<(Picture, Option<PictureSize>)> = Picture::all()
+  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> = Picture::all()
+    .left_join(camera_lenses::table)
     .left_join(picture_sizes::table)
     .load(&db_pool)?;
 
   let mut pictures_api: Vec<PictureApiFull> = Vec::new();
-  for (picture, size) in pictures_db.into_iter() {
+  for (picture, lens, size) in pictures_db.into_iter() {
     let prev_index = { pictures_api.len() };
     let prev_pic_api = match prev_index {
       0 => None,
@@ -71,10 +73,10 @@ async fn pictures_handler(
         let s = size_vec[0].clone();
         prev_pic.sizes.push(PictureSizeApi::from(s));
       } else {
-        pictures_api.push(picture.into_api_full(size_vec));
+        pictures_api.push(picture.into_api_full(size_vec, lens));
       }
     } else {
-      pictures_api.push(picture.into_api_full(size_vec));
+      pictures_api.push(picture.into_api_full(size_vec, lens));
     }
   }
 
