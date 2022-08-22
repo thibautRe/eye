@@ -11,14 +11,16 @@ mod jwt;
 mod models;
 mod schema;
 
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::{Pool, PooledConnection};
+use diesel::RunQueryDsl;
 use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageError};
 use jwt::JwtKey;
 use models::{
+  camera_lenses::CameraLens,
   picture::{Picture, PictureInsert},
   picture_size::PictureSizeInsert,
 };
@@ -59,6 +61,13 @@ fn is_picture_file(file: &walkdir::DirEntry) -> bool {
 
 fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
   let db = database::db_connection(&pool).unwrap();
+
+  let lenses = CameraLens::all().load::<CameraLens>(&db).unwrap();
+  let lenses_by_name: HashMap<String, CameraLens> = lenses
+    .into_iter()
+    .map(|lens| (lens.name.clone(), lens))
+    .collect();
+
   for entry in WalkDir::new(args.extract_from)
     .follow_links(true)
     .into_iter()
@@ -85,7 +94,15 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
-      shot_by_camera_lens_id: None, // TODO
+      shot_by_camera_lens_id: exif
+        .get_field(exif::Tag::LensModel, exif::In::PRIMARY)
+        .map(|f| match f.value {
+          exif::Value::Ascii(ref v) => lenses_by_name
+            .get(std::str::from_utf8(&v[0]).unwrap())
+            .map(|lens| lens.id),
+          _ => None,
+        })
+        .flatten(),
       shot_at: exif
         .get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY)
         .map(|f| match f.value {
@@ -132,13 +149,13 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     .insert(&db)
     .unwrap();
 
-    create_subsize_picture(&pic, &dyn_img, 2500, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 1600, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 900, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 600, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 320, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 100, Path::new(&args.cache_path), &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 50, Path::new(&args.cache_path), &db).unwrap();
+    let cache_path = Path::new(&args.cache_path);
+    create_subsize_picture(&pic, &dyn_img, 1600, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 900, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 600, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 320, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 100, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 50, cache_path, &db).unwrap();
   }
   Ok(())
 }
