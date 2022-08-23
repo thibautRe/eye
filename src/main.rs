@@ -78,12 +78,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
   {
     let entry_name = entry.file_name().to_str().unwrap();
     let dyn_img = image::open(entry.path()).unwrap();
-
-    let file = std::fs::File::open(entry.path())?;
-    let mut bufreader = std::io::BufReader::new(&file);
-    let exif = exif::Reader::new()
-      .read_from_container(&mut bufreader)
-      .expect("Cannot parse EXIF data");
+    let exif = get_exif(&std::fs::File::open(entry.path())?);
 
     let pic = PictureInsert {
       name: Some(entry_name.into()),

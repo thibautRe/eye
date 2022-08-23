@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "solid-app-router"
 import { lazy } from "solid-js"
-import { withAdminFence } from "../AdminFence"
+import { withAdminFence } from "../AuthFence"
 
 export const routes = {
   Root: "/",

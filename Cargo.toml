@@ -24,6 +24,6 @@ shrinkwraprs = "0.2"
 clap = { version = "3.0", features = ["derive", "env"] }
 regex = "1"
 walkdir = "2"
-image = "0.24.2"
+image = "0.24.3"
 kamadak-exif = "0.5.4"
 rand = "0.8.5"

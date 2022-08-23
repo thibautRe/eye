@@ -20,3 +20,17 @@ CREATE TABLE picture_sizes (
   height INT NOT NULL,
   width INT NOT NULL
 );
+
+CREATE TABLE tags (
+  id SERIAL NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  UNIQUE(name)
+);
+
+CREATE TABLE picture_tags (
+  id SERIAL NOT NULL PRIMARY KEY,
+  picture_id INT NOT NULL REFERENCES pictures(id),
+  tag_id INT NOT NULL REFERENCES tags(id),
+  UNIQUE(picture_id, tag_id)
+)

@@ -1,5 +1,14 @@
+use std::fs::File;
+
 // See https://exiftool.org/TagNames/EXIF.html for EXIF format info
 use exif::{Exif, In, Tag, Value};
+
+pub fn get_exif(file: &File) -> Exif {
+  let mut bufreader = std::io::BufReader::new(file);
+  exif::Reader::new()
+    .read_from_container(&mut bufreader)
+    .expect("Cannot parse EXIF data")
+}
 
 pub fn get_shot_at(exif: &Exif) -> Option<chrono::NaiveDateTime> {
   exif
