@@ -26,9 +26,9 @@ Create a new migration:
 ```sh
 diesel migration generate <name-of-migration>
 # run migration
-diesel migration run
+yarn db:migrate
 # redo last migration
-diesel migration redo
+yarn db:migrate:redo
 ```
 
 ## Generate a JWT secret
