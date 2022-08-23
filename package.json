@@ -5,7 +5,11 @@
     "start": "yarn start:web",
     "start:rs": "cargo run",
     "start:web": "yarn web start",
-    "web": "yarn workspace @thibautre/eye-web"
+    "web": "yarn workspace @thibautre/eye-web",
+    "db:migrate": "diesel migration run",
+    "db:migrate:redo": "diesel migration redo",
+    "prod:build": "cargo build --release",
+    "prod": "./target/release/eye"
   },
   "workspaces": [
     "packages-js/*"
