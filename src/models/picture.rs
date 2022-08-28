@@ -49,7 +49,7 @@ pub struct PictureInsert {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PictureApiFull {
+pub struct PictureApi {
   pub id: i32,
   pub name: Option<String>,
   pub width: i32,
@@ -71,17 +71,21 @@ impl Picture {
     pictures::table
   }
 
-  #[allow(unused)]
   pub fn get_by_id(id: i32) -> Filter<pictures::table, Eq<pictures::id, i32>> {
     Picture::all().filter(pictures::id.eq(id))
+  }
+
+  #[allow(unused)]
+  pub fn get_by_ids(ids: Vec<i32>) -> Filter<pictures::table, EqAny<pictures::id, Vec<i32>>> {
+    Picture::all().filter(pictures::id.eq_any(ids.to_owned()))
   }
 
   pub fn into_api_full(
     self,
     sizes: Vec<PictureSize>,
     shot_with_camera_lens: Option<CameraLens>,
-  ) -> PictureApiFull {
-    PictureApiFull {
+  ) -> PictureApi {
+    PictureApi {
       id: self.id,
       height: self.original_height,
       width: self.original_width,

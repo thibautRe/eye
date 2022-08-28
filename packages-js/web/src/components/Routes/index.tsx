@@ -6,6 +6,7 @@ export const routes = {
   Root: "/",
 
   Pictures: "/pictures",
+  Picture: "/picture/:id",
 
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
@@ -13,6 +14,7 @@ export const routes = {
 }
 
 const Pictures = lazy(() => import("./Pictures"))
+const Picture = lazy(() => import("./Picture"))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGen")))
 
@@ -23,6 +25,7 @@ export const AppRoutes = () => (
   <Routes>
     <Route path={routes.Root} component={() => <h1>Home</h1>} />
     <Route path={routes.Pictures} component={Pictures} />
+    <Route path={routes.Picture} component={Picture} />
     <Route
       path={routes.AdminRoot}
       component={withAdminFence(r(routes.AdminUsers))}

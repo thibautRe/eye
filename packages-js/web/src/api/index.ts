@@ -4,6 +4,7 @@ import { apiClientHeaders as headers } from "./client"
 
 const routes = {
   pictures: `/api/pictures`,
+  picture: (id: PictureApi["id"]) => `/api/picture/${id}`,
   adminJwtGen: `/api/admin/jwt_gen`,
   adminUsers: `/api/admin/users`,
 } as const
@@ -23,6 +24,8 @@ const get_json = async <T = unknown>(route: string): Promise<T> =>
 
 export const apiGetPictures = () =>
   get_json<PictureApi[]>(routes.pictures).then(r => r.map(parsePicture))
+export const apiGetPicture = (id: PictureApi["id"]) =>
+  get_json<PictureApi>(routes.picture(id)).then(parsePicture)
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
 export const apiAdminJwtGen = async () =>
   await (await get(routes.adminJwtGen)).text()

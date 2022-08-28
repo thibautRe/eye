@@ -8,11 +8,11 @@ use crate::{
   jwt::{Claims, JwtKey, Role},
   models::{
     camera_lenses::CameraLens,
-    picture::{Picture, PictureApiFull},
+    picture::{Picture, PictureApi},
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
   },
-  schema::{camera_lenses, picture_sizes},
+  schema::{camera_lenses, picture_sizes, pictures},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
@@ -59,7 +59,13 @@ async fn pictures_handler(
     .left_join(picture_sizes::table)
     .load(&db_pool)?;
 
-  let mut pictures_api: Vec<PictureApiFull> = Vec::new();
+  Ok(HttpResponse::Ok().json(arrange_picture_data(pictures_db)))
+}
+
+fn arrange_picture_data(
+  pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)>,
+) -> Vec<PictureApi> {
+  let mut pictures_api: Vec<PictureApi> = Vec::new();
   for (picture, lens, size) in pictures_db.into_iter() {
     let prev_index = { pictures_api.len() };
     let prev_pic_api = match prev_index {
@@ -79,13 +85,35 @@ async fn pictures_handler(
       pictures_api.push(picture.into_api_full(size_vec, lens));
     }
   }
+  pictures_api
+}
 
-  Ok(HttpResponse::Ok().json(pictures_api))
+#[get("/api/picture/{id}")]
+async fn picture_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(u32,)>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?;
+  let db_pool = db_connection(&pool)?;
+  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
+    Picture::get_by_id(path.0 as i32)
+      .left_join(camera_lenses::table)
+      .left_join(picture_sizes::table)
+      .load(&db_pool)?;
+  let pic_apis = arrange_picture_data(pictures_db);
+  let picture_api = pic_apis.get(0);
+  match picture_api {
+    None => Ok(HttpResponse::NotFound().finish()),
+    Some(pic) => Ok(HttpResponse::Ok().json(pic)),
+  }
 }
 
 pub fn api_service(cfg: &mut web::ServiceConfig) {
   cfg
     .service(admin_jwt_gen_handler)
     .service(admin_users_handler)
-    .service(pictures_handler);
+    .service(pictures_handler)
+    .service(picture_handler);
 }
