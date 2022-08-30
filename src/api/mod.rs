@@ -1,5 +1,5 @@
 use actix_web::{get, web, HttpRequest, HttpResponse};
-use diesel::{QueryDsl, RunQueryDsl};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
 use crate::{
   cli_args::ServeArgs,
@@ -7,12 +7,13 @@ use crate::{
   errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::{
+    album::{Album, PictureAlbum},
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
   },
-  schema::{camera_lenses, picture_sizes, pictures},
+  schema::{camera_lenses, picture_albums, picture_sizes, pictures},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
@@ -110,10 +111,31 @@ async fn picture_handler(
   }
 }
 
+#[get("/api/albums")]
+async fn albums_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?;
+  let db_pool = db_connection(&pool)?;
+  let albums = Album::all().load::<Album>(&db_pool)?;
+  let album_ids: Vec<i32> = albums.iter().map(|a| a.id).collect();
+  let res = picture_albums::table
+    .filter(picture_albums::album_id.eq_any(album_ids))
+    .inner_join(pictures::table)
+    .load::<(PictureAlbum, Picture)>(&db_pool);
+  let query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
+    .left_join(picture_albums::table)
+    .load(&db_pool)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
 pub fn api_service(cfg: &mut web::ServiceConfig) {
   cfg
     .service(admin_jwt_gen_handler)
     .service(admin_users_handler)
     .service(pictures_handler)
-    .service(picture_handler);
+    .service(picture_handler)
+    .service(albums_handler);
 }

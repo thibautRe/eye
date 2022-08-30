@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS picture_albums;
+
+DROP TABLE IF EXISTS albums;

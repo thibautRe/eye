@@ -109,7 +109,6 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     create_subsize_picture(&pic, &dyn_img, 600, cache_path, &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 320, cache_path, &db).unwrap();
     create_subsize_picture(&pic, &dyn_img, 100, cache_path, &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 50, cache_path, &db).unwrap();
   }
   Ok(())
 }
