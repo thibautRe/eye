@@ -42,8 +42,8 @@ async fn admin_users_handler(
   pool: web::Data<Pool>,
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
-  let db_pool = db_connection(&pool)?;
-  let users: Vec<User> = User::get_all().load(&db_pool)?;
+  let mut db_pool = db_connection(&pool)?;
+  let users: Vec<User> = User::get_all().load(&mut db_pool)?;
   Ok(HttpResponse::Ok().json(users))
 }
 
@@ -54,17 +54,17 @@ async fn pictures_handler(
   pool: web::Data<Pool>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
-  let db_pool = db_connection(&pool)?;
+  let mut db_pool = db_connection(&pool)?;
   let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> = match claim {
     None => Picture::all()
       .filter(pictures::access_type.eq("public"))
       .left_join(camera_lenses::table)
       .left_join(picture_sizes::table)
-      .load(&db_pool)?,
+      .load(&mut db_pool)?,
     Some(_c) => Picture::all()
       .left_join(camera_lenses::table)
       .left_join(picture_sizes::table)
-      .load(&db_pool)?,
+      .load(&mut db_pool)?,
   };
 
   Ok(HttpResponse::Ok().json(arrange_picture_data(pictures_db)))
@@ -104,12 +104,12 @@ async fn picture_handler(
   path: web::Path<(u32,)>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
-  let db_pool = db_connection(&pool)?;
+  let mut db_pool = db_connection(&pool)?;
   let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
     Picture::get_by_id(path.0 as i32)
       .left_join(camera_lenses::table)
       .left_join(picture_sizes::table)
-      .load(&db_pool)?;
+      .load(&mut db_pool)?;
 
   // Identity check
   if claim.is_none() {
