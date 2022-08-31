@@ -88,6 +88,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
       alt: "".into(),
+      access_type: None,
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
 

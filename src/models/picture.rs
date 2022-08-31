@@ -4,6 +4,7 @@ use diesel::{dsl::*, prelude::*};
 use super::{
   camera_lenses::CameraLens,
   picture_size::{PictureSize, PictureSizeApi},
+  AccessType,
 };
 use crate::{database::PooledConnection, schema::pictures};
 
@@ -25,6 +26,7 @@ pub struct Picture {
   pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
+  pub access_type: AccessType,
 }
 
 #[derive(Debug, Insertable)]
@@ -45,6 +47,7 @@ pub struct PictureInsert {
   pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
+  pub access_type: Option<String>,
 }
 
 #[derive(Debug, Serialize)]

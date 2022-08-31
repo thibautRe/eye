@@ -48,6 +48,7 @@ table! {
         blurhash -> Text,
         original_file_path -> Text,
         alt -> Text,
+        access_type -> Text,
     }
 }
 
