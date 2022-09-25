@@ -8,8 +8,8 @@
     "web": "yarn workspace @thibautre/eye-web",
     "db:migrate": "diesel migration run",
     "db:migrate:redo": "diesel migration redo",
-    "prod:build": "cargo build --release",
-    "prod": "./target/release/eye"
+    "prod": "./target/release/eye",
+    "prod:build": "cargo build --release && yarn web build"
   },
   "workspaces": [
     "packages-js/*"
