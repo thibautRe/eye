@@ -12,6 +12,7 @@ use crate::{
     picture::{Picture, PictureApi},
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
+    AccessType,
   },
   schema::{camera_lenses, picture_albums, picture_sizes, pictures},
 };
@@ -42,8 +43,8 @@ async fn admin_users_handler(
   pool: web::Data<Pool>,
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
-  let db_pool = db_connection(&pool)?;
-  let users: Vec<User> = User::get_all().load(&db_pool)?;
+  let mut db_pool = db_connection(&pool)?;
+  let users: Vec<User> = User::get_all().load(&mut db_pool)?;
   Ok(HttpResponse::Ok().json(users))
 }
 
@@ -53,12 +54,19 @@ async fn pictures_handler(
   req: HttpRequest,
   pool: web::Data<Pool>,
 ) -> RouteResult {
-  Claims::from_request(&req, &jwt_key)?;
-  let db_pool = db_connection(&pool)?;
-  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> = Picture::all()
-    .left_join(camera_lenses::table)
-    .left_join(picture_sizes::table)
-    .load(&db_pool)?;
+  let claim = Claims::from_request(&req, &jwt_key).ok();
+  let mut db_pool = db_connection(&pool)?;
+  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> = match claim {
+    None => Picture::all()
+      .filter(pictures::access_type.eq("public"))
+      .left_join(camera_lenses::table)
+      .left_join(picture_sizes::table)
+      .load(&mut db_pool)?,
+    Some(_c) => Picture::all()
+      .left_join(camera_lenses::table)
+      .left_join(picture_sizes::table)
+      .load(&mut db_pool)?,
+  };
 
   Ok(HttpResponse::Ok().json(arrange_picture_data(pictures_db)))
 }
@@ -96,13 +104,24 @@ async fn picture_handler(
   pool: web::Data<Pool>,
   path: web::Path<(u32,)>,
 ) -> RouteResult {
-  Claims::from_request(&req, &jwt_key)?;
-  let db_pool = db_connection(&pool)?;
+  let claim = Claims::from_request(&req, &jwt_key).ok();
+  let mut db_pool = db_connection(&pool)?;
   let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
     Picture::get_by_id(path.0 as i32)
       .left_join(camera_lenses::table)
       .left_join(picture_sizes::table)
-      .load(&db_pool)?;
+      .load(&mut db_pool)?;
+
+  // Identity check
+  if claim.is_none() {
+    let pic = pictures_db.get(0);
+    if let Some(p) = pic {
+      if p.0.access_type != AccessType::Public {
+        return Ok(HttpResponse::Unauthorized().finish());
+      }
+    }
+  }
+
   let pic_apis = arrange_picture_data(pictures_db);
   let picture_api = pic_apis.get(0);
   match picture_api {

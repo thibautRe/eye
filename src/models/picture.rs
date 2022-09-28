@@ -4,6 +4,7 @@ use diesel::{dsl::*, prelude::*};
 use super::{
   camera_lenses::CameraLens,
   picture_size::{PictureSize, PictureSizeApi},
+  AccessType,
 };
 use crate::{database::PooledConnection, schema::pictures};
 
@@ -25,10 +26,11 @@ pub struct Picture {
   pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
+  pub access_type: AccessType,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "pictures"]
+#[diesel(table_name = pictures)]
 pub struct PictureInsert {
   pub name: Option<String>,
   pub shot_at: Option<NaiveDateTime>,
@@ -45,6 +47,7 @@ pub struct PictureInsert {
   pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
+  pub access_type: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -105,7 +108,7 @@ impl Picture {
 }
 
 impl PictureInsert {
-  pub fn insert(&self, db: &PooledConnection) -> Result<Picture, diesel::result::Error> {
+  pub fn insert(&self, db: &mut PooledConnection) -> Result<Picture, diesel::result::Error> {
     use self::pictures::dsl::*;
     insert_into(pictures).values(self).get_result::<Picture>(db)
   }

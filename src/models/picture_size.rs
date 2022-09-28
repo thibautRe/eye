@@ -12,7 +12,7 @@ pub struct PictureSize {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "picture_sizes"]
+#[diesel(table_name = picture_sizes)]
 pub struct PictureSizeInsert {
   pub picture_id: i32,
   pub file_path: String,
@@ -44,7 +44,7 @@ impl PictureSize {
 }
 
 impl PictureSizeInsert {
-  pub fn insert(&self, db: &PooledConnection) -> Result<PictureSize, diesel::result::Error> {
+  pub fn insert(&self, db: &mut PooledConnection) -> Result<PictureSize, diesel::result::Error> {
     use self::picture_sizes::dsl::*;
     insert_into(picture_sizes)
       .values(self)

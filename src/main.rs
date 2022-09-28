@@ -62,9 +62,9 @@ fn is_picture_file(file: &walkdir::DirEntry) -> bool {
 }
 
 fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
-  let db = database::db_connection(&pool).unwrap();
+  let mut db = database::db_connection(&pool).unwrap();
 
-  let lenses = CameraLens::all().load::<CameraLens>(&db).unwrap();
+  let lenses = CameraLens::all().load::<CameraLens>(&mut db).unwrap();
   let lenses_by_name: HashMap<String, CameraLens> = lenses
     .into_iter()
     .map(|lens| (lens.name.clone(), lens))
@@ -88,6 +88,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
       alt: "".into(),
+      access_type: None,
       shot_by_user_id: None,        // TODO
       shot_by_camera_body_id: None, // TODO
 
@@ -100,15 +101,16 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       shot_with_exposure_time: get_shot_with_exposure_time(&exif),
       shot_with_iso: get_shot_with_iso(&exif),
     }
-    .insert(&db)
+    .insert(&mut db)
     .unwrap();
 
     let cache_path = Path::new(&args.cache_path);
-    create_subsize_picture(&pic, &dyn_img, 1600, cache_path, &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 900, cache_path, &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 600, cache_path, &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 320, cache_path, &db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 100, cache_path, &db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 1600, cache_path, &mut db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 900, cache_path, &mut db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 600, cache_path, &mut db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 320, cache_path, &mut db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 100, cache_path, &mut db).unwrap();
+    create_subsize_picture(&pic, &dyn_img, 50, cache_path, &mut db).unwrap();
   }
   Ok(())
 }
@@ -123,7 +125,7 @@ fn create_subsize_picture(
   img: &DynamicImage,
   max_size: u32,
   cache_path: &Path,
-  db: &PooledConnection,
+  db: &mut PooledConnection,
 ) -> Result<(), ImageError> {
   let pic_name = pic.name.clone().unwrap_or("unknown.jpg".into());
   eprintln!("Resizing image {} for size {}...", pic_name, max_size);
@@ -135,7 +137,7 @@ fn create_subsize_picture(
     width: resized_img.width() as i32,
     file_path: file_path.clone(),
   }
-  .insert(&db)
+  .insert(db)
   .unwrap();
   resized_img.save(cache_path.join(file_path))
 }
