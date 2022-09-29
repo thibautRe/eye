@@ -1,5 +1,4 @@
-use crate::schema::{albums, picture_albums};
-use chrono::NaiveDateTime;
+use crate::schema::picture_albums;
 use diesel::{dsl::*, prelude::*};
 
 #[derive(Debug, Queryable)]

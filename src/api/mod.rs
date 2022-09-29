@@ -142,11 +142,11 @@ async fn albums_handler(
   let mut db_pool = db_connection(&pool)?;
   let albums = Album::all().load::<Album>(&mut db_pool)?;
   let album_ids: Vec<i32> = albums.iter().map(|a| a.id).collect();
-  let res = picture_albums::table
+  let _res = picture_albums::table
     .filter(picture_albums::album_id.eq_any(album_ids))
     .inner_join(pictures::table)
     .load::<(PictureAlbum, Picture)>(&mut db_pool);
-  let query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
+  let _query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
     .left_join(picture_albums::table)
     .load(&mut db_pool)?;
   Ok(HttpResponse::Ok().finish())
@@ -159,7 +159,8 @@ async fn album_handler(
   pool: web::Data<Pool>,
   path: web::Path<(u32,)>,
 ) -> RouteResult {
-  let claim = Claims::from_request(&req, &jwt_key).ok();
+  // TODO identity check
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db_pool = db_connection(&pool)?;
   let album_db: Album = Album::get_by_id(path.0 as i32).first(&mut db_pool)?;
   let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
@@ -168,22 +169,6 @@ async fn album_handler(
       .left_join(picture_sizes::table)
       .load(&mut db_pool)?;
 
-  // // Identity check
-  // if claim.is_none() {
-  //   let pic = pictures_db.get(0);
-  //   if let Some(p) = pic {
-  //     if p.0.access_type != AccessType::Public {
-  //       return Ok(HttpResponse::Unauthorized().finish());
-  //     }
-  //   }
-  // }
-
-  // let pic_apis = arrange_picture_data(pictures_db);
-  // let picture_api = pic_apis.get(0);
-  // match picture_api {
-  //   None => Ok(HttpResponse::NotFound().finish()),
-  //   Some(pic) => Ok(HttpResponse::Ok().json(pic)),
-  // }
   Ok(HttpResponse::Ok().json(album_db.into_api(arrange_picture_data(pictures_db))))
 }
 
