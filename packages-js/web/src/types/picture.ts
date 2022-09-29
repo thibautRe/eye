@@ -1,14 +1,16 @@
+import { Id } from "./id"
+
 export interface PictureSizeApi {
-  width: number
+  width: Id<"picture-size">
   height: number
   url: string
 }
 export interface CameraLens {
-  id: number
+  id: Id<"camera-lens">
   name: string
 }
 export interface PictureApi {
-  id: number
+  id: Id<"picture">
   width: number
   height: number
   name: string

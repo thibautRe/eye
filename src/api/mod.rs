@@ -7,9 +7,10 @@ use crate::{
   errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::{
-    album::{Album, PictureAlbum},
+    album::Album,
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
+    picture_album::PictureAlbum,
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
     AccessType,
@@ -130,6 +131,7 @@ async fn picture_handler(
   }
 }
 
+// TODO: unstable
 #[get("/api/albums")]
 async fn albums_handler(
   jwt_key: web::Data<JwtKey>,
@@ -150,11 +152,47 @@ async fn albums_handler(
   Ok(HttpResponse::Ok().finish())
 }
 
+#[get("/api/album/{id}")]
+async fn album_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(u32,)>,
+) -> RouteResult {
+  let claim = Claims::from_request(&req, &jwt_key).ok();
+  let mut db_pool = db_connection(&pool)?;
+  let album_db: Album = Album::get_by_id(path.0 as i32).first(&mut db_pool)?;
+  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
+    Picture::get_by_album_id(path.0 as i32)
+      .left_join(camera_lenses::table)
+      .left_join(picture_sizes::table)
+      .load(&mut db_pool)?;
+
+  // // Identity check
+  // if claim.is_none() {
+  //   let pic = pictures_db.get(0);
+  //   if let Some(p) = pic {
+  //     if p.0.access_type != AccessType::Public {
+  //       return Ok(HttpResponse::Unauthorized().finish());
+  //     }
+  //   }
+  // }
+
+  // let pic_apis = arrange_picture_data(pictures_db);
+  // let picture_api = pic_apis.get(0);
+  // match picture_api {
+  //   None => Ok(HttpResponse::NotFound().finish()),
+  //   Some(pic) => Ok(HttpResponse::Ok().json(pic)),
+  // }
+  Ok(HttpResponse::Ok().json(album_db.into_api(arrange_picture_data(pictures_db))))
+}
+
 pub fn api_service(cfg: &mut web::ServiceConfig) {
   cfg
     .service(admin_jwt_gen_handler)
     .service(admin_users_handler)
     .service(pictures_handler)
     .service(picture_handler)
+    .service(album_handler)
     .service(albums_handler);
 }

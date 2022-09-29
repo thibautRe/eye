@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "yarn start:web",
-    "start:rs": "cargo run",
+    "start:rs": "cargo run serve",
     "start:web": "yarn web start",
     "web": "yarn workspace @thibautre/eye-web",
     "db:migrate": "diesel migration run",

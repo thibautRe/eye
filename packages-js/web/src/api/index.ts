@@ -1,3 +1,4 @@
+import { AlbumApi, parseAlbum } from "../types/album"
 import { parsePicture, PictureApi } from "../types/picture"
 import { User } from "../types/user"
 import { apiClientHeaders as headers } from "./client"
@@ -5,6 +6,7 @@ import { apiClientHeaders as headers } from "./client"
 const routes = {
   pictures: `/api/pictures`,
   picture: (id: PictureApi["id"]) => `/api/picture/${id}`,
+  album: (id: AlbumApi["id"]) => `/api/album/${id}`,
   adminJwtGen: `/api/admin/jwt_gen`,
   adminUsers: `/api/admin/users`,
 } as const
@@ -26,6 +28,8 @@ export const apiGetPictures = () =>
   get_json<PictureApi[]>(routes.pictures).then(r => r.map(parsePicture))
 export const apiGetPicture = (id: PictureApi["id"]) =>
   get_json<PictureApi>(routes.picture(id)).then(parsePicture)
+export const apiGetAlbum = (id: AlbumApi["id"]) =>
+  get_json<AlbumApi>(routes.album(id)).then(parseAlbum)
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
 export const apiAdminJwtGen = async () =>
   await (await get(routes.adminJwtGen)).text()

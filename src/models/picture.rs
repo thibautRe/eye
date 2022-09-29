@@ -3,10 +3,14 @@ use diesel::{dsl::*, prelude::*};
 
 use super::{
   camera_lenses::CameraLens,
+  picture_album::{self, PictureAlbum},
   picture_size::{PictureSize, PictureSizeApi},
   AccessType,
 };
-use crate::{database::PooledConnection, schema::pictures};
+use crate::{
+  database::PooledConnection,
+  schema::{picture_albums, pictures},
+};
 
 #[derive(Debug, Queryable)]
 pub struct Picture {
@@ -69,18 +73,29 @@ pub struct PictureApi {
   pub shot_with_iso: Option<i32>,
 }
 
+pub type Table = pictures::table;
+pub type GetByAlbumId = Filter<
+  Table,
+  EqAny<pictures::id, Select<picture_album::GetByAlbumId, picture_albums::picture_id>>,
+>;
 impl Picture {
-  pub fn all() -> pictures::table {
+  pub fn all() -> Table {
     pictures::table
   }
 
-  pub fn get_by_id(id: i32) -> Filter<pictures::table, Eq<pictures::id, i32>> {
+  pub fn get_by_id(id: i32) -> Filter<Table, Eq<pictures::id, i32>> {
     Picture::all().filter(pictures::id.eq(id))
   }
 
   #[allow(unused)]
-  pub fn get_by_ids(ids: Vec<i32>) -> Filter<pictures::table, EqAny<pictures::id, Vec<i32>>> {
+  pub fn get_by_ids(ids: Vec<i32>) -> Filter<Table, EqAny<pictures::id, Vec<i32>>> {
     Picture::all().filter(pictures::id.eq_any(ids.to_owned()))
+  }
+
+  pub fn get_by_album_id(id: i32) -> GetByAlbumId {
+    Picture::all().filter(
+      pictures::id.eq_any(PictureAlbum::get_by_album_id(id).select(picture_albums::picture_id)),
+    )
   }
 
   pub fn into_api_full(

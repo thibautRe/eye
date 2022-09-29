@@ -18,7 +18,7 @@ cp .env.example .env
 yarn db:migrate
 
 # start api server
-yarn start:rs serve
+yarn start:rs
 
 # start frontend server
 yarn start

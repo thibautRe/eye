@@ -32,18 +32,15 @@ export interface StackOwnProps {
   /** distance between items */
   dist?: ThemeSpaceKey
   /** align-items */
-  a?: "start" | "center" | "end"
+  a?: keyof typeof stackA
   /** justify-content */
-  j?: "start" | "center" | "end"
+  j?: keyof typeof stackJ
   /** flex-wrap */
   wrap?: boolean
 }
 export interface StackProps extends StackOwnProps, BoxProps {}
 export const Stack: Component<StackProps> = p => {
-  const props = mergeProps(
-    { d: "h", dist: "0", a: "start", j: "start", wrap: false } as const,
-    p,
-  )
+  const props = mergeProps({ d: "h", dist: "0", wrap: false } as const, p)
   const [local, rest] = splitProps(props, [
     "d",
     "dist",
@@ -63,9 +60,9 @@ export const Stack: Component<StackProps> = p => {
           [stack]: true,
           [stackWrap]: local.wrap,
           [stackD[local.d]]: true,
-          [stackA[local.a]]: true,
-          [stackJ[local.j]]: true,
           [stackDepth[pingOrPong()]]: true,
+          ...(local.a ? { [stackA[local.a]]: true } : {}),
+          ...(local.j ? { [stackJ[local.j]]: true } : {}),
           ...local.classList,
         }}
         style={mergeStyle(
