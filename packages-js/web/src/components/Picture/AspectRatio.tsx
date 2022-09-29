@@ -16,6 +16,7 @@ export const AspectRatio: ParentComponent<AspectRatioProps> = props => (
     style={assignInlineVars({
       [aspectRatioVar]: `${100 / props.aspectRatio}%`,
     })}
+    {...props}
   >
     <div class={aspectRatioInnerC}>{props.children}</div>
   </div>
