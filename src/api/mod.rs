@@ -137,16 +137,16 @@ async fn albums_handler(
   pool: web::Data<Pool>,
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?;
-  let db_pool = db_connection(&pool)?;
-  let albums = Album::all().load::<Album>(&db_pool)?;
+  let mut db_pool = db_connection(&pool)?;
+  let albums = Album::all().load::<Album>(&mut db_pool)?;
   let album_ids: Vec<i32> = albums.iter().map(|a| a.id).collect();
   let res = picture_albums::table
     .filter(picture_albums::album_id.eq_any(album_ids))
     .inner_join(pictures::table)
-    .load::<(PictureAlbum, Picture)>(&db_pool);
+    .load::<(PictureAlbum, Picture)>(&mut db_pool);
   let query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
     .left_join(picture_albums::table)
-    .load(&db_pool)?;
+    .load(&mut db_pool)?;
   Ok(HttpResponse::Ok().finish())
 }
 

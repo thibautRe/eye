@@ -1,7 +1,7 @@
 use crate::schema::albums;
 use chrono::NaiveDateTime;
 
-use super::picture::{PictureConnectionApi, PictureApi};
+use super::picture::PictureApi;
 
 #[derive(Debug, Queryable)]
 pub struct Album {
