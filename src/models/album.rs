@@ -14,7 +14,7 @@ pub struct Album {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "albums"]
+#[diesel(table_name = albums)]
 pub struct AlbumInsert {
   pub name: String,
   pub created_at: NaiveDateTime,
