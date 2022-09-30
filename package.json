@@ -8,7 +8,7 @@
     "web": "yarn workspace @thibautre/eye-web",
     "db:migrate": "diesel migration run",
     "db:migrate:redo": "diesel migration redo",
-    "prod:sync-and-restart": "sudo systemctl stop eye.service && git pull origin main && yarn prod:build && sudo systemctl start eye.service",
+    "prod:sync-and-restart": "sudo systemctl stop eye.service && git pull origin main && yarn db:migrate && yarn prod:build && sudo systemctl start eye.service",
     "prod": "./target/release/eye",
     "prod:build": "cargo build --release && yarn web build"
   },
