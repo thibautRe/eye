@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "solid-app-router"
 import { lazy } from "solid-js"
 import { withAdminFence } from "../AuthFence"
-import Album from "./Album"
 
 export const routes = {
   Root: "/",
@@ -16,8 +15,9 @@ export const routes = {
   AdminJwtGen: "/admin/jwt_gen",
 }
 
-const Pictures = lazy(() => import("./Pictures"))
-const Picture = lazy(() => import("./Picture"))
+const Pictures = lazy(() => import("./PictureListRoute"))
+const Picture = lazy(() => import("./PictureRoute"))
+const Album = lazy(() => import("./AlbumRoute"))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGen")))
 

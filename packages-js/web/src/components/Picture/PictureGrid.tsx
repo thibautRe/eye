@@ -1,14 +1,17 @@
 import { Link } from "solid-app-router"
-import { createResource, For } from "solid-js"
-import { apiGetPictures } from "../../../api"
-import { Picture, PictureMetadata } from "../../Picture"
-import { Stack } from "../../Stack/Stack"
+import { For, VoidComponent } from "solid-js"
+import { PictureApi } from "../../types/picture"
+import { Stack } from "../Stack/Stack"
+import { Picture } from "./PictureComponent"
+import { PictureMetadata } from "./PictureMetadata"
 
-export default () => {
-  const [picturesRes] = createResource(apiGetPictures)
+interface PictureGridProps {
+  pictures: PictureApi[]
+}
+export const PictureGrid: VoidComponent<PictureGridProps> = ({ pictures }) => {
   return (
     <Stack wrap>
-      <For each={picturesRes()}>
+      <For each={pictures}>
         {picture => (
           <Stack d="v" fgColor="g10" style={{ width: "30%" }}>
             {props => (
