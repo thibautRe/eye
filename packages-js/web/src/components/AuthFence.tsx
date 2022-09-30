@@ -1,9 +1,10 @@
 import { Component, ParentComponent, Show } from "solid-js"
 import { isAdmin } from "../providers/Identity"
+import { UnauthorizedRoute } from "./Routes"
 
 export const AdminFence: ParentComponent = p => {
   return (
-    <Show when={isAdmin()} fallback={<h1>Access restricted</h1>}>
+    <Show when={isAdmin()} fallback={<UnauthorizedRoute />}>
       {p.children}
     </Show>
   )

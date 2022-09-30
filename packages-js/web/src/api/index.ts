@@ -1,6 +1,7 @@
 import { AlbumApi, parseAlbum } from "../types/album"
 import { parsePicture, PictureApi } from "../types/picture"
 import { User } from "../types/user"
+import { HttpError } from "../utils/errors"
 import { apiClientHeaders as headers } from "./client"
 
 const routes = {
@@ -12,10 +13,7 @@ const routes = {
 } as const
 
 const assert_status_200 = (res: Response) => {
-  if (res.status !== 200)
-    throw new Error(
-      `Request failed with status: ${res.status} (${res.statusText})`,
-    )
+  if (res.status !== 200) throw new HttpError(res)
   return res
 }
 
