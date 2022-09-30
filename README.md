@@ -15,13 +15,16 @@ cargo install diesel_cli --no-default-features --features postgres
 cp .env.example .env
 
 # run migration
-diesel migration run
+yarn db:migrate
 
 # start api server
-cargo run serve
+yarn start:rs
+
+# start frontend server
+yarn start
 ```
 
-Create a new migration:
+### Create a new migration:
 
 ```sh
 diesel migration generate <name-of-migration>

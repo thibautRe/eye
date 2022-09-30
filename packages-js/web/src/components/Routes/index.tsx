@@ -1,12 +1,15 @@
 import { Navigate, Route, Routes } from "solid-app-router"
 import { lazy } from "solid-js"
 import { withAdminFence } from "../AuthFence"
+import Album from "./Album"
 
 export const routes = {
   Root: "/",
 
   Pictures: "/pictures",
   Picture: "/picture/:id",
+
+  Album: "/album/:id",
 
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
@@ -26,6 +29,8 @@ export const AppRoutes = () => (
     <Route path={routes.Root} component={() => <h1>Home</h1>} />
     <Route path={routes.Pictures} component={Pictures} />
     <Route path={routes.Picture} component={Picture} />
+    <Route path={routes.Album} component={Album} />
+
     <Route
       path={routes.AdminRoot}
       component={withAdminFence(r(routes.AdminUsers))}

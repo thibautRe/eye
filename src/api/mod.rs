@@ -7,13 +7,15 @@ use crate::{
   errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::{
+    album::Album,
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
+    picture_album::PictureAlbum,
     picture_size::{PictureSize, PictureSizeApi},
     user::User,
     AccessType,
   },
-  schema::{camera_lenses, picture_sizes, pictures},
+  schema::{camera_lenses, picture_albums, picture_sizes, pictures},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
@@ -129,10 +131,53 @@ async fn picture_handler(
   }
 }
 
+// TODO: unstable
+#[get("/api/albums")]
+async fn albums_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?;
+  let mut db_pool = db_connection(&pool)?;
+  let albums = Album::all().load::<Album>(&mut db_pool)?;
+  let album_ids: Vec<i32> = albums.iter().map(|a| a.id).collect();
+  let _res = picture_albums::table
+    .filter(picture_albums::album_id.eq_any(album_ids))
+    .inner_join(pictures::table)
+    .load::<(PictureAlbum, Picture)>(&mut db_pool);
+  let _query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
+    .left_join(picture_albums::table)
+    .load(&mut db_pool)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
+#[get("/api/album/{id}")]
+async fn album_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(u32,)>,
+) -> RouteResult {
+  // TODO identity check
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db_pool = db_connection(&pool)?;
+  let album_db: Album = Album::get_by_id(path.0 as i32).first(&mut db_pool)?;
+  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
+    Picture::get_by_album_id(path.0 as i32)
+      .left_join(camera_lenses::table)
+      .left_join(picture_sizes::table)
+      .load(&mut db_pool)?;
+
+  Ok(HttpResponse::Ok().json(album_db.into_api(arrange_picture_data(pictures_db))))
+}
+
 pub fn api_service(cfg: &mut web::ServiceConfig) {
   cfg
     .service(admin_jwt_gen_handler)
     .service(admin_users_handler)
     .service(pictures_handler)
-    .service(picture_handler);
+    .service(picture_handler)
+    .service(album_handler)
+    .service(albums_handler);
 }

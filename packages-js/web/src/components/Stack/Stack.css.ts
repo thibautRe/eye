@@ -16,6 +16,7 @@ export const stackA = styleVariants({
   start: { alignItems: "flex-start" },
   center: { alignItems: "center" },
   end: { alignItems: "flex-end" },
+  stretch: { alignItems: "stretch" },
 })
 export const stackJ = styleVariants({
   start: { justifyContent: "flex-start" },

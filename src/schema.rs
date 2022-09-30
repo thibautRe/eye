@@ -1,4 +1,14 @@
 table! {
+    albums (id) {
+        id -> Int4,
+        name -> Text,
+        created_at -> Timestamp,
+        edited_at -> Timestamp,
+        deleted_at -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     camera_bodies (id) {
         id -> Int4,
         name -> Varchar,
@@ -9,6 +19,14 @@ table! {
     camera_lenses (id) {
         id -> Int4,
         name -> Varchar,
+    }
+}
+
+table! {
+    picture_albums (id) {
+        id -> Int8,
+        picture_id -> Int4,
+        album_id -> Int4,
     }
 }
 
@@ -70,6 +88,8 @@ table! {
     }
 }
 
+joinable!(picture_albums -> albums (album_id));
+joinable!(picture_albums -> pictures (picture_id));
 joinable!(picture_sizes -> pictures (picture_id));
 joinable!(picture_tags -> pictures (picture_id));
 joinable!(picture_tags -> tags (tag_id));
@@ -78,8 +98,10 @@ joinable!(pictures -> camera_lenses (shot_by_camera_lens_id));
 joinable!(pictures -> users (shot_by_user_id));
 
 allow_tables_to_appear_in_same_query!(
+    albums,
     camera_bodies,
     camera_lenses,
+    picture_albums,
     picture_sizes,
     picture_tags,
     pictures,
