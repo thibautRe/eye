@@ -1,3 +1,4 @@
+import { Link } from "solid-app-router"
 import { createResource, For, Show } from "solid-js"
 import { apiGetAlbums } from "../../api"
 import { PictureGrid } from "../Picture/PictureGrid"
@@ -12,7 +13,9 @@ export default () => {
           <For each={albums}>
             {album => (
               <Stack d="v" fgColor="g10">
-                <h1>{album.name}</h1>
+                <Link href={`/album/${album.id}`}>
+                  <h1>{album.name}</h1>
+                </Link>
                 <PictureGrid pictures={album.picturesExcerpt} />
               </Stack>
             )}

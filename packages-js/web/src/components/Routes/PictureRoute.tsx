@@ -1,4 +1,4 @@
-import { Link, useParams } from "solid-app-router"
+import { useParams } from "solid-app-router"
 import { createResource, Show } from "solid-js"
 import { apiGetPicture } from "../../api"
 import { Picture, PictureMetadata } from "../Picture"
@@ -12,7 +12,6 @@ export default () => {
   )
   return (
     <Stack d="v" dist="m">
-      <Link href="/pictures">&lt; Back</Link>
       <Show when={pictureRes()}>
         {picture => (
           <Stack d="v" fgColor="g10" style={{ width: "90%" }}>
