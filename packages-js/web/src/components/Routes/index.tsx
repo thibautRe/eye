@@ -8,6 +8,7 @@ export const routes = {
   Pictures: "/pictures",
   Picture: "/picture/:id",
 
+  Albums: "/albums",
   Album: "/album/:id",
 
   AdminRoot: "/admin",
@@ -21,6 +22,7 @@ const r = (href: string) => () => <Navigate href={href} />
 const Root = () => <h1>Home</h1>
 const Pictures = lazy(() => import("./PictureListRoute"))
 const Picture = lazy(() => import("./PictureRoute"))
+const Albums = lazy(() => import("./AlbumListRoute"))
 const Album = lazy(() => import("./AlbumRoute"))
 const AdminRoot = withAdminFence(r(routes.AdminUsers))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/Users")))
@@ -31,6 +33,7 @@ export const AppRoutes = () => (
     <Route path={routes.Root} component={Root} />
     <Route path={routes.Pictures} component={Pictures} />
     <Route path={routes.Picture} component={Picture} />
+    <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
 
     <Route path={routes.AdminRoot} component={AdminRoot} />

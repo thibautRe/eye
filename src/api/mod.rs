@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use actix_web::{get, web, HttpRequest, HttpResponse};
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::RunQueryDsl;
 
 use crate::{
   cli_args::ServeArgs,
@@ -9,15 +9,13 @@ use crate::{
   errors::{ServiceError, ServiceResult},
   jwt::{Claims, JwtKey, Role},
   models::{
-    album::Album,
+    album::{Album, AlbumApi},
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
-    picture_album::PictureAlbum,
     picture_size::PictureSize,
     user::User,
     AccessType,
   },
-  schema::{picture_albums, pictures},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
@@ -59,6 +57,26 @@ fn complete_pictures(
       })
       .collect(),
   )
+}
+
+fn complete_album(album: Album, db_pool: &mut PooledConnection) -> ServiceResult<AlbumApi> {
+  let album_id = album.id;
+  Ok(album.into_api(complete_pictures(
+    Picture::get_by_album_id(album_id).load::<Picture>(db_pool)?,
+    db_pool,
+  )?))
+}
+
+// TODO perf - this can be improved by changing the db querying strategy to instead
+// query everything upfront
+fn complete_albums(
+  albums: Vec<Album>,
+  db_pool: &mut PooledConnection,
+) -> ServiceResult<Vec<AlbumApi>> {
+  albums
+    .into_iter()
+    .map(|a| complete_album(a, db_pool))
+    .collect()
 }
 
 #[get("/api/admin/jwt_gen")]
@@ -125,25 +143,17 @@ async fn picture_handler(
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db_pool)?))
 }
 
-// TODO: unstable
 #[get("/api/albums")]
 async fn albums_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
 ) -> RouteResult {
-  Claims::from_request(&req, &jwt_key)?;
+  // TODO identity check
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db_pool = db_connection(&pool)?;
   let albums = Album::all().load::<Album>(&mut db_pool)?;
-  let album_ids: Vec<i32> = albums.iter().map(|a| a.id).collect();
-  let _res = picture_albums::table
-    .filter(picture_albums::album_id.eq_any(album_ids))
-    .inner_join(pictures::table)
-    .load::<(PictureAlbum, Picture)>(&mut db_pool);
-  let _query: Vec<(Album, Option<PictureAlbum>)> = Album::all()
-    .left_join(picture_albums::table)
-    .load(&mut db_pool)?;
-  Ok(HttpResponse::Ok().finish())
+  Ok(HttpResponse::Ok().json(complete_albums(albums, &mut db_pool)?))
 }
 
 #[get("/api/album/{id}")]
@@ -156,10 +166,8 @@ async fn album_handler(
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db_pool = db_connection(&pool)?;
-  let album_db: Album = Album::get_by_id(path.0).first(&mut db_pool)?;
-  let pictures = Picture::get_by_album_id(path.0).load::<Picture>(&mut db_pool)?;
-
-  Ok(HttpResponse::Ok().json(album_db.into_api(complete_pictures(pictures, &mut db_pool)?)))
+  let album: Album = Album::get_by_id(path.0).first(&mut db_pool)?;
+  Ok(HttpResponse::Ok().json(complete_album(album, &mut db_pool)?))
 }
 
 pub fn api_service(cfg: &mut web::ServiceConfig) {

@@ -79,6 +79,10 @@ pub type GetByAlbumId = Filter<
   Table,
   EqAny<pictures::id, Select<picture_album::GetByAlbumId, picture_albums::picture_id>>,
 >;
+pub type GetByAlbumIds = Filter<
+  Table,
+  EqAny<pictures::id, Select<picture_album::GetByAlbumIds, picture_albums::picture_id>>,
+>;
 impl Picture {
   pub fn all() -> Table {
     pictures::table
@@ -100,6 +104,11 @@ impl Picture {
   pub fn get_by_album_id(id: i32) -> GetByAlbumId {
     Picture::all().filter(
       pictures::id.eq_any(PictureAlbum::get_by_album_id(id).select(picture_albums::picture_id)),
+    )
+  }
+  pub fn get_by_album_ids(ids: Vec<i32>) -> GetByAlbumIds {
+    Picture::all().filter(
+      pictures::id.eq_any(PictureAlbum::get_by_album_ids(ids).select(picture_albums::picture_id)),
     )
   }
 

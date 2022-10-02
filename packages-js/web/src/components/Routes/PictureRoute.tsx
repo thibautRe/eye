@@ -1,6 +1,6 @@
 import { Link, useParams } from "solid-app-router"
-import { createResource, For, Show } from "solid-js"
-import { apiGetPicture, apiGetPictures } from "../../api"
+import { createResource, Show } from "solid-js"
+import { apiGetPicture } from "../../api"
 import { Picture, PictureMetadata } from "../Picture"
 import { Stack } from "../Stack/Stack"
 

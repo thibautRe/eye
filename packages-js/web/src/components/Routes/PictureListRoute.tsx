@@ -1,5 +1,4 @@
-import { Link } from "solid-app-router"
-import { createResource, For, Show } from "solid-js"
+import { createResource, Show } from "solid-js"
 import { apiGetPictures } from "../../api"
 import { PictureGrid } from "../Picture/PictureGrid"
 
