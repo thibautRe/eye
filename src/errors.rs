@@ -14,6 +14,9 @@ pub enum ServiceError {
   #[error("Unauthorized")]
   Unauthorized,
 
+  #[error("Not Found")]
+  NotFound,
+
   #[error("Unable to connect to DB")]
   UnableToConnectToDb,
 }
@@ -28,6 +31,7 @@ impl ResponseError for ServiceError {
       ServiceError::UnableToConnectToDb => {
         HttpResponse::InternalServerError().json("Unable to connect to DB, Please try later")
       }
+      ServiceError::NotFound => HttpResponse::NotFound().json("Not Found"),
       ServiceError::BadRequest(ref message) => HttpResponse::BadRequest().json(message),
       ServiceError::Unauthorized => HttpResponse::Unauthorized().json("Unauthorized"),
     }
@@ -42,9 +46,8 @@ impl From<jsonwebtoken::errors::Error> for ServiceError {
 
 impl From<DBError> for ServiceError {
   fn from(error: DBError) -> ServiceError {
-    // Right now we just care about UniqueViolation from diesel
-    // But this would be helpful to easily map errors as our app grows
     match error {
+      DBError::NotFound => ServiceError::NotFound,
       DBError::DatabaseError(_kind, info) => {
         let message = info.details().unwrap_or_else(|| info.message()).to_string();
         ServiceError::BadRequest(message)

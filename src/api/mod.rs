@@ -4,7 +4,7 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use crate::{
   cli_args::ServeArgs,
   database::{db_connection, Pool},
-  errors::ServiceResult,
+  errors::{ServiceError, ServiceResult},
   jwt::{Claims, JwtKey, Role},
   models::{
     album::Album,
@@ -118,7 +118,7 @@ async fn picture_handler(
     let pic = pictures_db.get(0);
     if let Some(p) = pic {
       if p.0.access_type != AccessType::Public {
-        return Ok(HttpResponse::Unauthorized().finish());
+        return Err(ServiceError::Unauthorized);
       }
     }
   }
@@ -126,7 +126,7 @@ async fn picture_handler(
   let pic_apis = arrange_picture_data(pictures_db);
   let picture_api = pic_apis.get(0);
   match picture_api {
-    None => Ok(HttpResponse::NotFound().finish()),
+    None => Err(ServiceError::NotFound),
     Some(pic) => Ok(HttpResponse::Ok().json(pic)),
   }
 }
