@@ -73,7 +73,8 @@ pub struct PictureApi {
   pub shot_with_iso: Option<i32>,
 }
 
-pub type Table = pictures::table;
+type Table = pictures::table;
+pub type GetAllPublic = Filter<Table, Eq<pictures::access_type, &'static str>>;
 pub type GetByAlbumId = Filter<
   Table,
   EqAny<pictures::id, Select<picture_album::GetByAlbumId, picture_albums::picture_id>>,
@@ -81,6 +82,10 @@ pub type GetByAlbumId = Filter<
 impl Picture {
   pub fn all() -> Table {
     pictures::table
+  }
+
+  pub fn get_all_public() -> GetAllPublic {
+    Picture::all().filter(pictures::access_type.eq("public"))
   }
 
   pub fn get_by_id(id: i32) -> Filter<Table, Eq<pictures::id, i32>> {

@@ -27,19 +27,24 @@ pub struct PictureSizeApi {
   pub url: String,
 }
 
+type Table = picture_sizes::table;
+pub type GetById = Filter<Table, Eq<picture_sizes::id, i32>>;
+pub type GetByPictureId = Filter<Table, Eq<picture_sizes::picture_id, i32>>;
+pub type GetByPictureIds = Filter<Table, EqAny<picture_sizes::picture_id, Vec<i32>>>;
 impl PictureSize {
-  pub fn all() -> picture_sizes::table {
+  pub fn all() -> Table {
     picture_sizes::table
   }
   #[allow(unused)]
-  pub fn get_by_id(id: i32) -> Filter<picture_sizes::table, Eq<picture_sizes::id, i32>> {
+  pub fn get_by_id(id: i32) -> GetById {
     PictureSize::all().filter(picture_sizes::id.eq(id))
   }
 
-  pub fn get_by_picture_id(
-    picture_id: i32,
-  ) -> Filter<picture_sizes::table, Eq<picture_sizes::picture_id, i32>> {
+  pub fn get_by_picture_id(picture_id: i32) -> GetByPictureId {
     PictureSize::all().filter(picture_sizes::picture_id.eq(picture_id))
+  }
+  pub fn get_by_picture_ids(picture_ids: Vec<i32>) -> GetByPictureIds {
+    PictureSize::all().filter(picture_sizes::picture_id.eq_any(picture_ids))
   }
 }
 

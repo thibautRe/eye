@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
 use crate::{
   cli_args::ServeArgs,
-  database::{db_connection, Pool},
+  database::{db_connection, Pool, PooledConnection},
   errors::{ServiceError, ServiceResult},
   jwt::{Claims, JwtKey, Role},
   models::{
@@ -11,14 +13,53 @@ use crate::{
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
     picture_album::PictureAlbum,
-    picture_size::{PictureSize, PictureSizeApi},
+    picture_size::PictureSize,
     user::User,
     AccessType,
   },
-  schema::{camera_lenses, picture_albums, picture_sizes, pictures},
+  schema::{picture_albums, pictures},
 };
 
 type RouteResult = ServiceResult<HttpResponse>;
+
+fn complete_picture(picture: Picture, db_pool: &mut PooledConnection) -> ServiceResult<PictureApi> {
+  let picture_sizes: Vec<PictureSize> = PictureSize::get_by_picture_id(picture.id).load(db_pool)?;
+  let lens: Option<CameraLens> = picture
+    .shot_by_camera_lens_id
+    .map(|id| CameraLens::get_by_id(id).first(db_pool))
+    .transpose()?;
+  Ok(picture.into_api_full(picture_sizes, lens))
+}
+
+fn complete_pictures(
+  pictures: Vec<Picture>,
+  db_pool: &mut PooledConnection,
+) -> ServiceResult<Vec<PictureApi>> {
+  let picture_ids: Vec<i32> = pictures.iter().map(|p| p.id).collect();
+  let picture_sizes: Vec<PictureSize> =
+    PictureSize::get_by_picture_ids(picture_ids.clone()).load(db_pool)?;
+  let lenses: Vec<CameraLens> = CameraLens::get_by_ids(picture_ids).load(db_pool)?;
+  let lenses_by_id: HashMap<i32, CameraLens> = lenses.into_iter().map(|l| (l.id, l)).collect();
+  Ok(
+    pictures
+      .into_iter()
+      .map(|p| {
+        let picture_id = p.id;
+        let shot_by_camera_lens_id = p.shot_by_camera_lens_id;
+        p.into_api_full(
+          picture_sizes
+            .iter()
+            .filter(|&s| s.picture_id == picture_id)
+            .map(|s| s.clone())
+            .collect(),
+          shot_by_camera_lens_id
+            .map(|id| lenses_by_id.get(&id).map(|l| l.clone()))
+            .flatten(),
+        )
+      })
+      .collect(),
+  )
+}
 
 #[get("/api/admin/jwt_gen")]
 async fn admin_jwt_gen_handler(
@@ -57,45 +98,12 @@ async fn pictures_handler(
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
   let mut db_pool = db_connection(&pool)?;
-  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> = match claim {
-    None => Picture::all()
-      .filter(pictures::access_type.eq("public"))
-      .left_join(camera_lenses::table)
-      .left_join(picture_sizes::table)
-      .load(&mut db_pool)?,
-    Some(_c) => Picture::all()
-      .left_join(camera_lenses::table)
-      .left_join(picture_sizes::table)
-      .load(&mut db_pool)?,
+  let pictures = match claim {
+    None => Picture::get_all_public().load::<Picture>(&mut db_pool)?,
+    Some(_c) => Picture::all().load::<Picture>(&mut db_pool)?,
   };
 
-  Ok(HttpResponse::Ok().json(arrange_picture_data(pictures_db)))
-}
-
-fn arrange_picture_data(
-  pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)>,
-) -> Vec<PictureApi> {
-  let mut pictures_api: Vec<PictureApi> = Vec::new();
-  for (picture, lens, size) in pictures_db.into_iter() {
-    let prev_index = { pictures_api.len() };
-    let prev_pic_api = match prev_index {
-      0 => None,
-      _ => pictures_api.get_mut(prev_index - 1),
-    };
-
-    let size_vec = size.map_or(Vec::new(), |s| vec![s]);
-    if let Some(prev_pic) = prev_pic_api {
-      if prev_pic.id == picture.id && size_vec.len() == 1 {
-        let s = size_vec[0].clone();
-        prev_pic.sizes.push(PictureSizeApi::from(s));
-      } else {
-        pictures_api.push(picture.into_api_full(size_vec, lens));
-      }
-    } else {
-      pictures_api.push(picture.into_api_full(size_vec, lens));
-    }
-  }
-  pictures_api
+  Ok(HttpResponse::Ok().json(complete_pictures(pictures, &mut db_pool)?))
 }
 
 #[get("/api/picture/{id}")]
@@ -103,32 +111,18 @@ async fn picture_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
-  path: web::Path<(u32,)>,
+  path: web::Path<(i32,)>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
   let mut db_pool = db_connection(&pool)?;
-  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
-    Picture::get_by_id(path.0 as i32)
-      .left_join(camera_lenses::table)
-      .left_join(picture_sizes::table)
-      .load(&mut db_pool)?;
+  let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db_pool)?;
 
   // Identity check
-  if claim.is_none() {
-    let pic = pictures_db.get(0);
-    if let Some(p) = pic {
-      if p.0.access_type != AccessType::Public {
-        return Err(ServiceError::Unauthorized);
-      }
-    }
+  if claim.is_none() && picture.access_type != AccessType::Public {
+    return Err(ServiceError::Unauthorized);
   }
 
-  let pic_apis = arrange_picture_data(pictures_db);
-  let picture_api = pic_apis.get(0);
-  match picture_api {
-    None => Err(ServiceError::NotFound),
-    Some(pic) => Ok(HttpResponse::Ok().json(pic)),
-  }
+  Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db_pool)?))
 }
 
 // TODO: unstable
@@ -157,19 +151,15 @@ async fn album_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
-  path: web::Path<(u32,)>,
+  path: web::Path<(i32,)>,
 ) -> RouteResult {
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db_pool = db_connection(&pool)?;
-  let album_db: Album = Album::get_by_id(path.0 as i32).first(&mut db_pool)?;
-  let pictures_db: Vec<(Picture, Option<CameraLens>, Option<PictureSize>)> =
-    Picture::get_by_album_id(path.0 as i32)
-      .left_join(camera_lenses::table)
-      .left_join(picture_sizes::table)
-      .load(&mut db_pool)?;
+  let album_db: Album = Album::get_by_id(path.0).first(&mut db_pool)?;
+  let pictures = Picture::get_by_album_id(path.0).load::<Picture>(&mut db_pool)?;
 
-  Ok(HttpResponse::Ok().json(album_db.into_api(arrange_picture_data(pictures_db))))
+  Ok(HttpResponse::Ok().json(album_db.into_api(complete_pictures(pictures, &mut db_pool)?)))
 }
 
 pub fn api_service(cfg: &mut web::ServiceConfig) {
