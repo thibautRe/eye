@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use actix_web::{get, web, HttpRequest, HttpResponse};
-use diesel::RunQueryDsl;
+use diesel::{QueryDsl, RunQueryDsl};
 
 use crate::{
+  api::pagination::{Paginate, PaginatedApi},
   cli_args::ServeArgs,
   database::{db_connection, Pool, PooledConnection},
   errors::{ServiceError, ServiceResult},
@@ -17,6 +18,8 @@ use crate::{
     AccessType,
   },
 };
+
+mod pagination;
 
 type RouteResult = ServiceResult<HttpResponse>;
 
@@ -61,14 +64,19 @@ fn complete_pictures(
 
 fn complete_album(album: Album, db_pool: &mut PooledConnection) -> ServiceResult<AlbumApi> {
   let album_id = album.id;
-  Ok(album.into_api(complete_pictures(
-    Picture::get_by_album_id(album_id).load::<Picture>(db_pool)?,
-    db_pool,
-  )?))
+  Ok(
+    album.into_api(complete_pictures(
+      Picture::get_by_album_id(album_id)
+        .limit(5)
+        .load::<Picture>(db_pool)?,
+      db_pool,
+    )?),
+  )
 }
 
 // TODO perf - this can be improved by changing the db querying strategy to instead
-// query everything upfront
+// query everything upfront instead of calling `complete_album` for each album.
+// Similar to how `complete_pictures` doesn't call `complete_picture`.
 fn complete_albums(
   albums: Vec<Album>,
   db_pool: &mut PooledConnection,
@@ -108,20 +116,33 @@ async fn admin_users_handler(
   Ok(HttpResponse::Ok().json(users))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct PicturesRequest {
+  album_id: Option<i32>,
+  page: Option<i64>,
+  limit: Option<i64>,
+}
+
 #[get("/api/pictures")]
 async fn pictures_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
+  query: web::Query<PicturesRequest>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
   let mut db_pool = db_connection(&pool)?;
-  let pictures = match claim {
-    None => Picture::get_all_public().load::<Picture>(&mut db_pool)?,
-    Some(_c) => Picture::all().load::<Picture>(&mut db_pool)?,
-  };
 
-  Ok(HttpResponse::Ok().json(complete_pictures(pictures, &mut db_pool)?))
+  let (pictures, info) = Picture::get_filters(claim, query.album_id)
+    .paginate(query.page.unwrap_or(1))
+    .per_page(query.limit, 50)
+    .load_and_count_pages::<Picture>(&mut db_pool)?;
+
+  Ok(HttpResponse::Ok().json(PaginatedApi {
+    items: complete_pictures(pictures, &mut db_pool)?,
+    info,
+  }))
 }
 
 #[get("/api/picture/{id}")]
@@ -143,17 +164,32 @@ async fn picture_handler(
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db_pool)?))
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AlbumsRequest {
+  page: Option<i64>,
+  limit: Option<i64>,
+}
 #[get("/api/albums")]
 async fn albums_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
   pool: web::Data<Pool>,
+  query: web::Query<AlbumsRequest>,
 ) -> RouteResult {
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+
   let mut db_pool = db_connection(&pool)?;
-  let albums = Album::all().load::<Album>(&mut db_pool)?;
-  Ok(HttpResponse::Ok().json(complete_albums(albums, &mut db_pool)?))
+  let (albums, info) = Album::all()
+    .paginate(query.page.unwrap_or(1))
+    .per_page(query.limit, 50)
+    .load_and_count_pages::<Album>(&mut db_pool)?;
+
+  Ok(HttpResponse::Ok().json(PaginatedApi {
+    items: complete_albums(albums, &mut db_pool)?,
+    info,
+  }))
 }
 
 #[get("/api/album/{id}")]

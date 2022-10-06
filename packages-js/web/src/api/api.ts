@@ -1,6 +1,13 @@
 import { User } from "../providers/Identity"
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
+import {
+  makePaginatedApi,
+  mapPaginated,
+  PaginatedApi,
+  PaginatedApiLoader,
+  PaginatedLoaderProps,
+} from "./pagination"
 import { get, get_json } from "./utils"
 
 const routes = {
@@ -12,12 +19,17 @@ const routes = {
   adminUsers: `/api/admin/users`,
 } as const
 
-export const apiGetPictures = () =>
-  get_json<PictureApi[]>(routes.pictures).then(r => r.map(parsePicture))
+export const apiGetPictures = makePaginatedApi<
+  PictureApi,
+  { albumId?: number }
+>(routes.pictures, parsePicture)
+export const apiGetAlbums = makePaginatedApi<AlbumApi>(
+  routes.albums,
+  parseAlbum,
+)
+
 export const apiGetPicture = (id: PictureApi["id"]) =>
   get_json<PictureApi>(routes.picture(id)).then(parsePicture)
-export const apiGetAlbums = () =>
-  get_json<AlbumApi[]>(routes.albums).then(r => r.map(parseAlbum))
 export const apiGetAlbum = (id: AlbumApi["id"]) =>
   get_json<AlbumApi>(routes.album(id)).then(parseAlbum)
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)

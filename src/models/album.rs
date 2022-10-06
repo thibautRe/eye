@@ -21,12 +21,12 @@ pub struct AlbumInsert {
   pub edited_at: NaiveDateTime,
 }
 
-type All = albums::table;
+type All = Order<albums::table, Asc<albums::created_at>>;
 type GetById = Filter<All, Eq<albums::id, i32>>;
 
 impl Album {
   pub fn all() -> All {
-    albums::table
+    albums::table.order(albums::created_at.asc())
   }
   pub fn get_by_id(id: i32) -> GetById {
     Album::all().filter(albums::id.eq(id))

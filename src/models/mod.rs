@@ -13,22 +13,6 @@ pub enum AccessType {
   Public,
 }
 
-// impl<DB, ST> Queryable<ST, DB> for AccessType
-// where
-//   DB: Backend,
-//   String: Queryable<ST, DB>,
-// {
-//   type Row = <String as Queryable<ST, DB>>::Row;
-
-//   fn build(row: Self::Row) -> Self {
-//     match String::build(row).ok().as_str() {
-//       "public" => AccessType::Public,
-//       "private" => AccessType::Private,
-//       _ => AccessType::Private,
-//     }
-//   }
-// }
-
 impl<DB> Queryable<Text, DB> for AccessType
 where
   DB: Backend,

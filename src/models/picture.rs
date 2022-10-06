@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use diesel::{dsl::*, prelude::*};
+use diesel::{dsl::*, pg::Pg, prelude::*};
 
 use super::{
   camera_lenses::CameraLens,
@@ -9,6 +9,7 @@ use super::{
 };
 use crate::{
   database::PooledConnection,
+  jwt::Claims,
   schema::{picture_albums, pictures},
 };
 
@@ -73,23 +74,34 @@ pub struct PictureApi {
   pub shot_with_iso: Option<i32>,
 }
 
-type Table = pictures::table;
-pub type GetAllPublic = Filter<Table, Eq<pictures::access_type, &'static str>>;
+type Table = Order<pictures::table, Asc<pictures::shot_at>>;
 pub type GetByAlbumId = Filter<
   Table,
   EqAny<pictures::id, Select<picture_album::GetByAlbumId, picture_albums::picture_id>>,
 >;
-pub type GetByAlbumIds = Filter<
-  Table,
-  EqAny<pictures::id, Select<picture_album::GetByAlbumIds, picture_albums::picture_id>>,
->;
 impl Picture {
   pub fn all() -> Table {
-    pictures::table
+    pictures::table.order(pictures::shot_at.asc())
   }
 
-  pub fn get_all_public() -> GetAllPublic {
-    Picture::all().filter(pictures::access_type.eq("public"))
+  pub fn get_filters(
+    claim: Option<Claims>,
+    album_id: Option<i32>,
+  ) -> IntoBoxed<'static, pictures::table, Pg> {
+    let mut query = Self::all().into_boxed();
+
+    if let Some(album_id) = album_id {
+      query = query.filter(
+        pictures::id
+          .eq_any(PictureAlbum::get_by_album_id(album_id).select(picture_albums::picture_id)),
+      );
+    }
+
+    if claim.is_none() {
+      query = query.filter(pictures::access_type.eq("public"));
+    }
+
+    query
   }
 
   pub fn get_by_id(id: i32) -> Filter<Table, Eq<pictures::id, i32>> {
@@ -104,11 +116,6 @@ impl Picture {
   pub fn get_by_album_id(id: i32) -> GetByAlbumId {
     Picture::all().filter(
       pictures::id.eq_any(PictureAlbum::get_by_album_id(id).select(picture_albums::picture_id)),
-    )
-  }
-  pub fn get_by_album_ids(ids: Vec<i32>) -> GetByAlbumIds {
-    Picture::all().filter(
-      pictures::id.eq_any(PictureAlbum::get_by_album_ids(ids).select(picture_albums::picture_id)),
     )
   }
 

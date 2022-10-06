@@ -10,3 +10,14 @@ export const get = async (route: string) =>
   assert_status_200(await fetch(route, { headers: apiClientHeaders }))
 export const get_json = async <T = unknown>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
+
+export const withParams = <
+  T extends Record<string, string | number | undefined>,
+>(
+  route: string,
+  params: T,
+) => {
+  // @ts-expect-error Record<string,number> is not assignable to URLSearchParams
+  const sp = new URLSearchParams(params).toString()
+  return sp ? `${route}?${sp}` : route
+}

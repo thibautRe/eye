@@ -8,10 +8,10 @@ import { PictureMetadata } from "./PictureMetadata"
 interface PictureGridProps {
   pictures: PictureApi[]
 }
-export const PictureGrid: VoidComponent<PictureGridProps> = ({ pictures }) => {
+export const PictureGrid: VoidComponent<PictureGridProps> = p => {
   return (
     <Stack wrap>
-      <For each={pictures}>
+      <For each={p.pictures}>
         {picture => (
           <Stack d="v" fgColor="g10" style={{ width: "30%" }}>
             {props => (
