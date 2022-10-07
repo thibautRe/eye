@@ -32,6 +32,7 @@ pub struct Picture {
   pub original_file_path: String,
   pub alt: String,
   pub access_type: AccessType,
+  pub extract_version: i32,
 }
 
 #[derive(Debug, Insertable)]
@@ -53,6 +54,7 @@ pub struct PictureInsert {
   pub original_file_path: String,
   pub alt: String,
   pub access_type: Option<String>,
+  pub extract_version: i32,
 }
 
 #[derive(Debug, Serialize)]

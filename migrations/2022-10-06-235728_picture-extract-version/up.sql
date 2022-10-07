@@ -1,0 +1,4 @@
+ALTER TABLE
+  pictures
+ADD
+  COLUMN extract_version INTEGER NOT NULL DEFAULT 1;

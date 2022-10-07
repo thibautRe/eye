@@ -67,6 +67,7 @@ table! {
         original_file_path -> Text,
         alt -> Text,
         access_type -> Text,
+        extract_version -> Int4,
     }
 }
 
