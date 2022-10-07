@@ -6,7 +6,7 @@ use diesel::{
   PgConnection, QueryResult, RunQueryDsl,
 };
 
-const DEFAULT_PER_PAGE: i64 = 50;
+const DEFAULT_PER_PAGE: i64 = 20;
 
 pub trait Paginate: Sized {
   fn paginate(self, page: i64) -> Paginated<Self>;

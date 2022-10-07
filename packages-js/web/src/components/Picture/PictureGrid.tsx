@@ -1,5 +1,5 @@
 import { Link } from "solid-app-router"
-import { For, VoidComponent } from "solid-js"
+import { Component, For, JSX, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
 import { Stack } from "../Stack/Stack"
 import { Picture } from "./PictureComponent"
@@ -7,6 +7,7 @@ import { PictureMetadata } from "./PictureMetadata"
 
 interface PictureGridProps {
   pictures: PictureApi[]
+  extra?: JSX.Element
 }
 export const PictureGrid: VoidComponent<PictureGridProps> = p => {
   return (
@@ -23,6 +24,7 @@ export const PictureGrid: VoidComponent<PictureGridProps> = p => {
           </Stack>
         )}
       </For>
+      {p.extra}
     </Stack>
   )
 }

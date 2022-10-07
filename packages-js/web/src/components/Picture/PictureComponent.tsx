@@ -7,6 +7,7 @@ import {
   VoidComponent,
 } from "solid-js"
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
+import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { AspectRatio } from "./AspectRatio"
 import { PictureBlurhash } from "./PictureBlurhash"
 import {
@@ -46,14 +47,7 @@ export const Picture: VoidComponent<PictureProps> = props => {
   const [shouldLoad, setShouldLoad] = createSignal(false)
   const [isLoaded, setIsLoaded] = createSignal(false)
   const blurhash = () => local.picture.blurhash
-  let eltRef: HTMLDivElement | undefined
-  const observer = new IntersectionObserver(ev => {
-    if (ev[0]?.isIntersecting) {
-      setShouldLoad(true)
-      observer.disconnect()
-    }
-  })
-  createEffect(() => eltRef && observer.observe(eltRef))
+  let eltRef = createBecomesVisible(() => setShouldLoad(true))
   return (
     <AspectRatio
       aspectRatio={local.picture.width / local.picture.height}
