@@ -12,12 +12,15 @@ mod jwt;
 mod models;
 mod schema;
 
-use std::{collections::HashMap, path::Path};
+use std::{
+  collections::{HashMap, HashSet},
+  path::Path,
+};
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
 use database::{Pool, PooledConnection};
-use diesel::RunQueryDsl;
+use diesel::{QueryDsl, RunQueryDsl};
 use exif_helpers::*;
 use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageError};
 use jwt::JwtKey;
@@ -26,6 +29,7 @@ use models::{
   picture::{Picture, PictureInsert},
   picture_size::PictureSizeInsert,
 };
+use schema::pictures;
 use walkdir::WalkDir;
 
 type CommandReturn = Result<(), std::io::Error>;
@@ -70,12 +74,22 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     .map(|lens| (lens.name.clone(), lens))
     .collect();
 
+  let all_pictures: Vec<(String, i32)> = Picture::all()
+    .select((pictures::original_file_path, pictures::extract_version))
+    .load(&mut db)
+    .unwrap();
+  let all_pictures: HashSet<_> = all_pictures.into_iter().collect();
+
   for entry in WalkDir::new(args.extract_from)
     .follow_links(true)
     .into_iter()
     .filter_map(|e| e.ok())
     .filter(|e| is_picture_file(e))
   {
+    let file_path = entry.path().to_str().unwrap();
+    if all_pictures.contains(&(String::from(file_path), 1)) {
+      continue;
+    }
     let entry_name = entry.file_name().to_str().unwrap();
     let dyn_img = image::open(entry.path()).unwrap();
     let exif = get_exif(&std::fs::File::open(entry.path())?);
@@ -83,7 +97,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     let pic = PictureInsert {
       name: Some(entry_name.into()),
       uploaded_at: chrono::Local::now().naive_local(),
-      original_file_path: entry.path().to_str().unwrap().into(),
+      original_file_path: file_path.into(),
       original_width: dyn_img.width() as i32,
       original_height: dyn_img.height() as i32,
       blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
@@ -100,6 +114,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
       shot_with_focal_length: get_shot_with_focal_length(&exif),
       shot_with_exposure_time: get_shot_with_exposure_time(&exif),
       shot_with_iso: get_shot_with_iso(&exif),
+      extract_version: 1,
     }
     .insert(&mut db)
     .unwrap();

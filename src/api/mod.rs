@@ -23,23 +23,23 @@ mod pagination;
 
 type RouteResult = ServiceResult<HttpResponse>;
 
-fn complete_picture(picture: Picture, db_pool: &mut PooledConnection) -> ServiceResult<PictureApi> {
-  let picture_sizes: Vec<PictureSize> = PictureSize::get_by_picture_id(picture.id).load(db_pool)?;
+fn complete_picture(picture: Picture, db: &mut PooledConnection) -> ServiceResult<PictureApi> {
+  let picture_sizes: Vec<PictureSize> = PictureSize::get_by_picture_id(picture.id).load(db)?;
   let lens: Option<CameraLens> = picture
     .shot_by_camera_lens_id
-    .map(|id| CameraLens::get_by_id(id).first(db_pool))
+    .map(|id| CameraLens::get_by_id(id).first(db))
     .transpose()?;
   Ok(picture.into_api_full(picture_sizes, lens))
 }
 
 fn complete_pictures(
   pictures: Vec<Picture>,
-  db_pool: &mut PooledConnection,
+  db: &mut PooledConnection,
 ) -> ServiceResult<Vec<PictureApi>> {
   let picture_ids: Vec<i32> = pictures.iter().map(|p| p.id).collect();
   let picture_sizes: Vec<PictureSize> =
-    PictureSize::get_by_picture_ids(picture_ids.clone()).load(db_pool)?;
-  let lenses: Vec<CameraLens> = CameraLens::get_by_ids(picture_ids).load(db_pool)?;
+    PictureSize::get_by_picture_ids(picture_ids.clone()).load(db)?;
+  let lenses: Vec<CameraLens> = CameraLens::get_by_ids(picture_ids).load(db)?;
   let lenses_by_id: HashMap<i32, CameraLens> = lenses.into_iter().map(|l| (l.id, l)).collect();
   Ok(
     pictures
@@ -62,14 +62,14 @@ fn complete_pictures(
   )
 }
 
-fn complete_album(album: Album, db_pool: &mut PooledConnection) -> ServiceResult<AlbumApi> {
+fn complete_album(album: Album, db: &mut PooledConnection) -> ServiceResult<AlbumApi> {
   let album_id = album.id;
   Ok(
     album.into_api(complete_pictures(
       Picture::get_by_album_id(album_id)
         .limit(5)
-        .load::<Picture>(db_pool)?,
-      db_pool,
+        .load::<Picture>(db)?,
+      db,
     )?),
   )
 }
@@ -77,14 +77,8 @@ fn complete_album(album: Album, db_pool: &mut PooledConnection) -> ServiceResult
 // TODO perf - this can be improved by changing the db querying strategy to instead
 // query everything upfront instead of calling `complete_album` for each album.
 // Similar to how `complete_pictures` doesn't call `complete_picture`.
-fn complete_albums(
-  albums: Vec<Album>,
-  db_pool: &mut PooledConnection,
-) -> ServiceResult<Vec<AlbumApi>> {
-  albums
-    .into_iter()
-    .map(|a| complete_album(a, db_pool))
-    .collect()
+fn complete_albums(albums: Vec<Album>, db: &mut PooledConnection) -> ServiceResult<Vec<AlbumApi>> {
+  albums.into_iter().map(|a| complete_album(a, db)).collect()
 }
 
 #[get("/api/admin/jwt_gen")]
@@ -111,8 +105,8 @@ async fn admin_users_handler(
   pool: web::Data<Pool>,
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
-  let mut db_pool = db_connection(&pool)?;
-  let users: Vec<User> = User::get_all().load(&mut db_pool)?;
+  let mut db = db_connection(&pool)?;
+  let users: Vec<User> = User::get_all().load(&mut db)?;
   Ok(HttpResponse::Ok().json(users))
 }
 
@@ -132,15 +126,15 @@ async fn pictures_handler(
   query: web::Query<PicturesRequest>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
-  let mut db_pool = db_connection(&pool)?;
+  let mut db = db_connection(&pool)?;
 
   let (pictures, info) = Picture::get_filters(claim, query.album_id)
     .paginate(query.page.unwrap_or(1))
     .per_page(query.limit, 50)
-    .load_and_count_pages::<Picture>(&mut db_pool)?;
+    .load_and_count_pages::<Picture>(&mut db)?;
 
   Ok(HttpResponse::Ok().json(PaginatedApi {
-    items: complete_pictures(pictures, &mut db_pool)?,
+    items: complete_pictures(pictures, &mut db)?,
     info,
   }))
 }
@@ -153,15 +147,15 @@ async fn picture_handler(
   path: web::Path<(i32,)>,
 ) -> RouteResult {
   let claim = Claims::from_request(&req, &jwt_key).ok();
-  let mut db_pool = db_connection(&pool)?;
-  let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db_pool)?;
+  let mut db = db_connection(&pool)?;
+  let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db)?;
 
   // Identity check
   if claim.is_none() && picture.access_type != AccessType::Public {
     return Err(ServiceError::Unauthorized);
   }
 
-  Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db_pool)?))
+  Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db)?))
 }
 
 #[derive(Debug, Deserialize)]
@@ -180,14 +174,14 @@ async fn albums_handler(
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
 
-  let mut db_pool = db_connection(&pool)?;
+  let mut db = db_connection(&pool)?;
   let (albums, info) = Album::all()
     .paginate(query.page.unwrap_or(1))
     .per_page(query.limit, 50)
-    .load_and_count_pages::<Album>(&mut db_pool)?;
+    .load_and_count_pages::<Album>(&mut db)?;
 
   Ok(HttpResponse::Ok().json(PaginatedApi {
-    items: complete_albums(albums, &mut db_pool)?,
+    items: complete_albums(albums, &mut db)?,
     info,
   }))
 }
@@ -201,9 +195,9 @@ async fn album_handler(
 ) -> RouteResult {
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
-  let mut db_pool = db_connection(&pool)?;
-  let album: Album = Album::get_by_id(path.0).first(&mut db_pool)?;
-  Ok(HttpResponse::Ok().json(complete_album(album, &mut db_pool)?))
+  let mut db = db_connection(&pool)?;
+  let album: Album = Album::get_by_id(path.0).first(&mut db)?;
+  Ok(HttpResponse::Ok().json(complete_album(album, &mut db)?))
 }
 
 pub fn api_service(cfg: &mut web::ServiceConfig) {
