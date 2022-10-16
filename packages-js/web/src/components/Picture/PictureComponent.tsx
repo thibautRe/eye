@@ -33,12 +33,17 @@ const ImgComponent: VoidComponent<ImgComponentProps> = props => {
   )
 }
 
+// Cache pictures that have loaded
+const loadedPictures = new Set<string>()
+
 export interface PictureProps
   extends Omit<ImgComponentProps, "onload" | "style" | "class" | "classList"> {}
 export const Picture: VoidComponent<PictureProps> = props => {
   const [local, rest] = splitProps(props, ["picture"])
   const [shouldLoad, setShouldLoad] = createSignal(false)
-  const [isLoaded, setIsLoaded] = createSignal(false)
+  const [isLoaded, setIsLoaded] = createSignal(
+    loadedPictures.has(`${local.picture.id}-${rest.sizes}`),
+  )
   const blurhash = () => local.picture.blurhash
   let eltRef = createBecomesVisible(() => setShouldLoad(true))
   return (
@@ -52,10 +57,13 @@ export const Picture: VoidComponent<PictureProps> = props => {
           class={pictureComponentBlurhash}
         />
       </Show>
-      <Show when={shouldLoad()}>
+      <Show when={shouldLoad() || isLoaded()}>
         <ImgComponent
           picture={local.picture}
-          onload={() => setIsLoaded(true)}
+          onload={() => {
+            setIsLoaded(true)
+            loadedPictures.add(`${local.picture.id}-${rest.sizes}`)
+          }}
           style={{ opacity: isLoaded() ? 1 : 0.01 }}
           class={pictureComponent}
           {...rest}
