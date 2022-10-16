@@ -1,4 +1,4 @@
-import { createEffect, createSignal } from "solid-js"
+import { Accessor, createEffect, createSignal } from "solid-js"
 import { PaginatedApiLoader } from "../../api/pagination"
 
 interface PaginatedSignal<T> {
@@ -8,10 +8,14 @@ interface PaginatedSignal<T> {
   isLoadingNextPage: boolean
 }
 
+export interface PaginatedLoader<T> {
+  data: Accessor<PaginatedSignal<T>>
+  onLoadNext: () => void
+}
 export const createPaginatedLoader = <T, P extends {} | undefined>(
   loader: PaginatedApiLoader<T, P>,
   params?: P,
-) => {
+): PaginatedLoader<T> => {
   const [signal, setSignal] = createSignal<PaginatedSignal<T>>({
     items: [],
     nextPage: 1,

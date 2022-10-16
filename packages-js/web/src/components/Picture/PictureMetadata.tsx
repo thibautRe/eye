@@ -19,7 +19,12 @@ export const PictureIso: PictureMetadataComponent = props => (
 )
 
 export const PictureAperture: PictureMetadataComponent = props => (
-  <Show when={props.picture.shotWithAperture}>
+  <Show
+    when={
+      props.picture.shotWithAperture &&
+      parseInt(props.picture.shotWithAperture, 10)
+    }
+  >
     <span>f/{props.picture.shotWithAperture}</span>
   </Show>
 )

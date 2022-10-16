@@ -1,11 +1,4 @@
-import {
-  createEffect,
-  createSignal,
-  JSX,
-  Show,
-  splitProps,
-  VoidComponent,
-} from "solid-js"
+import { createSignal, JSX, Show, splitProps, VoidComponent } from "solid-js"
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { AspectRatio } from "./AspectRatio"
