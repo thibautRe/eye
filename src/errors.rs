@@ -50,7 +50,7 @@ impl From<DBError> for ServiceError {
       DBError::NotFound => ServiceError::NotFound,
       DBError::DatabaseError(_kind, info) => {
         let message = info.details().unwrap_or_else(|| info.message()).to_string();
-        ServiceError::BadRequest(message)
+        ServiceError::InternalServerError(message)
       }
       _ => ServiceError::UnableToConnectToDb,
     }

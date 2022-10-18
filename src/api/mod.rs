@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use actix_web::{get, post, web, HttpRequest, HttpResponse};
-use diesel::{QueryDsl, RunQueryDsl};
+use diesel::RunQueryDsl;
 
 use crate::{
   api::pagination::{Paginate, PaginatedApi},
@@ -65,14 +65,11 @@ fn complete_pictures(
 
 fn complete_album(album: Album, db: &mut PooledConnection) -> ServiceResult<AlbumApi> {
   let album_id = album.id;
-  Ok(
-    album.into_api(complete_pictures(
-      Picture::get_by_album_id(album_id)
-        .limit(5)
-        .load::<Picture>(db)?,
-      db,
-    )?),
-  )
+  let (pictures_excerpt, info) = Picture::get_by_album_id(album_id)
+    .paginate_first_page()
+    .per_page_fixed(5)
+    .load_and_count_pages::<Picture>(db)?;
+  Ok(album.into_api(complete_pictures(pictures_excerpt, db)?, info.total_count))
 }
 
 // TODO perf - this can be improved by changing the db querying strategy to instead
@@ -131,7 +128,7 @@ async fn pictures_handler(
   let mut db = db_connection(&pool)?;
 
   let (pictures, info) = Picture::get_filters(claim, query.album_id, query.not_album_id)
-    .paginate(query.page.unwrap_or(1))
+    .paginate_option(query.page)
     .per_page(query.limit, 50)
     .load_and_count_pages::<Picture>(&mut db)?;
 
@@ -178,7 +175,7 @@ async fn albums_handler(
 
   let mut db = db_connection(&pool)?;
   let (albums, info) = Album::all()
-    .paginate(query.page.unwrap_or(1))
+    .paginate_option(query.page)
     .per_page(query.limit, 50)
     .load_and_count_pages::<Album>(&mut db)?;
 

@@ -32,12 +32,13 @@ impl Album {
     Album::all().filter(albums::id.eq(id))
   }
 
-  pub fn into_api(self: Self, pictures: Vec<PictureApi>) -> AlbumApi {
+  pub fn into_api(self: Self, pictures: Vec<PictureApi>, pictures_amt: i64) -> AlbumApi {
     AlbumApi {
       id: self.id,
       name: self.name,
       created_at: self.created_at,
       updated_at: self.edited_at,
+      pictures_amt,
       pictures_excerpt: pictures,
     }
   }
@@ -50,6 +51,7 @@ pub struct AlbumApi {
   pub name: String,
   pub created_at: NaiveDateTime,
   pub updated_at: NaiveDateTime,
-  /// Up to 20 pictures
+  pub pictures_amt: i64,
+  /// Up to 5 pictures
   pub pictures_excerpt: Vec<PictureApi>,
 }

@@ -10,6 +10,8 @@ const DEFAULT_PER_PAGE: i64 = 20;
 
 pub trait Paginate: Sized {
   fn paginate(self, page: i64) -> Paginated<Self>;
+  fn paginate_option(self, page: Option<i64>) -> Paginated<Self>;
+  fn paginate_first_page(self) -> Paginated<Self>;
 }
 
 impl<T> Paginate for T {
@@ -20,6 +22,19 @@ impl<T> Paginate for T {
       page: page,
       offset: (page - 1) * DEFAULT_PER_PAGE,
     }
+  }
+
+  /// Returns the first page if page is None
+  fn paginate_option(self, page: Option<i64>) -> Paginated<Self> {
+    match page {
+      None => self.paginate_first_page(),
+      Some(page) => self.paginate(page),
+    }
+  }
+
+  /// Returns the first page for a paginated query
+  fn paginate_first_page(self) -> Paginated<Self> {
+    self.paginate(1)
   }
 }
 
@@ -32,17 +47,22 @@ pub struct Paginated<T> {
 }
 
 impl<T> Paginated<T> {
+  /// Useful for variable (e.g. client-side controlled) pagination that should
+  /// still have an upper bound.
+  ///
+  /// If the page size is fixed, use `per_page_fixed` instead.
   pub fn per_page(self, per_page: Option<i64>, max: i64) -> Self {
     match per_page {
       None => self,
-      Some(per_page) => {
-        let per_page = std::cmp::min(per_page, max);
-        Paginated {
-          per_page,
-          offset: (self.page - 1) * per_page,
-          ..self
-        }
-      }
+      Some(per_page) => self.per_page_fixed(std::cmp::min(per_page, max)),
+    }
+  }
+
+  pub fn per_page_fixed(self, per_page: i64) -> Self {
+    Paginated {
+      per_page,
+      offset: (self.page - 1) * per_page,
+      ..self
     }
   }
 
@@ -99,9 +119,9 @@ impl<T> RunQueryDsl<PgConnection> for Paginated<T> {}
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginatedInfo {
-  total_count: i64,
-  total_pages: i64,
-  next_page: Option<i64>,
+  pub total_count: i64,
+  pub total_pages: i64,
+  pub next_page: Option<i64>,
 }
 
 #[derive(Debug, Serialize)]

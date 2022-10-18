@@ -6,6 +6,7 @@ export interface AlbumApi {
   name: string
   createdAt: Date
   updatedAt: Date
+  picturesAmt: number
   picturesExcerpt: PictureApi[]
 }
 
