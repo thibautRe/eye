@@ -30,12 +30,16 @@ export const createPaginatedLoader = <T, P extends {} | undefined>(
       !signalInfo.isLoadingNextPage
     ) {
       const nextPage = signalInfo.nextPage
-      setSignal(p => ({ ...p, isLoadingNextPage: true }))
+      setSignal(p => ({
+        ...p,
+        isLoadingNextPage: true,
+        shouldLoadNextPage: false,
+      }))
       const res = await loader({ page: nextPage }, params)
       setSignal(p => ({
+        ...p,
         items: [...p.items, ...res.items],
         nextPage: res.info.nextPage,
-        shouldLoadNextPage: false,
         isLoadingNextPage: false,
       }))
     }
@@ -43,7 +47,7 @@ export const createPaginatedLoader = <T, P extends {} | undefined>(
 
   const onLoadNext = () => {
     setSignal(s => {
-      if (s.isLoadingNextPage || s.shouldLoadNextPage) return s
+      if (s.shouldLoadNextPage) return s
       return { ...s, shouldLoadNextPage: true }
     })
   }

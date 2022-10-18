@@ -7,11 +7,7 @@ use super::{
   picture_size::{PictureSize, PictureSizeApi},
   AccessType,
 };
-use crate::{
-  database::PooledConnection,
-  jwt::Claims,
-  schema::{picture_albums, pictures},
-};
+use crate::{database::PooledConnection, jwt::Claims, schema::pictures};
 
 #[derive(Debug, Queryable)]
 pub struct Picture {
@@ -77,10 +73,7 @@ pub struct PictureApi {
 }
 
 type Table = Order<pictures::table, Asc<pictures::shot_at>>;
-pub type GetByAlbumId = Filter<
-  Table,
-  EqAny<pictures::id, Select<picture_album::GetByAlbumId, picture_albums::picture_id>>,
->;
+pub type GetByAlbumId = Filter<Table, EqAny<pictures::id, picture_album::GetByAlbumId>>;
 impl Picture {
   pub fn all() -> Table {
     pictures::table.order(pictures::shot_at.asc())
@@ -89,14 +82,16 @@ impl Picture {
   pub fn get_filters(
     claim: Option<Claims>,
     album_id: Option<i32>,
+    not_album_id: Option<i32>,
   ) -> IntoBoxed<'static, pictures::table, Pg> {
     let mut query = Self::all().into_boxed();
 
     if let Some(album_id) = album_id {
-      query = query.filter(
-        pictures::id
-          .eq_any(PictureAlbum::get_by_album_id(album_id).select(picture_albums::picture_id)),
-      );
+      query = query.filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(album_id)));
+    }
+
+    if let Some(not_album_id) = not_album_id {
+      query = query.filter(pictures::id.ne_all(PictureAlbum::get_by_album_id(not_album_id)))
     }
 
     if claim.is_none() {
@@ -116,9 +111,7 @@ impl Picture {
   }
 
   pub fn get_by_album_id(id: i32) -> GetByAlbumId {
-    Picture::all().filter(
-      pictures::id.eq_any(PictureAlbum::get_by_album_id(id).select(picture_albums::picture_id)),
-    )
+    Picture::all().filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(id)))
   }
 
   pub fn into_api_full(

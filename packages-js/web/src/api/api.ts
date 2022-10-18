@@ -8,7 +8,7 @@ import {
   PaginatedApiLoader,
   PaginatedLoaderProps,
 } from "./pagination"
-import { get, get_json } from "./utils"
+import { get, get_json, post } from "./utils"
 
 const routes = {
   pictures: `/api/pictures`,
@@ -17,11 +17,13 @@ const routes = {
   album: (id: AlbumApi["id"]) => `/api/album/${id}`,
   adminJwtGen: `/api/admin/jwt_gen`,
   adminUsers: `/api/admin/users`,
+
+  addAlbumPictures: (id: AlbumApi["id"]) => `/api/album/${id}/add_pictures`,
 } as const
 
 export const apiGetPictures = makePaginatedApi<
   PictureApi,
-  { albumId?: number }
+  { albumId?: number; notAlbumId?: number }
 >(routes.pictures, parsePicture)
 export const apiGetAlbums = makePaginatedApi<AlbumApi>(
   routes.albums,
@@ -35,3 +37,10 @@ export const apiGetAlbum = (id: AlbumApi["id"]) =>
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
 export const apiAdminJwtGen = async () =>
   await (await get(routes.adminJwtGen)).text()
+
+export const apiAddAlbumPictures = async (
+  albumId: AlbumApi["id"],
+  pictureIds: PictureApi["id"][],
+) => {
+  await post(routes.addAlbumPictures(albumId), pictureIds)
+}

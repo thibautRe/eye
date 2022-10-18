@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use actix_web::{get, web, HttpRequest, HttpResponse};
+use actix_web::{get, post, web, HttpRequest, HttpResponse};
 use diesel::{QueryDsl, RunQueryDsl};
 
 use crate::{
@@ -13,6 +13,7 @@ use crate::{
     album::{Album, AlbumApi},
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
+    picture_album::PictureAlbumInsert,
     picture_size::PictureSize,
     user::User,
     AccessType,
@@ -114,6 +115,7 @@ async fn admin_users_handler(
 #[serde(rename_all = "camelCase")]
 struct PicturesRequest {
   album_id: Option<i32>,
+  not_album_id: Option<i32>,
   page: Option<i64>,
   limit: Option<i64>,
 }
@@ -128,7 +130,7 @@ async fn pictures_handler(
   let claim = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
 
-  let (pictures, info) = Picture::get_filters(claim, query.album_id)
+  let (pictures, info) = Picture::get_filters(claim, query.album_id, query.not_album_id)
     .paginate(query.page.unwrap_or(1))
     .per_page(query.limit, 50)
     .load_and_count_pages::<Picture>(&mut db)?;
@@ -196,8 +198,36 @@ async fn album_handler(
   // TODO identity check
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
-  let album: Album = Album::get_by_id(path.0).first(&mut db)?;
+  let album_id = path.0;
+  let album: Album = Album::get_by_id(album_id).first(&mut db)?;
   Ok(HttpResponse::Ok().json(complete_album(album, &mut db)?))
+}
+
+#[post("/api/album/{id}/add_pictures")]
+async fn album_add_pictures_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  data: web::Json<Vec<i32>>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+  let album_id = path.0;
+  let picture_ids = data.0;
+
+  PictureAlbumInsert::insert_mul(
+    &picture_ids
+      .into_iter()
+      .map(|picture_id| PictureAlbumInsert {
+        picture_id,
+        album_id,
+      })
+      .collect(),
+    &mut db,
+  )?;
+
+  Ok(HttpResponse::Ok().finish())
 }
 
 pub fn api_service(cfg: &mut web::ServiceConfig) {
@@ -207,5 +237,6 @@ pub fn api_service(cfg: &mut web::ServiceConfig) {
     .service(pictures_handler)
     .service(picture_handler)
     .service(album_handler)
+    .service(album_add_pictures_handler)
     .service(albums_handler);
 }

@@ -8,6 +8,14 @@ const assert_status_200 = (res: Response) => {
 
 export const get = async (route: string) =>
   assert_status_200(await fetch(route, { headers: apiClientHeaders }))
+export const post = async <T>(route: string, data: T) =>
+  assert_status_200(
+    await fetch(route, {
+      headers: { ...apiClientHeaders, "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  )
 export const get_json = async <T = unknown>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
 

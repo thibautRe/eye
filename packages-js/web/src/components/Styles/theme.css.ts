@@ -61,6 +61,8 @@ const defaultTheme = {
     "0": "0",
     /** 6px */
     m: "6px",
+    /** 20px */
+    l: "20px",
   },
 }
 
