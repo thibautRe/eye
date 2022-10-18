@@ -36,6 +36,10 @@ export const AppRoutes = () => (
     <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
 
+    {/* Convenience redirects */}
+    <Route path={"/picture/"} component={r(routes.Pictures)} />
+    <Route path={"/album/"} component={r(routes.Albums)} />
+
     <Route path={routes.AdminRoot} component={AdminRoot} />
     <Route path={routes.AdminUsers} component={AdminUsers} />
     <Route path={routes.AdminJwtGen} component={AdminJwtGen} />
