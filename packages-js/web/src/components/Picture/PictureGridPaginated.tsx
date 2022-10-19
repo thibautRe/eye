@@ -1,6 +1,8 @@
 import { splitProps, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
+import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { PaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
+import { Stack } from "../Stack/Stack"
 import { PictureGrid, PictureGridProps } from "./PictureGrid"
 import { PicturePlaceholder } from "./PicturePlaceholder"
 
@@ -24,6 +26,7 @@ export const PictureGridPaginated: VoidComponent<
             <PicturePlaceholder />
             <PicturePlaceholder />
             <PicturePlaceholder />
+            <Stack style={{ height: "200vh" }} />
           </>
         )
       }
