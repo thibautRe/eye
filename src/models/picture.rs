@@ -3,7 +3,7 @@ use diesel::{dsl::*, pg::Pg, prelude::*};
 
 use super::{
   camera_lenses::CameraLens,
-  picture_album::{self, PictureAlbum},
+  picture_album::PictureAlbum,
   picture_size::{PictureSize, PictureSizeApi},
   AccessType,
 };
