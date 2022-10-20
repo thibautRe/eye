@@ -5,7 +5,7 @@ use crate::{
 use chrono::NaiveDateTime;
 use diesel::{dsl::*, pg::Pg, prelude::*};
 
-use super::picture::PictureApi;
+use super::{picture::PictureApi, AccessType};
 
 #[derive(Debug, Queryable)]
 pub struct Album {
@@ -48,7 +48,7 @@ impl Album {
             .filter(
               picture_albums::picture_id.eq_any(
                 pictures::table
-                  .filter(pictures::access_type.eq("public"))
+                  .filter(pictures::access_type.eq(AccessType::Public.to_string()))
                   .select(pictures::id),
               ),
             )

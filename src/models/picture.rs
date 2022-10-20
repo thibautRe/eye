@@ -94,7 +94,7 @@ impl Picture {
     }
 
     if claims.is_none() {
-      query = query.filter(pictures::access_type.eq("public"));
+      query = query.filter(pictures::access_type.eq(AccessType::Public.to_string()));
     }
 
     query
@@ -111,7 +111,7 @@ impl Picture {
     let mut query = Self::all().into_boxed();
     query = query.filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(id)));
     if claims.is_none() {
-      query = query.filter(pictures::access_type.eq("public"))
+      query = query.filter(pictures::access_type.eq(AccessType::Public.to_string()))
     }
 
     query

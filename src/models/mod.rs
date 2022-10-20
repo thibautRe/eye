@@ -7,9 +7,10 @@ pub mod picture_album;
 pub mod picture_size;
 pub mod user;
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum AccessType {
   Private,
+  Shared,
   Public,
 }
 
@@ -24,7 +25,18 @@ where
     match s.as_str() {
       "public" => Ok(AccessType::Public),
       "private" => Ok(AccessType::Private),
+      "shared" => Ok(AccessType::Shared),
       _ => Ok(AccessType::Private),
+    }
+  }
+}
+
+impl AccessType {
+  pub fn to_string(self) -> &'static str {
+    match self {
+      AccessType::Private => "private",
+      AccessType::Public => "public",
+      AccessType::Shared => "shared",
     }
   }
 }
