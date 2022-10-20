@@ -3,7 +3,6 @@ use diesel::{dsl::*, prelude::*};
 
 #[derive(Debug, Queryable)]
 pub struct PictureAlbum {
-  pub id: i64,
   pub picture_id: i32,
   pub album_id: i32,
 }
