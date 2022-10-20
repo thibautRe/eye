@@ -73,14 +73,13 @@ pub struct PictureApi {
 }
 
 type Table = Order<pictures::table, Asc<pictures::shot_at>>;
-pub type GetByAlbumId = Filter<Table, EqAny<pictures::id, picture_album::GetByAlbumId>>;
 impl Picture {
   pub fn all() -> Table {
     pictures::table.order(pictures::shot_at.asc())
   }
 
   pub fn get_filters(
-    claim: Option<Claims>,
+    claims: Option<Claims>,
     album_id: Option<i32>,
     not_album_id: Option<i32>,
   ) -> IntoBoxed<'static, pictures::table, Pg> {
@@ -94,7 +93,7 @@ impl Picture {
       query = query.filter(pictures::id.ne_all(PictureAlbum::get_by_album_id(not_album_id)))
     }
 
-    if claim.is_none() {
+    if claims.is_none() {
       query = query.filter(pictures::access_type.eq("public"));
     }
 
@@ -105,13 +104,17 @@ impl Picture {
     Picture::all().filter(pictures::id.eq(id))
   }
 
-  #[allow(unused)]
-  pub fn get_by_ids(ids: Vec<i32>) -> Filter<Table, EqAny<pictures::id, Vec<i32>>> {
-    Picture::all().filter(pictures::id.eq_any(ids.to_owned()))
-  }
+  pub fn get_by_album_id(
+    id: i32,
+    claims: Option<Claims>,
+  ) -> IntoBoxed<'static, pictures::table, Pg> {
+    let mut query = Self::all().into_boxed();
+    query = query.filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(id)));
+    if claims.is_none() {
+      query = query.filter(pictures::access_type.eq("public"))
+    }
 
-  pub fn get_by_album_id(id: i32) -> GetByAlbumId {
-    Picture::all().filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(id)))
+    query
   }
 
   pub fn into_api_full(

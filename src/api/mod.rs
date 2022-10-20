@@ -63,9 +63,13 @@ fn complete_pictures(
   )
 }
 
-fn complete_album(album: Album, db: &mut PooledConnection) -> ServiceResult<AlbumApi> {
+fn complete_album(
+  album: Album,
+  db: &mut PooledConnection,
+  claims: Option<Claims>,
+) -> ServiceResult<AlbumApi> {
   let album_id = album.id;
-  let (pictures_excerpt, info) = Picture::get_by_album_id(album_id)
+  let (pictures_excerpt, info) = Picture::get_by_album_id(album_id, claims)
     .paginate_first_page()
     .per_page_fixed(5)
     .load_and_count_pages::<Picture>(db)?;
@@ -75,8 +79,15 @@ fn complete_album(album: Album, db: &mut PooledConnection) -> ServiceResult<Albu
 // TODO perf - this can be improved by changing the db querying strategy to instead
 // query everything upfront instead of calling `complete_album` for each album.
 // Similar to how `complete_pictures` doesn't call `complete_picture`.
-fn complete_albums(albums: Vec<Album>, db: &mut PooledConnection) -> ServiceResult<Vec<AlbumApi>> {
-  albums.into_iter().map(|a| complete_album(a, db)).collect()
+fn complete_albums(
+  albums: Vec<Album>,
+  db: &mut PooledConnection,
+  claims: Option<Claims>,
+) -> ServiceResult<Vec<AlbumApi>> {
+  albums
+    .into_iter()
+    .map(|a| complete_album(a, db, claims))
+    .collect()
 }
 
 #[get("/api/admin/jwt_gen")]
@@ -88,12 +99,12 @@ async fn admin_jwt_gen_handler(
   if !options.unsafe_no_jwt_checks {
     Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   }
-  let claim = Claims {
+  let claims = Claims {
     user_id: 1,
     role: Role::Admin,
     exp: 1689528095,
   };
-  Ok(HttpResponse::Ok().body(claim.encode(&jwt_key)?))
+  Ok(HttpResponse::Ok().body(claims.encode(&jwt_key)?))
 }
 
 #[get("/api/admin/users")]
@@ -124,10 +135,10 @@ async fn pictures_handler(
   pool: web::Data<Pool>,
   query: web::Query<PicturesRequest>,
 ) -> RouteResult {
-  let claim = Claims::from_request(&req, &jwt_key).ok();
+  let claims = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
 
-  let (pictures, info) = Picture::get_filters(claim, query.album_id, query.not_album_id)
+  let (pictures, info) = Picture::get_filters(claims, query.album_id, query.not_album_id)
     .paginate_option(query.page)
     .per_page(query.limit, 50)
     .load_and_count_pages::<Picture>(&mut db)?;
@@ -145,12 +156,12 @@ async fn picture_handler(
   pool: web::Data<Pool>,
   path: web::Path<(i32,)>,
 ) -> RouteResult {
-  let claim = Claims::from_request(&req, &jwt_key).ok();
+  let claims = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
   let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db)?;
 
   // Identity check
-  if claim.is_none() && picture.access_type != AccessType::Public {
+  if claims.is_none() && picture.access_type != AccessType::Public {
     return Err(ServiceError::Unauthorized);
   }
 
@@ -170,17 +181,16 @@ async fn albums_handler(
   pool: web::Data<Pool>,
   query: web::Query<AlbumsRequest>,
 ) -> RouteResult {
-  // TODO identity check
-  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let claims = Claims::from_request(&req, &jwt_key).ok();
 
   let mut db = db_connection(&pool)?;
-  let (albums, info) = Album::all()
+  let (albums, info) = Album::get_filters(claims, None)
     .paginate_option(query.page)
     .per_page(query.limit, 50)
     .load_and_count_pages::<Album>(&mut db)?;
 
   Ok(HttpResponse::Ok().json(PaginatedApi {
-    items: complete_albums(albums, &mut db)?,
+    items: complete_albums(albums, &mut db, claims)?,
     info,
   }))
 }
@@ -192,12 +202,11 @@ async fn album_handler(
   pool: web::Data<Pool>,
   path: web::Path<(i32,)>,
 ) -> RouteResult {
-  // TODO identity check
-  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let claims = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
   let album_id = path.0;
-  let album: Album = Album::get_by_id(album_id).first(&mut db)?;
-  Ok(HttpResponse::Ok().json(complete_album(album, &mut db)?))
+  let album: Album = Album::get_filters(claims, Some(album_id)).first(&mut db)?;
+  Ok(HttpResponse::Ok().json(complete_album(album, &mut db, claims)?))
 }
 
 #[post("/api/album/{id}/add_pictures")]

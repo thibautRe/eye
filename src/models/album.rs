@@ -1,6 +1,9 @@
-use crate::schema::albums;
+use crate::{
+  jwt::Claims,
+  schema::{albums, picture_albums, pictures},
+};
 use chrono::NaiveDateTime;
-use diesel::{dsl::*, prelude::*};
+use diesel::{dsl::*, pg::Pg, prelude::*};
 
 use super::picture::PictureApi;
 
@@ -22,14 +25,39 @@ pub struct AlbumInsert {
 }
 
 type All = Order<albums::table, Asc<albums::created_at>>;
-type GetById = Filter<All, Eq<albums::id, i32>>;
 
 impl Album {
   pub fn all() -> All {
     albums::table.order(albums::created_at.asc())
   }
-  pub fn get_by_id(id: i32) -> GetById {
-    Album::all().filter(albums::id.eq(id))
+
+  pub fn get_filters(
+    claims: Option<Claims>,
+    album_id: Option<i32>,
+  ) -> IntoBoxed<'static, albums::table, Pg> {
+    let mut query = Self::all().into_boxed();
+
+    if let Some(album_id) = album_id {
+      query = query.filter(albums::id.eq(album_id));
+    }
+
+    if claims.is_none() {
+      query = query.filter(
+        albums::id.eq_any(
+          picture_albums::table
+            .filter(
+              picture_albums::picture_id.eq_any(
+                pictures::table
+                  .filter(pictures::access_type.eq("public"))
+                  .select(pictures::id),
+              ),
+            )
+            .select(picture_albums::album_id),
+        ),
+      );
+    }
+
+    query
   }
 
   pub fn into_api(self: Self, pictures: Vec<PictureApi>, pictures_amt: i64) -> AlbumApi {

@@ -5,7 +5,7 @@ use jsonwebtoken::{
 
 use crate::errors::{ServiceError, ServiceResult};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub enum Role {
   #[serde(rename = "admin")]
   Admin,
@@ -13,7 +13,7 @@ pub enum Role {
   User,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Claims {
   pub exp: usize,
 
