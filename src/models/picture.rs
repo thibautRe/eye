@@ -97,11 +97,11 @@ impl Picture {
     let mut query = Self::all().into_boxed();
 
     if let Some(album_id) = album_id {
-      query = query.filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(album_id)));
+      query = query.filter(pictures::id.eq_any(PictureAlbum::get_picture_ids_for_album_id(album_id)));
     }
 
     if let Some(not_album_id) = not_album_id {
-      query = query.filter(pictures::id.ne_all(PictureAlbum::get_by_album_id(not_album_id)))
+      query = query.filter(pictures::id.ne_all(PictureAlbum::get_picture_ids_for_album_id(not_album_id)))
     }
 
     query = match claims {
@@ -124,7 +124,7 @@ impl Picture {
     claims: Option<Claims>,
   ) -> IntoBoxed<'static, pictures::table, Pg> {
     let mut query = Self::all().into_boxed();
-    query = query.filter(pictures::id.eq_any(PictureAlbum::get_by_album_id(id)));
+    query = query.filter(pictures::id.eq_any(PictureAlbum::get_picture_ids_for_album_id(id)));
     if claims.is_none() {
       query = query.filter(pictures::access_type.eq(AccessType::Public.to_string()))
     }

@@ -16,7 +16,7 @@ pub struct PictureAlbumInsert {
   pub album_id: i32,
 }
 
-pub type GetByAlbumId = Select<
+pub type GetPictureIdsForAlbumId = Select<
   Filter<picture_albums::table, Eq<picture_albums::album_id, i32>>,
   picture_albums::picture_id,
 >;
@@ -29,7 +29,7 @@ pub type GetAlbumIdsWithSharedPictures = Select<
   picture_albums::album_id,
 >;
 impl PictureAlbum {
-  pub fn get_by_album_id(id: i32) -> GetByAlbumId {
+  pub fn get_picture_ids_for_album_id(id: i32) -> GetPictureIdsForAlbumId {
     picture_albums::table
       .filter(picture_albums::album_id.eq(id))
       .select(picture_albums::picture_id)
