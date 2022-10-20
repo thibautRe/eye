@@ -17,7 +17,7 @@ pub enum Role {
 pub struct Claims {
   pub exp: usize,
 
-  pub user_id: usize,
+  pub user_id: i32,
   pub role: Role,
 }
 

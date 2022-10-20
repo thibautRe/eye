@@ -5,9 +5,14 @@ use super::{
   camera_lenses::CameraLens,
   picture_album::PictureAlbum,
   picture_size::{PictureSize, PictureSizeApi},
+  picture_user_access::{GetByUserId, PictureUserAccess},
   AccessType,
 };
-use crate::{database::PooledConnection, jwt::Claims, schema::pictures};
+use crate::{
+  database::PooledConnection,
+  jwt::{Claims, Role},
+  schema::pictures,
+};
 
 #[derive(Debug, Queryable)]
 pub struct Picture {
@@ -73,6 +78,12 @@ pub struct PictureApi {
 }
 
 type Table = Order<pictures::table, Asc<pictures::shot_at>>;
+
+type EqPublic = Eq<pictures::access_type, &'static str>;
+type EqShared = Or<EqPublic, EqAny<pictures::id, GetByUserId>>;
+pub type GetPublicIds = Select<Filter<pictures::table, EqPublic>, pictures::id>;
+pub type GetSharedIds = Select<Filter<pictures::table, EqShared>, pictures::id>;
+
 impl Picture {
   pub fn all() -> Table {
     pictures::table.order(pictures::shot_at.asc())
@@ -93,9 +104,13 @@ impl Picture {
       query = query.filter(pictures::id.ne_all(PictureAlbum::get_by_album_id(not_album_id)))
     }
 
-    if claims.is_none() {
-      query = query.filter(pictures::access_type.eq(AccessType::Public.to_string()));
-    }
+    query = match claims {
+      None => query.filter(Self::public()),
+      Some(claims) => match claims.role {
+        Role::Admin => query,
+        Role::User => query.filter(Self::shared(claims.user_id)),
+      },
+    };
 
     query
   }
@@ -115,6 +130,23 @@ impl Picture {
     }
 
     query
+  }
+
+  pub fn get_public_ids() -> GetPublicIds {
+    pictures::table.filter(Self::public()).select(pictures::id)
+  }
+
+  pub fn get_shared_ids(user_id: i32) -> GetSharedIds {
+    pictures::table
+      .filter(Self::shared(user_id))
+      .select(pictures::id)
+  }
+
+  fn public() -> EqPublic {
+    pictures::access_type.eq(AccessType::Public.to_string())
+  }
+  fn shared(user_id: i32) -> EqShared {
+    Self::public().or(pictures::id.eq_any(PictureUserAccess::get_by_user_id(user_id)))
   }
 
   pub fn into_api_full(

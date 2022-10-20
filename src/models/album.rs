@@ -1,11 +1,14 @@
 use crate::{
-  jwt::Claims,
-  schema::{albums, picture_albums, pictures},
+  jwt::{Claims, Role},
+  schema::albums,
 };
 use chrono::NaiveDateTime;
 use diesel::{dsl::*, pg::Pg, prelude::*};
 
-use super::{picture::PictureApi, AccessType};
+use super::{
+  picture::PictureApi,
+  picture_album::{GetAlbumIdsWithPublicPictures, GetAlbumIdsWithSharedPictures, PictureAlbum},
+};
 
 #[derive(Debug, Queryable)]
 pub struct Album {
@@ -41,23 +44,23 @@ impl Album {
       query = query.filter(albums::id.eq(album_id));
     }
 
-    if claims.is_none() {
-      query = query.filter(
-        albums::id.eq_any(
-          picture_albums::table
-            .filter(
-              picture_albums::picture_id.eq_any(
-                pictures::table
-                  .filter(pictures::access_type.eq(AccessType::Public.to_string()))
-                  .select(pictures::id),
-              ),
-            )
-            .select(picture_albums::album_id),
-        ),
-      );
-    }
+    query = match claims {
+      None => query.filter(Self::with_public_pictures()),
+      Some(claims) => match claims.role {
+        Role::Admin => query,
+        Role::User => query.filter(Self::with_shared_pictures(claims.user_id)),
+      },
+    };
 
     query
+  }
+
+  fn with_public_pictures() -> EqAny<albums::id, GetAlbumIdsWithPublicPictures> {
+    albums::id.eq_any(PictureAlbum::get_album_ids_with_public_pictures())
+  }
+
+  fn with_shared_pictures(user_id: i32) -> EqAny<albums::id, GetAlbumIdsWithSharedPictures> {
+    albums::id.eq_any(PictureAlbum::get_album_ids_with_shared_pictures(user_id))
   }
 
   pub fn into_api(self: Self, pictures: Vec<PictureApi>, pictures_amt: i64) -> AlbumApi {

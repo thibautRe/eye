@@ -49,6 +49,14 @@ table! {
 }
 
 table! {
+    picture_user_access (id) {
+        id -> Int4,
+        user_id -> Int4,
+        picture_id -> Int4,
+    }
+}
+
+table! {
     pictures (id) {
         id -> Int4,
         name -> Nullable<Text>,
@@ -94,6 +102,8 @@ joinable!(picture_albums -> pictures (picture_id));
 joinable!(picture_sizes -> pictures (picture_id));
 joinable!(picture_tags -> pictures (picture_id));
 joinable!(picture_tags -> tags (tag_id));
+joinable!(picture_user_access -> pictures (picture_id));
+joinable!(picture_user_access -> users (user_id));
 joinable!(pictures -> camera_bodies (shot_by_camera_body_id));
 joinable!(pictures -> camera_lenses (shot_by_camera_lens_id));
 joinable!(pictures -> users (shot_by_user_id));
@@ -105,6 +115,7 @@ allow_tables_to_appear_in_same_query!(
     picture_albums,
     picture_sizes,
     picture_tags,
+    picture_user_access,
     pictures,
     tags,
     users,

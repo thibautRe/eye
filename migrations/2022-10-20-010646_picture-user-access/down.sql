@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS picture_user_access;

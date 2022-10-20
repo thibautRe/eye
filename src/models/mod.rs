@@ -5,6 +5,7 @@ pub mod camera_lenses;
 pub mod picture;
 pub mod picture_album;
 pub mod picture_size;
+pub mod picture_user_access;
 pub mod user;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
