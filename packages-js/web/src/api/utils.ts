@@ -20,7 +20,7 @@ export const get_json = async <T = unknown>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
 
 export const withParams = <
-  T extends Record<string, string | number | undefined>,
+  T extends Record<string, string | number | boolean | undefined>,
 >(
   route: string,
   params: T,

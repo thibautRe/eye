@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "solid-app-router"
-import { lazy } from "solid-js"
+import { Component, JSX, lazy as solidLazy } from "solid-js"
 import { withAdminFence } from "../AuthFence"
 
 export const routes = {
@@ -18,6 +18,15 @@ export const routes = {
 
 /** Creates a redirect component */
 const r = (href: string) => () => <Navigate href={href} />
+
+/** Rewraps Solid's lazy component with error logging in case chunks fail to run */
+const lazy = (getter: () => Promise<{ default: Component<any> }>) =>
+  solidLazy(() =>
+    getter().catch(err => {
+      console.error(err)
+      throw err
+    }),
+  )
 
 const Root = () => <h1>Home</h1>
 const Pictures = lazy(() => import("./PictureListRoute"))

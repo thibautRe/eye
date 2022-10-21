@@ -35,6 +35,8 @@ export const updateIdentityX = (tk: string) => {
     throw new Error(`Cannot parse JWT: ${parsedJwt.msg}`)
   }
 }
+export const makeAuthUrl = (tk: string) =>
+  `${location.protocol}//${location.host}/#tk=${tk}`
 
 export const initIdentity = () => {
   const url = new URL(window.location.href)

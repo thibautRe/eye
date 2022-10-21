@@ -7,7 +7,7 @@ use crate::{
   api::pagination::{Paginate, PaginatedApi},
   cli_args::ServeArgs,
   database::{db_connection, Pool, PooledConnection},
-  errors::{ServiceError, ServiceResult},
+  errors::ServiceResult,
   jwt::{Claims, JwtKey, Role},
   models::{
     album::{Album, AlbumApi},
@@ -16,7 +16,6 @@ use crate::{
     picture_album::PictureAlbumInsert,
     picture_size::PictureSize,
     user::User,
-    AccessType,
   },
 };
 
@@ -69,7 +68,7 @@ fn complete_album(
   claims: Option<Claims>,
 ) -> ServiceResult<AlbumApi> {
   let album_id = album.id;
-  let (pictures_excerpt, info) = Picture::get_by_album_id(album_id, claims)
+  let (pictures_excerpt, info) = Picture::get_filters(claims, None, Some(album_id), None)
     .paginate_first_page()
     .per_page_fixed(5)
     .load_and_count_pages::<Picture>(db)?;
@@ -89,21 +88,27 @@ fn complete_albums(
     .map(|a| complete_album(a, db, claims))
     .collect()
 }
-
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JwtGenRequest {
+  pub user_id: i32,
+  pub with_admin_role: bool,
+}
 #[get("/api/admin/jwt_gen")]
 async fn admin_jwt_gen_handler(
   jwt_key: web::Data<JwtKey>,
   options: web::Data<ServeArgs>,
   req: HttpRequest,
+  query: web::Query<JwtGenRequest>,
 ) -> RouteResult {
   if !options.unsafe_no_jwt_checks {
     Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   }
-  let claims = Claims {
-    user_id: 1,
-    role: Role::Admin,
-    exp: 1689528095,
+  let role = match query.with_admin_role {
+    true => Role::Admin,
+    false => Role::User,
   };
+  let claims = Claims::generate_new(query.user_id, role);
   Ok(HttpResponse::Ok().body(claims.encode(&jwt_key)?))
 }
 
@@ -138,7 +143,7 @@ async fn pictures_handler(
   let claims = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
 
-  let (pictures, info) = Picture::get_filters(claims, query.album_id, query.not_album_id)
+  let (pictures, info) = Picture::get_filters(claims, None, query.album_id, query.not_album_id)
     .paginate_option(query.page)
     .per_page(query.limit, 50)
     .load_and_count_pages::<Picture>(&mut db)?;
@@ -158,12 +163,7 @@ async fn picture_handler(
 ) -> RouteResult {
   let claims = Claims::from_request(&req, &jwt_key).ok();
   let mut db = db_connection(&pool)?;
-  let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db)?;
-
-  // Identity check
-  if claims.is_none() && picture.access_type != AccessType::Public {
-    return Err(ServiceError::Unauthorized);
-  }
+  let picture = Picture::get_filters(claims, Some(path.0), None, None).first::<Picture>(&mut db)?;
 
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db)?))
 }

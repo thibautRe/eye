@@ -2,7 +2,7 @@ import { User } from "../providers/Identity"
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
 import { makePaginatedApi } from "./pagination"
-import { get, get_json, post } from "./utils"
+import { get, get_json, post, withParams } from "./utils"
 
 const routes = {
   pictures: `/api/pictures`,
@@ -29,8 +29,10 @@ export const apiGetPicture = (id: PictureApi["id"]) =>
 export const apiGetAlbum = (id: AlbumApi["id"]) =>
   get_json<AlbumApi>(routes.album(id)).then(parseAlbum)
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
-export const apiAdminJwtGen = async () =>
-  await (await get(routes.adminJwtGen)).text()
+export const apiAdminJwtGen = async (userId = 1) =>
+  await (
+    await get(withParams(routes.adminJwtGen, { userId, withAdminRole: false }))
+  ).text()
 
 export const apiAddAlbumPictures = async (
   albumId: AlbumApi["id"],

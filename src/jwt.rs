@@ -22,6 +22,15 @@ pub struct Claims {
 }
 
 impl Claims {
+  pub fn generate_new(user_id: i32, role: Role) -> Self {
+    let expiration = chrono::Utc::now() + chrono::Duration::days(30 * 6);
+    Self {
+      user_id,
+      role,
+      exp: expiration.timestamp() as usize,
+    }
+  }
+
   pub fn encode(self, jwt_key: &JwtKey) -> errors::Result<String> {
     encode(&Default::default(), &self, &jwt_key.encoding)
   }

@@ -1,5 +1,9 @@
+import clipboardCopy from "clipboard-copy"
 import { VoidComponent } from "solid-js"
+import { apiAdminJwtGen } from "../../api"
+import { makeAuthUrl } from "../../providers/Identity"
 import { User } from "../../types/user"
+import { CopyableButton } from "../Admin/Buttons"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 import * as s from "./UserList.css"
@@ -19,6 +23,18 @@ export const UserRow: VoidComponent<UserRowProps> = p => {
       <T t="s" class={s.emailRow}>
         {p.user.name}
       </T>
+      <CopyableButton
+        onCopy={async () => clipboardCopy(await apiAdminJwtGen(p.user.id))}
+      >
+        Copy token
+      </CopyableButton>
+      <CopyableButton
+        onCopy={async () =>
+          clipboardCopy(makeAuthUrl(await apiAdminJwtGen(p.user.id)))
+        }
+      >
+        Copy URL
+      </CopyableButton>
     </Stack>
   )
 }
