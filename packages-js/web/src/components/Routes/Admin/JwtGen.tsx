@@ -7,7 +7,7 @@ import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
 
 export default () => {
-  const [jwtRes] = createResource(apiAdminJwtGen)
+  const [jwtRes] = createResource(() => apiAdminJwtGen(1, true))
   return (
     <Show when={jwtRes()} fallback="No JWT">
       <AdminContainer>

@@ -29,9 +29,9 @@ export const apiGetPicture = (id: PictureApi["id"]) =>
 export const apiGetAlbum = (id: AlbumApi["id"]) =>
   get_json<AlbumApi>(routes.album(id)).then(parseAlbum)
 export const apiAdminUsers = () => get_json<User[]>(routes.adminUsers)
-export const apiAdminJwtGen = async (userId = 1) =>
+export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (
-    await get(withParams(routes.adminJwtGen, { userId, withAdminRole: false }))
+    await get(withParams(routes.adminJwtGen, { userId, withAdminRole }))
   ).text()
 
 export const apiAddAlbumPictures = async (
