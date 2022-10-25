@@ -22,6 +22,7 @@ pub struct Claims {
 }
 
 impl Claims {
+  /// Generate a new Claim for a given user and role. The claims expires 6 months after this call.
   pub fn generate_new(user_id: i32, role: Role) -> Self {
     let expiration = chrono::Utc::now() + chrono::Duration::days(30 * 6);
     Self {
