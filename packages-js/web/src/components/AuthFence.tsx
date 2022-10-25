@@ -6,6 +6,10 @@ export const AdminFenceOptional: ParentComponent = p => {
   return <Show when={isAdmin()}>{p.children}</Show>
 }
 
+export function adminOptionalValue<T>(val: T): T | undefined {
+  return isAdmin() ? val : undefined
+}
+
 const AdminFence: ParentComponent = p => {
   return (
     <Show when={isAdmin()} fallback={<UnauthorizedRoute />}>

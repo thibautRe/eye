@@ -6,12 +6,17 @@ import {
   Show,
   VoidComponent,
 } from "solid-js"
-import { apiAddAlbumPictures, apiGetAlbum, apiGetPictures } from "../../api"
+import {
+  apiAddAlbumPictures,
+  apiDeleteAlbumPictures,
+  apiGetAlbum,
+  apiGetPictures,
+} from "../../api"
 import { AlbumApi } from "../../types/album"
 import { PictureApi } from "../../types/picture"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { createSetSignal } from "../../utils/hooks/createSetSignal"
-import { AdminFenceOptional } from "../AuthFence"
+import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
 import { Box } from "../Box/Box"
 import { Picture } from "../Picture"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
@@ -35,30 +40,50 @@ export default () => {
           <Stack dist="m" a="center">
             <h1>{album.name}</h1>
             <AdminFenceOptional>
-              <AlbumAddPictures albumId={album.id} />
+              <AlbumAddPictures
+                albumId={album.id}
+                onAddedPictures={() => picturesLoader.onReload()}
+              />
             </AdminFenceOptional>
           </Stack>
-          <PictureGridPaginated loader={picturesLoader} />
+          <PictureGridPaginated
+            loader={picturesLoader}
+            onDeletePicture={adminOptionalValue(async id => {
+              await apiDeleteAlbumPictures(album.id, [id])
+              picturesLoader.onReload()
+            })}
+          />
         </Stack>
       )}
     </Show>
   )
 }
 
-const AlbumAddPictures: VoidComponent<{ albumId: AlbumApi["id"] }> = p => {
+const AlbumAddPictures: VoidComponent<AlbumAddPicturesSidebarProps> = p => {
   const [addPicOpen, setAddPicOpen] = createSignal(false)
   return (
     <>
       <button onClick={() => setAddPicOpen(true)}>Add pictures</button>
       <Sidebar isOpen={addPicOpen()} onClose={() => setAddPicOpen(false)}>
-        <AlbumAddPicturesSidebar albumId={p.albumId} />
+        <AlbumAddPicturesSidebar
+          {...p}
+          onAddedPictures={() => {
+            setAddPicOpen(false)
+            p.onAddedPictures()
+          }}
+        />
       </Sidebar>
     </>
   )
 }
-const AlbumAddPicturesSidebar: VoidComponent<{
+
+interface AlbumAddPicturesSidebarProps {
   albumId: AlbumApi["id"]
-}> = p => {
+  onAddedPictures: () => void
+}
+const AlbumAddPicturesSidebar: VoidComponent<
+  AlbumAddPicturesSidebarProps
+> = p => {
   const loader = createPaginatedLoader(props =>
     apiGetPictures(props, { notAlbumId: p.albumId }),
   )
@@ -104,8 +129,9 @@ const AlbumAddPicturesSidebar: VoidComponent<{
       <Stack p="m">
         <button
           disabled={pictureIds().size === 0}
-          onClick={() => {
-            apiAddAlbumPictures(p.albumId, [...pictureIds()])
+          onClick={async () => {
+            await apiAddAlbumPictures(p.albumId, [...pictureIds()])
+            p.onAddedPictures()
           }}
         >
           Add {pictureIds().size} pictures

@@ -11,17 +11,20 @@ interface PaginatedSignal<T> {
 export interface PaginatedLoader<T> {
   data: Accessor<PaginatedSignal<T>>
   onLoadNext: () => void
+  onReload: () => void
 }
 export const createPaginatedLoader = <T, P extends {} | undefined>(
   loader: PaginatedApiLoader<T, P>,
   params?: P,
 ): PaginatedLoader<T> => {
-  const [signal, setSignal] = createSignal<PaginatedSignal<T>>({
+  const initSignal: PaginatedSignal<T> = {
     items: [],
     nextPage: 1,
     shouldLoadNextPage: true,
     isLoadingNextPage: false,
-  })
+  }
+  const [signal, setSignal] = createSignal<PaginatedSignal<T>>(initSignal)
+
   createEffect(async () => {
     const signalInfo = signal()
     if (
@@ -52,5 +55,7 @@ export const createPaginatedLoader = <T, P extends {} | undefined>(
     })
   }
 
-  return { data: signal, onLoadNext }
+  const onReload = () => setSignal(initSignal)
+
+  return { data: signal, onLoadNext, onReload }
 }

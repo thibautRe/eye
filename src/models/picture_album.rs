@@ -16,6 +16,10 @@ pub struct PictureAlbumInsert {
   pub album_id: i32,
 }
 
+pub type GetByAlbumIdAndPictureIds = Filter<
+  Filter<picture_albums::table, Eq<picture_albums::album_id, i32>>,
+  EqAny<picture_albums::picture_id, Vec<i32>>,
+>;
 pub type GetPictureIdsForAlbumId = Select<
   Filter<picture_albums::table, Eq<picture_albums::album_id, i32>>,
   picture_albums::picture_id,
@@ -29,6 +33,14 @@ pub type GetAlbumIdsWithSharedPictures = Select<
   picture_albums::album_id,
 >;
 impl PictureAlbum {
+  pub fn get_by_album_id_and_picture_ids(
+    album_id: i32,
+    picture_ids: Vec<i32>,
+  ) -> GetByAlbumIdAndPictureIds {
+    picture_albums::table
+      .filter(picture_albums::album_id.eq(album_id))
+      .filter(picture_albums::picture_id.eq_any(picture_ids))
+  }
   pub fn get_picture_ids_for_album_id(id: i32) -> GetPictureIdsForAlbumId {
     picture_albums::table
       .filter(picture_albums::album_id.eq(id))
@@ -55,4 +67,16 @@ impl PictureAlbumInsert {
     use self::picture_albums::dsl::*;
     insert_into(picture_albums).values(items).execute(db)
   }
+}
+
+pub fn delete_pictures_album(
+  album_id: i32,
+  picture_ids: Vec<i32>,
+  db: &mut PooledConnection,
+) -> Result<usize, diesel::result::Error> {
+  diesel::delete(PictureAlbum::get_by_album_id_and_picture_ids(
+    album_id,
+    picture_ids,
+  ))
+  .execute(db)
 }

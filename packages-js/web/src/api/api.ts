@@ -2,7 +2,7 @@ import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
 import { UserApi } from "../types/user"
 import { makePaginatedApi } from "./pagination"
-import { get, get_json, post, withParams } from "./utils"
+import { delete_http, get, get_json, post, withParams } from "./utils"
 
 const routes = {
   pictures: `/api/pictures/`,
@@ -10,7 +10,8 @@ const routes = {
 
   albums: `/api/albums/`,
   album: (id: AlbumApi["id"]) => `/api/albums/${id}`,
-  albumAddPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/add_pictures`,
+  albumAddPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
+  albumDeletePictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
 
   users: `/api/users/`,
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
@@ -40,4 +41,11 @@ export const apiAddAlbumPictures = async (
   pictureIds: PictureApi["id"][],
 ) => {
   await post(routes.albumAddPictures(albumId), pictureIds)
+}
+
+export const apiDeleteAlbumPictures = async (
+  albumId: AlbumApi["id"],
+  pictureIds: PictureApi["id"][],
+) => {
+  await delete_http(routes.albumDeletePictures(albumId), pictureIds)
 }

@@ -1,4 +1,5 @@
 use crate::{
+  database::PooledConnection,
   jwt::{Claims, Role},
   schema::albums,
 };
@@ -73,6 +74,16 @@ impl Album {
       pictures_excerpt: pictures,
     }
   }
+}
+
+pub fn update_album_date(
+  album_id: i32,
+  db: &mut PooledConnection,
+) -> Result<usize, diesel::result::Error> {
+  diesel::update(albums::table)
+    .filter(albums::id.eq(album_id))
+    .set(albums::edited_at.eq(chrono::Local::now().naive_local()))
+    .execute(db)
 }
 
 #[derive(Debug, Serialize)]
