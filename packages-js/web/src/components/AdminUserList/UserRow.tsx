@@ -2,14 +2,14 @@ import clipboardCopy from "clipboard-copy"
 import { VoidComponent } from "solid-js"
 import { apiAdminJwtGen } from "../../api"
 import { makeAuthUrl } from "../../providers/Identity"
-import { User } from "../../types/user"
+import { UserApi } from "../../types/user"
 import { CopyableButton } from "../Admin/Buttons"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 import * as s from "./UserList.css"
 
 interface UserRowProps {
-  user: User
+  user: UserApi
 }
 export const UserRow: VoidComponent<UserRowProps> = p => {
   return (
