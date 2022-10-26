@@ -1,5 +1,6 @@
 import { useParams } from "solid-app-router"
 import {
+  createEffect,
   createResource,
   createSignal,
   For,
@@ -14,6 +15,7 @@ import {
 } from "../../api"
 import { AlbumApi } from "../../types/album"
 import { PictureApi } from "../../types/picture"
+import { createEscKeySignal } from "../../utils/hooks/createEscKeyHandler"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { createSetSignal } from "../../utils/hooks/createSetSignal"
 import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
@@ -60,18 +62,16 @@ export default () => {
 }
 
 const AlbumAddPictures: VoidComponent<AlbumAddPicturesSidebarProps> = p => {
-  const [addPicOpen, setAddPicOpen] = createSignal(false)
+  const [isOpen, { enable: open, disable: close }] = createEscKeySignal()
+  const onAddedPictures = () => {
+    close()
+    p.onAddedPictures()
+  }
   return (
     <>
-      <button onClick={() => setAddPicOpen(true)}>Add pictures</button>
-      <Sidebar isOpen={addPicOpen()} onClose={() => setAddPicOpen(false)}>
-        <AlbumAddPicturesSidebar
-          {...p}
-          onAddedPictures={() => {
-            setAddPicOpen(false)
-            p.onAddedPictures()
-          }}
-        />
+      <button onClick={open}>Add pictures</button>
+      <Sidebar isOpen={isOpen()} onClose={close}>
+        <AlbumAddPicturesSidebar {...p} onAddedPictures={onAddedPictures} />
       </Sidebar>
     </>
   )
