@@ -1,7 +1,9 @@
 import { Link } from "solid-app-router"
 import { For, Show } from "solid-js"
-import { apiGetAlbums } from "../../api"
+import { apiCreateAlbum, apiGetAlbums } from "../../api"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
+import { AdminFenceOptional } from "../AuthFence"
+import { Box } from "../Box/Box"
 import { PictureGrid } from "../Picture/PictureGrid"
 import { Stack } from "../Stack/Stack"
 
@@ -22,6 +24,20 @@ export default () => {
           </Stack>
         )}
       </For>
+      <AdminFenceOptional>
+        <Box pv="l">
+          <button
+            onClick={async () => {
+              const name = prompt("Album name")
+              if (!name) return
+              await apiCreateAlbum(name)
+              albumsPaginated.onReload()
+            }}
+          >
+            Create new album
+          </button>
+        </Box>
+      </AdminFenceOptional>
     </Stack>
   )
 }

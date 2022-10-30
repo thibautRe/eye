@@ -16,7 +16,7 @@ export const post = async <T>(route: string, data: T) =>
       body: JSON.stringify(data),
     }),
   )
-export const delete_http = async <T>(route: string, data: T) =>
+export const delete_http = async <T>(route: string, data?: T) =>
   assert_status_200(
     await fetch(route, {
       headers: { ...apiClientHeaders, "Content-Type": "application/json" },

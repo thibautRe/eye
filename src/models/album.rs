@@ -28,18 +28,30 @@ pub struct AlbumInsert {
   pub edited_at: NaiveDateTime,
 }
 
-type All = Order<albums::table, Asc<albums::created_at>>;
+impl AlbumInsert {
+  pub fn new(name: String) -> Self {
+    let n = chrono::Local::now().naive_local();
+    Self {
+      name,
+      created_at: n,
+      edited_at: n,
+    }
+  }
+  pub fn insert(&self, db: &mut PooledConnection) -> Result<Album, diesel::result::Error> {
+    use self::albums::dsl::*;
+    insert_into(albums).values(self).get_result::<Album>(db)
+  }
+}
 
 impl Album {
-  pub fn all() -> All {
-    albums::table.order(albums::created_at.asc())
-  }
-
   pub fn get_filters(
     claims: Option<Claims>,
     album_id: Option<i32>,
   ) -> IntoBoxed<'static, albums::table, Pg> {
-    let mut query = Self::all().into_boxed();
+    let mut query = albums::table
+      .filter(albums::deleted_at.is_null())
+      .order(albums::created_at.desc())
+      .into_boxed();
 
     if let Some(album_id) = album_id {
       query = query.filter(albums::id.eq(album_id));
@@ -83,6 +95,16 @@ pub fn update_album_date(
   diesel::update(albums::table)
     .filter(albums::id.eq(album_id))
     .set(albums::edited_at.eq(chrono::Local::now().naive_local()))
+    .execute(db)
+}
+
+pub fn soft_delete_album(
+  album_id: i32,
+  db: &mut PooledConnection,
+) -> Result<usize, diesel::result::Error> {
+  diesel::update(albums::table)
+    .filter(albums::id.eq(album_id))
+    .set(albums::deleted_at.eq(Some(chrono::Local::now().naive_local())))
     .execute(db)
 }
 

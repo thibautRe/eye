@@ -1,4 +1,4 @@
-import { useParams } from "solid-app-router"
+import { useLocation, useNavigate, useParams } from "solid-app-router"
 import {
   createEffect,
   createResource,
@@ -9,6 +9,7 @@ import {
 } from "solid-js"
 import {
   apiAddAlbumPictures,
+  apiDeleteAlbum,
   apiDeleteAlbumPictures,
   apiGetAlbum,
   apiGetPictures,
@@ -47,6 +48,7 @@ export default () => {
                 albumId={album.id}
                 onAddedPictures={() => picturesLoader.onReload()}
               />
+              <AlbumDelete albumId={album.id} />
             </AdminFenceOptional>
           </Stack>
           <PictureGridPaginated
@@ -59,6 +61,21 @@ export default () => {
         </Stack>
       )}
     </Show>
+  )
+}
+
+const AlbumDelete: VoidComponent<{ albumId: AlbumApi["id"] }> = p => {
+  const navigate = useNavigate()
+  return (
+    <button
+      onClick={async () => {
+        if (!confirm("Do you really want to delete this album?")) return
+        await apiDeleteAlbum(p.albumId)
+        navigate("/albums", { replace: true })
+      }}
+    >
+      Delete album
+    </button>
   )
 }
 

@@ -9,7 +9,9 @@ const routes = {
   picture: (id: PictureApi["id"]) => `/api/pictures/${id}`,
 
   albums: `/api/albums/`,
+  albumCreate: `/api/albums/`,
   album: (id: AlbumApi["id"]) => `/api/albums/${id}`,
+  albumDelete: (id: AlbumApi["id"]) => `/api/albums/${id}`,
   albumAddPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
   albumDeletePictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
 
@@ -36,12 +38,16 @@ export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
     await get(withParams(routes.userJwt(userId), { withAdminRole }))
   ).text()
 
+export const apiCreateAlbum = async (name: string) =>
+  await post(routes.albumCreate, { name })
 export const apiAddAlbumPictures = async (
   albumId: AlbumApi["id"],
   pictureIds: PictureApi["id"][],
 ) => {
   await post(routes.albumAddPictures(albumId), pictureIds)
 }
+export const apiDeleteAlbum = async (albumId: AlbumApi["id"]) =>
+  await delete_http(routes.albumDelete(albumId))
 
 export const apiDeleteAlbumPictures = async (
   albumId: AlbumApi["id"],
