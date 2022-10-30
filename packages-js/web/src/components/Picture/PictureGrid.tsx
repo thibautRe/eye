@@ -1,8 +1,10 @@
 import { Link } from "solid-app-router"
 import { Component, For, JSX, mergeProps, Show, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
+import { Box } from "../Box/Box"
 import { Stack } from "../Stack/Stack"
 import { Picture } from "./PictureComponent"
+import { gridComponent } from "./PictureGrid.css"
 import { PictureMetadata } from "./PictureMetadata"
 
 export interface PictureGridProps {
@@ -14,10 +16,10 @@ export interface PictureGridProps {
 export const PictureGrid: VoidComponent<PictureGridProps> = p => {
   p = mergeProps({ sizes: "28vw" }, p)
   return (
-    <Stack wrap>
+    <Box class={gridComponent} ph="s" pv="l">
       <For each={p.pictures}>
         {picture => (
-          <Stack d="v" fgColor="g10" style={{ width: "30%" }}>
+          <Stack d="v" fgColor="g11">
             <Link href={`/picture/${picture.id}`}>
               <Picture picture={picture} sizes={p.sizes} />
             </Link>
@@ -33,6 +35,6 @@ export const PictureGrid: VoidComponent<PictureGridProps> = p => {
         )}
       </For>
       {p.extra}
-    </Stack>
+    </Box>
   )
 }

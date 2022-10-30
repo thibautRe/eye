@@ -2,32 +2,32 @@ import { createGlobalTheme, createTheme, style } from "@vanilla-extract/css"
 
 const defaultTheme = {
   color: {
-    // Greys (taken from the "mauve" scale from Radix)
+    // Greys (taken from the "grayDark" scale from Radix)
     // see: https://www.radix-ui.com/docs/colors/palette-composition/the-scales
     /** App background */
-    g1: "hsl(300, 20.0%, 99.0%)",
+    g1: "hsl(0, 0%, 8.5%)",
     /** Subtle background */
-    g2: "hsl(300, 7.7%, 97.5%)",
+    g2: "hsl(0, 0%, 11.0%)",
     /** UI element background */
-    g3: "hsl(294, 5.5%, 95.3%)",
+    g3: "hsl(0, 0%, 13.6%)",
     /** Hovered UI element background */
-    g4: "hsl(289, 4.7%, 93.3%)",
+    g4: "hsl(0, 0%, 15.8%)",
     /** Active / Selected UI element background */
-    g5: "hsl(283, 4.4%, 91.3%)",
+    g5: "hsl(0, 0%, 17.9%)",
     /** Subtle borders and separators */
-    g6: "hsl(278, 4.1%, 89.1%)",
+    g6: "hsl(0, 0%, 20.5%)",
     /** UI element border and focus rings */
-    g7: "hsl(271, 3.9%, 86.3%)",
+    g7: "hsl(0, 0%, 24.3%)",
     /** Hovered UI element border */
-    g8: "hsl(255, 3.7%, 78.8%)",
+    g8: "hsl(0, 0%, 31.2%)",
     /** Solid backgrounds */
-    g9: "hsl(252, 4.0%, 57.3%)",
+    g9: "hsl(0, 0%, 43.9%)",
     /** 	Hovered solid backgrounds */
-    g10: "hsl(253, 3.5%, 53.5%)",
+    g10: "hsl(0, 0%, 49.4%)",
     /** 	Low-contrast text */
-    g11: "hsl(252, 4.0%, 44.8%)",
+    g11: "hsl(0, 0%, 62.8%)",
     /** 	High-contrast text */
-    g12: "hsl(260, 25.0%, 11.0%)",
+    g12: "hsl(0, 0%, 93.0%)",
 
     // Ambers https://www.radix-ui.com/docs/colors/palette-composition/the-scales#amber
     amber1: "hsl(39, 70.0%, 99.0%)",
@@ -44,6 +44,8 @@ const defaultTheme = {
     amber12: "hsl(20, 80.0%, 17.0%)",
   },
   space: {
+    /** 2.5rem */
+    xl: "2.5rem",
     /** 1.5rem */
     l: "1.5rem",
     /** 1rem */
