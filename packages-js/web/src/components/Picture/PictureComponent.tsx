@@ -1,13 +1,17 @@
-import { createSignal, JSX, Show, splitProps, VoidComponent } from "solid-js"
+import {
+  createEffect,
+  createSignal,
+  JSX,
+  Show,
+  splitProps,
+  VoidComponent,
+} from "solid-js"
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { createBooleanSignal } from "../../utils/hooks/createBooleanSignal"
 import { AspectRatio } from "./AspectRatio"
 import { PictureBlurhash } from "./PictureBlurhash"
-import {
-  pictureComponent,
-  pictureComponentBlurhash,
-} from "./PictureComponent.css"
+import * as s from "./PictureComponent.css"
 
 const makeSizeSrc = (size: PictureSizeApi) => `${size.url} ${size.width}w`
 const makeSrcset = (p: PictureApi) => p.sizes.map(makeSizeSrc).join(",")
@@ -45,6 +49,15 @@ export const Picture: VoidComponent<PictureProps> = props => {
   const [isLoaded, setIsLoaded] = createSignal(
     loadedPictures.has(`${local.picture.id}-${rest.sizes}`),
   )
+  // Timeout to hide blurhash
+  const [hideBlurhash, { enable: hideBlurHash }] = createBooleanSignal(
+    isLoaded(),
+  )
+  createEffect(() => {
+    if (!isLoaded()) return
+    setTimeout(hideBlurHash, 300)
+  })
+
   const blurhash = () => local.picture.blurhash
   return (
     <AspectRatio
@@ -54,11 +67,8 @@ export const Picture: VoidComponent<PictureProps> = props => {
         disconnectAfterVisible: true,
       })}
     >
-      <Show when={!isLoaded()}>
-        <PictureBlurhash
-          blurhash={blurhash()}
-          class={pictureComponentBlurhash}
-        />
+      <Show when={!hideBlurhash()}>
+        <PictureBlurhash blurhash={blurhash()} class={s.blurhash} />
       </Show>
       <Show when={shouldLoad() || isLoaded()}>
         <ImgComponent
@@ -67,8 +77,7 @@ export const Picture: VoidComponent<PictureProps> = props => {
             setIsLoaded(true)
             loadedPictures.add(`${local.picture.id}-${rest.sizes}`)
           }}
-          style={{ opacity: isLoaded() ? 1 : 0.01 }}
-          class={pictureComponent}
+          classList={{ [s.picture]: true, [s.pictureLoading]: !isLoaded() }}
           {...rest}
         />
       </Show>
