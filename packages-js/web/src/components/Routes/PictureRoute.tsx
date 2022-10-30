@@ -1,6 +1,7 @@
 import { useParams } from "solid-app-router"
 import { createResource, Show, VoidComponent } from "solid-js"
 import { apiGetPicture } from "../../api"
+import { useTrans } from "../../providers/I18n"
 import { PictureApi } from "../../types/picture"
 import { Picture, PictureMetadata } from "../Picture"
 import { Stack } from "../Stack/Stack"
@@ -28,6 +29,7 @@ export default () => {
 }
 
 const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
+  const t = useTrans()
   const highestResSize = p.picture.sizes
     .slice()
     .sort((p1, p2) => p2.width - p1.width)[0]
@@ -36,14 +38,14 @@ const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
       <T t="s" fgColor="amber10">
         {props => (
           <a {...props} rel="external" href={highestResSize.url}>
-            Full resolution
+            {t("fullResolution")}
           </a>
         )}
       </T>
       <T t="s" fgColor="amber10">
         {props => (
           <a {...props} rel="external" href={highestResSize.url} download>
-            Download
+            {t("download")}
           </a>
         )}
       </T>

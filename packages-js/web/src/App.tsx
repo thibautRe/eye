@@ -1,4 +1,10 @@
-import { Component, ErrorBoundary, Suspense, VoidComponent } from "solid-js"
+import {
+  Component,
+  ErrorBoundary,
+  ParentComponent,
+  Suspense,
+  VoidComponent,
+} from "solid-js"
 import { Router } from "solid-app-router"
 import {
   AppRoutes,
@@ -7,8 +13,9 @@ import {
   UnauthorizedRoute,
 } from "./components/Routes"
 import { HttpError, isHttpError } from "./utils/errors"
+import { I18nProvider } from "./providers/I18n"
 
-const App: Component = () => (
+const AppProviders: ParentComponent = p => (
   <Router>
     <Suspense fallback={<div>Loading...</div>}>
       <ErrorBoundary
@@ -16,10 +23,16 @@ const App: Component = () => (
           <ErrorBoundaryFallback error={err} onRetry={onRetry} />
         )}
       >
-        <AppRoutes />
+        <I18nProvider>{p.children}</I18nProvider>
       </ErrorBoundary>
     </Suspense>
   </Router>
+)
+
+const App: Component = () => (
+  <AppProviders>
+    <AppRoutes />
+  </AppProviders>
 )
 
 interface ErrorBoundaryFallbackProps {
