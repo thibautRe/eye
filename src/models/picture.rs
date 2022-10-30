@@ -122,9 +122,6 @@ impl Picture {
     query
   }
 
-  pub fn get_by_id(id: i32) -> Filter<Table, Eq<pictures::id, i32>> {
-    Picture::all().filter(pictures::id.eq(id))
-  }
 
   pub fn get_by_album_id(
     id: i32,
