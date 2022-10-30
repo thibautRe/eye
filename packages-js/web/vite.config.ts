@@ -4,10 +4,7 @@ import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
 
 export default defineConfig({
   plugins: [vanillaExtractPlugin(), solidPlugin()],
-  build: {
-    target: "esnext",
-    polyfillDynamicImport: false,
-  },
+  build: { target: "esnext" },
   server: {
     proxy: { "/api": { target: "http://localhost:5748" } },
     port: 5750,

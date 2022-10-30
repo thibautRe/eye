@@ -10,7 +10,8 @@
     "db:migrate:redo": "diesel migration redo",
     "prod:sync-and-restart": "git pull origin main && yarn prod:build && sudo systemctl stop eye.service && yarn db:migrate && sudo systemctl start eye.service",
     "prod": "./target/release/eye",
-    "prod:build": "cargo build --release && yarn web build"
+    "prod:build": "cargo build --release && yarn web build",
+    "typecheck": "yarn web typecheck"
   },
   "workspaces": [
     "packages-js/*"
