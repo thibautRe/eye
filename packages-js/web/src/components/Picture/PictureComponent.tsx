@@ -1,6 +1,7 @@
 import { createSignal, JSX, Show, splitProps, VoidComponent } from "solid-js"
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
+import { createBooleanSignal } from "../../utils/hooks/createBooleanSignal"
 import { AspectRatio } from "./AspectRatio"
 import { PictureBlurhash } from "./PictureBlurhash"
 import {
@@ -40,16 +41,18 @@ export interface PictureProps
   extends Omit<ImgComponentProps, "onload" | "style" | "class" | "classList"> {}
 export const Picture: VoidComponent<PictureProps> = props => {
   const [local, rest] = splitProps(props, ["picture"])
-  const [shouldLoad, setShouldLoad] = createSignal(false)
+  const [shouldLoad, { enable }] = createBooleanSignal(false)
   const [isLoaded, setIsLoaded] = createSignal(
     loadedPictures.has(`${local.picture.id}-${rest.sizes}`),
   )
   const blurhash = () => local.picture.blurhash
-  let eltRef = createBecomesVisible(() => setShouldLoad(true))
   return (
     <AspectRatio
       aspectRatio={local.picture.width / local.picture.height}
-      ref={eltRef}
+      ref={createBecomesVisible({
+        onBecomesVisible: enable,
+        disconnectAfterVisible: true,
+      })}
     >
       <Show when={!isLoaded()}>
         <PictureBlurhash

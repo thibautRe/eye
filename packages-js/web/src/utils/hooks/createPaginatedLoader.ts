@@ -9,9 +9,12 @@ interface PaginatedSignal<T> {
 }
 
 export interface PaginatedLoader<T> {
-  data: Accessor<PaginatedSignal<T>>
-  onLoadNext: () => void
-  onReload: () => void
+  readonly data: Accessor<PaginatedSignal<T>>
+  readonly onReload: () => void
+
+  readonly onLoadNext: () => void
+  readonly onLoadNextContinuous: () => void
+  readonly onLoadNextContinuousAbort: () => void
 }
 export const createPaginatedLoader = <T, P extends {} | undefined>(
   loader: PaginatedApiLoader<T, P>,
@@ -24,28 +27,21 @@ export const createPaginatedLoader = <T, P extends {} | undefined>(
     isLoadingNextPage: false,
   }
   const [signal, setSignal] = createSignal<PaginatedSignal<T>>(initSignal)
+  let keepLoading = false
 
   createEffect(async () => {
-    const signalInfo = signal()
-    if (
-      signalInfo.nextPage !== null &&
-      signalInfo.shouldLoadNextPage &&
-      !signalInfo.isLoadingNextPage
-    ) {
-      const nextPage = signalInfo.nextPage
-      setSignal(p => ({
-        ...p,
-        isLoadingNextPage: true,
-        shouldLoadNextPage: false,
-      }))
-      const res = await loader({ page: nextPage }, params)
-      setSignal(p => ({
-        ...p,
-        items: [...p.items, ...res.items],
-        nextPage: res.info.nextPage,
-        isLoadingNextPage: false,
-      }))
-    }
+    const { nextPage, shouldLoadNextPage, isLoadingNextPage } = signal()
+    if (!(nextPage !== null && shouldLoadNextPage && !isLoadingNextPage)) return
+
+    setSignal(p => ({ ...p, isLoadingNextPage: true }))
+    const res = await loader({ page: nextPage }, params)
+    setSignal(p => ({
+      ...p,
+      items: [...p.items, ...res.items],
+      nextPage: res.info.nextPage,
+      isLoadingNextPage: false,
+      shouldLoadNextPage: keepLoading,
+    }))
   })
 
   const onLoadNext = () => {
@@ -54,8 +50,22 @@ export const createPaginatedLoader = <T, P extends {} | undefined>(
       return { ...s, shouldLoadNextPage: true }
     })
   }
+  const onLoadNextContinuous = () => {
+    keepLoading = true
+    onLoadNext()
+  }
+
+  const onLoadNextContinuousAbort = () => {
+    keepLoading = false
+  }
 
   const onReload = () => setSignal(initSignal)
 
-  return { data: signal, onLoadNext, onReload }
+  return {
+    data: signal,
+    onLoadNext,
+    onReload,
+    onLoadNextContinuous,
+    onLoadNextContinuousAbort,
+  }
 }

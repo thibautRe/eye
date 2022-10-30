@@ -20,6 +20,7 @@ import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { createSetSignal } from "../../utils/hooks/createSetSignal"
 import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
 import { Box } from "../Box/Box"
+import { Grid } from "../Grid/Grid"
 import { Picture } from "../Picture"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 import { PicturePlaceholder } from "../Picture/PicturePlaceholder"
@@ -91,26 +92,18 @@ const AlbumAddPicturesSidebar: VoidComponent<
   return (
     <Stack d="v" dist="m" style={{ "max-height": "100%" }}>
       <Box p="m">{p => <h2 {...p}>Add pictures</h2>}</Box>
-      <Stack wrap p="m" style={{ flex: 1, "overflow-y": "auto" }}>
+      <Grid p="m" gap="xs" style={{ flex: 1, "overflow-y": "auto" }}>
         <For each={loader.data().items}>
           {picture => (
-            <Stack
-              d="v"
-              fgColor="g10"
-              p="s"
-              br="m"
-              style={{
-                width: "30%",
-                "margin-top": vars.space.xs,
-                "margin-left": vars.space.xs,
-              }}
-            >
+            <Stack d="v" br="m" p="0">
               {props => (
                 <button
                   onClick={() => toggle(picture.id)}
                   style={{
-                    border: "none",
-                    "background-color": pictureIds().has(picture.id)
+                    "background-color": "transparent",
+                    "border-width": "2px",
+                    "border-style": "solid",
+                    "border-color": pictureIds().has(picture.id)
                       ? vars.color.amber6
                       : "transparent",
                   }}
@@ -125,7 +118,7 @@ const AlbumAddPicturesSidebar: VoidComponent<
         {loader.data().nextPage !== null && (
           <PicturePlaceholder onBecomeVisible={loader.onLoadNext} />
         )}
-      </Stack>
+      </Grid>
       <Stack p="m">
         <button
           disabled={pictureIds().size === 0}

@@ -11,7 +11,7 @@ export const Sidebar: ParentComponent<SidebarProps> = p => {
   return (
     <Show when={p.isOpen}>
       <SidebarPortal>
-        <Box class={sidebar} bgColor="g1" br="l">
+        <Box class={sidebar} bgColor="g3" br="l">
           {p.children}
         </Box>
       </SidebarPortal>

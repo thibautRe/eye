@@ -1,16 +1,23 @@
 import { createEffect } from "solid-js"
 
+export interface CreateBecomesVisibleProps {
+  readonly onBecomesVisible?: () => void
+  readonly onBecomesInvisible?: () => void
+  readonly disconnectAfterVisible?: boolean
+}
 export const createBecomesVisible = <TElt extends HTMLElement = HTMLDivElement>(
-  onBecomesVisible?: () => void,
-  disconnectAfterVisible = true,
+  p: CreateBecomesVisibleProps,
 ) => {
   let eltRef: TElt | undefined
   const observer = new IntersectionObserver(ev => {
-    if (!ev[0]?.isIntersecting) return
-    onBecomesVisible?.()
-    if (!disconnectAfterVisible) return
-    observer.disconnect()
+    if (!ev[0]?.isIntersecting) {
+      p.onBecomesInvisible?.()
+    } else {
+      p.onBecomesVisible?.()
+      if (!p.disconnectAfterVisible) return
+      observer.disconnect()
+    }
   })
-  createEffect(() => eltRef && onBecomesVisible && observer.observe(eltRef))
+  createEffect(() => eltRef && p.onBecomesVisible && observer.observe(eltRef))
   return (elt: TElt) => (eltRef = elt)
 }

@@ -2,7 +2,7 @@ import { splitProps, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { PaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
-import { Stack } from "../Stack/Stack"
+import { Box } from "../Box/Box"
 import { PictureGrid, PictureGridProps } from "./PictureGrid"
 import { PicturePlaceholder } from "./PicturePlaceholder"
 
@@ -20,13 +20,20 @@ export const PictureGridPaginated: VoidComponent<
       extra={
         local.loader.data().nextPage != null && (
           <>
-            <PicturePlaceholder onBecomeVisible={local.loader.onLoadNext} />
             <PicturePlaceholder />
             <PicturePlaceholder />
             <PicturePlaceholder />
             <PicturePlaceholder />
             <PicturePlaceholder />
-            <Stack style={{ height: "200vh" }} />
+            <PicturePlaceholder />
+            <Box
+              style={{ height: "200vh" }}
+              ref={createBecomesVisible({
+                disconnectAfterVisible: false,
+                onBecomesVisible: local.loader.onLoadNextContinuous,
+                onBecomesInvisible: local.loader.onLoadNextContinuousAbort,
+              })}
+            />
           </>
         )
       }
