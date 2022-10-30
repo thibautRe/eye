@@ -27,6 +27,7 @@ import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 import { PicturePlaceholder } from "../Picture/PicturePlaceholder"
 import { Stack } from "../Stack/Stack"
 import { vars } from "../Styles/theme.css"
+import { T } from "../T/T"
 import { Sidebar } from "./Sidebar/Sidebar"
 
 export default () => {
@@ -42,7 +43,9 @@ export default () => {
       {album => (
         <Stack d="v" dist="s" fgColor="g10">
           <Stack dist="m" a="center">
-            <h1>{album.name}</h1>
+            <T t="l" fgColor="g11">
+              {p => <h1 {...p}>{album.name}</h1>}
+            </T>
             <AdminFenceOptional>
               <AlbumAddPictures
                 albumId={album.id}
