@@ -1,30 +1,30 @@
 import { Id } from "./id"
 
 export interface PictureSizeApi {
-  width: Id<"picture-size">
-  height: number
-  url: string
+  readonly width: Id<"picture-size">
+  readonly height: number
+  readonly url: string
 }
 export interface CameraLens {
-  id: Id<"camera-lens">
-  name: string
+  readonly id: Id<"camera-lens">
+  readonly name: string
 }
 export interface PictureApi {
-  id: Id<"picture">
-  width: number
-  height: number
-  name: string
-  alt: string
-  blurhash: string
-  sizes: PictureSizeApi[]
+  readonly id: Id<"picture">
+  readonly width: number
+  readonly height: number
+  readonly name: string
+  readonly alt: string
+  readonly blurhash: string
+  readonly sizes: readonly PictureSizeApi[]
 
-  shotWithCameraLens?: CameraLens
-  shotAt?: Date
-  shotWithAperture?: string
-  shotWithFocalLength?: number
+  readonly shotWithCameraLens?: CameraLens
+  readonly shotAt?: Date
+  readonly shotWithAperture?: string
+  readonly shotWithFocalLength?: number
   /** Exposure time in ms */
-  shotWithExposureTime?: string
-  shotWithIso?: number
+  readonly shotWithExposureTime?: string
+  readonly shotWithIso?: number
 }
 
 export const parsePicture = (pic: PictureApi): PictureApi => ({

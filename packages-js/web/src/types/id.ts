@@ -1,1 +1,1 @@
-export type Id<T extends string> = number & { __brand?: T }
+export type Id<T extends string> = number & { readonly __brand?: T }

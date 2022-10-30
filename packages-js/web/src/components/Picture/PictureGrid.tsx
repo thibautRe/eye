@@ -6,7 +6,7 @@ import { Stack } from "../Stack/Stack"
 import { Picture } from "./PictureComponent"
 
 export interface PictureGridProps {
-  pictures: PictureApi[]
+  pictures: readonly PictureApi[]
   extra?: JSX.Element
   sizes?: string
   readonly onDeletePicture?: (pictureId: PictureApi["id"]) => Promise<void>

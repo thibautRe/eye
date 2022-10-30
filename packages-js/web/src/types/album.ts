@@ -2,12 +2,12 @@ import { Id } from "./id"
 import { parsePicture, PictureApi } from "./picture"
 
 export interface AlbumApi {
-  id: Id<"album">
-  name: string
-  createdAt: Date
-  updatedAt: Date
-  picturesAmt: number
-  picturesExcerpt: PictureApi[]
+  readonly id: Id<"album">
+  readonly name: string
+  readonly createdAt: Date
+  readonly updatedAt: Date
+  readonly picturesAmt: number
+  readonly picturesExcerpt: readonly PictureApi[]
 }
 
 export const parseAlbum = (album: AlbumApi): AlbumApi => ({
