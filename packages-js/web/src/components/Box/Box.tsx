@@ -88,7 +88,7 @@ export const Box: Component<BoxProps> = p => {
   const res = children(() => p.children)
   if (typeof res() === "function") {
     // @ts-expect-error res() is not a function
-    return res()({ ...rest, classList: classList(), style: style() })
+    return <>{res()({ ...rest, classList: classList(), style: style() })}</>
   }
   return (
     <div {...rest} classList={classList()} style={style()}>

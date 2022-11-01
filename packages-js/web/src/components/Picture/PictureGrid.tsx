@@ -10,7 +10,7 @@ export interface PictureGridProps extends GridProps {
   pictures: readonly PictureApi[]
   extra?: JSX.Element
   sizes?: string
-  readonly onDeletePicture?: (pictureId: PictureApi["id"]) => Promise<void>
+  onDeletePicture?: (pictureId: PictureApi["id"]) => Promise<void>
 }
 export const PictureGrid: VoidComponent<PictureGridProps> = p => {
   p = mergeProps({ sizes: "28vw", gap: "xl" as const }, p)

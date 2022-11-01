@@ -117,22 +117,22 @@ const AlbumAddPicturesSidebar: VoidComponent<
         <For each={loader.data().items}>
           {picture => (
             <AspectRatio aspectRatio={3 / 2}>
-              <Stack br="m" p="0">
+              <Stack
+                br="m"
+                p="0"
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  "background-color": "transparent",
+                  "border-width": "2px",
+                  "border-style": "solid",
+                  "border-color": pictureIds().has(picture.id)
+                    ? vars.color.amber6
+                    : "transparent",
+                }}
+              >
                 {props => (
-                  <button
-                    onClick={() => toggle(picture.id)}
-                    style={{
-                      height: "100%",
-                      width: "100%",
-                      "background-color": "transparent",
-                      "border-width": "2px",
-                      "border-style": "solid",
-                      "border-color": pictureIds().has(picture.id)
-                        ? vars.color.amber6
-                        : "transparent",
-                    }}
-                    {...props}
-                  >
+                  <button onClick={() => toggle(picture.id)} {...props}>
                     <Picture picture={picture} sizes="100px" />
                   </button>
                 )}
