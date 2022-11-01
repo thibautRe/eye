@@ -4,5 +4,5 @@ import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 
 export default () => {
   const loader = createPaginatedLoader(apiGetPictures)
-  return <PictureGridPaginated loader={loader} />
+  return <PictureGridPaginated ph="s" pv="m" loader={loader} />
 }

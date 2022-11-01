@@ -5,7 +5,7 @@ import { Box, BoxProps } from "../Box/Box"
 import { ThemeSpaceKey, vars } from "../Styles/theme.css"
 import * as s from "./Grid.css"
 
-interface GridProps extends BoxProps {
+export interface GridProps extends BoxProps {
   gap?: ThemeSpaceKey
   gapRow?: ThemeSpaceKey
   gapColumn?: ThemeSpaceKey

@@ -42,7 +42,7 @@ export default () => {
   return (
     <Show when={albumRes()}>
       {album => (
-        <Stack d="v" dist="s" fgColor="g10">
+        <Stack d="v" dist="m" fgColor="g10" ph="s">
           <Stack dist="m" a="center">
             <T t="l" fgColor="g11">
               {p => <h1 {...p}>{album.name}</h1>}

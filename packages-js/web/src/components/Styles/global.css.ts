@@ -15,6 +15,7 @@ globalStyle("body", {
   WebkitFontSmoothing: "antialised",
   MozOsxFontSmoothing: "grayscale",
   boxSizing: "border-box",
+  overflowY: "scroll",
 
   background: vars.color.g1,
   color: vars.color.g12,

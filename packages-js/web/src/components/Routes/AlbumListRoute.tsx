@@ -14,8 +14,8 @@ export default () => {
     <Stack d="v" dist="m">
       <For each={albumsPaginated.data().items}>
         {album => (
-          <Stack d="v" fgColor="g11">
-            <Stack dist="xs" a="baseline" ph="s">
+          <Stack d="v" dist="m" fgColor="g11" ph="s">
+            <Stack dist="xs" a="baseline">
               <T t="l" fgColor="g11">
                 {props => (
                   <Link {...props} href={`/album/${album.id}`}>
