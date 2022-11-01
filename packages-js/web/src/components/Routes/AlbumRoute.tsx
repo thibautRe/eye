@@ -23,6 +23,7 @@ import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
 import { Box } from "../Box/Box"
 import { Grid } from "../Grid/Grid"
 import { Picture } from "../Picture"
+import { AspectRatio } from "../Picture/AspectRatio"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 import { PicturePlaceholder } from "../Picture/PicturePlaceholder"
 import { Stack } from "../Stack/Stack"
@@ -115,24 +116,28 @@ const AlbumAddPicturesSidebar: VoidComponent<
       <Grid p="m" gap="xs" style={{ flex: 1, "overflow-y": "auto" }}>
         <For each={loader.data().items}>
           {picture => (
-            <Stack d="v" br="m" p="0">
-              {props => (
-                <button
-                  onClick={() => toggle(picture.id)}
-                  style={{
-                    "background-color": "transparent",
-                    "border-width": "2px",
-                    "border-style": "solid",
-                    "border-color": pictureIds().has(picture.id)
-                      ? vars.color.amber6
-                      : "transparent",
-                  }}
-                  {...props}
-                >
-                  <Picture picture={picture} sizes="100px" />
-                </button>
-              )}
-            </Stack>
+            <AspectRatio aspectRatio={3 / 2}>
+              <Stack br="m" p="0">
+                {props => (
+                  <button
+                    onClick={() => toggle(picture.id)}
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                      "background-color": "transparent",
+                      "border-width": "2px",
+                      "border-style": "solid",
+                      "border-color": pictureIds().has(picture.id)
+                        ? vars.color.amber6
+                        : "transparent",
+                    }}
+                    {...props}
+                  >
+                    <Picture picture={picture} sizes="100px" />
+                  </button>
+                )}
+              </Stack>
+            </AspectRatio>
           )}
         </For>
         {loader.data().nextPage !== null && (

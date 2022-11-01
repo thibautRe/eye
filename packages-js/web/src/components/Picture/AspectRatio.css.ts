@@ -13,7 +13,6 @@ export const aspectRatioC = style({
 export const aspectRatioInnerC = style({
   display: "block",
   position: "absolute",
-  content: " ",
   top: 0,
   bottom: 0,
   left: 0,

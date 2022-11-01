@@ -4,7 +4,7 @@ import { JSX, mergeProps, onMount, splitProps, VoidComponent } from "solid-js"
 export interface PictureBlurhashProps
   extends Omit<
     JSX.CanvasHTMLAttributes<HTMLCanvasElement>,
-    "height" | "width" | "ref"
+    "height" | "width"
   > {
   blurhash: string
   /** @default 32 */
@@ -13,16 +13,20 @@ export interface PictureBlurhashProps
 export const PictureBlurhash: VoidComponent<PictureBlurhashProps> = props => {
   const p = mergeProps({ resolution: 32 }, props)
   const [local, rest] = splitProps(p, ["resolution", "blurhash"])
-  let canvas: undefined | HTMLCanvasElement
+  let canvasElt: HTMLCanvasElement | undefined
   onMount(() => {
-    canvas
+    canvasElt
       ?.getContext("2d")
       ?.putImageData(getData(local.blurhash, local.resolution), 0, 0)
   })
-
   return (
     <canvas
-      ref={canvas}
+      ref={canvas => {
+        canvasElt = canvas
+        if (props.ref instanceof Function) {
+          props.ref(canvas)
+        }
+      }}
       width={local.resolution}
       height={local.resolution}
       {...rest}

@@ -9,6 +9,7 @@ import {
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { createBooleanSignal } from "../../utils/hooks/createBooleanSignal"
+import { Box } from "../Box/Box"
 import { AspectRatio } from "./AspectRatio"
 import { PictureBlurhash } from "./PictureBlurhash"
 import * as s from "./PictureComponent.css"
@@ -60,15 +61,16 @@ export const Picture: VoidComponent<PictureProps> = props => {
 
   const blurhash = () => local.picture.blurhash
   return (
-    <AspectRatio
-      aspectRatio={local.picture.width / local.picture.height}
-      ref={createBecomesVisible({
-        onBecomesVisible: enable,
-        disconnectAfterVisible: true,
-      })}
-    >
+    <>
       <Show when={!hideBlurhash()}>
-        <PictureBlurhash blurhash={blurhash()} class={s.blurhash} />
+        <PictureBlurhash
+          blurhash={blurhash()}
+          class={s.blurhash}
+          ref={createBecomesVisible({
+            onBecomesVisible: enable,
+            disconnectAfterVisible: true,
+          })}
+        />
       </Show>
       <Show when={shouldLoad() || isLoaded()}>
         <ImgComponent
@@ -77,10 +79,11 @@ export const Picture: VoidComponent<PictureProps> = props => {
             setIsLoaded(true)
             loadedPictures.add(`${local.picture.id}-${rest.sizes}`)
           }}
+          style={{ opacity: isLoaded() ? 1 : 0.4 }}
           classList={{ [s.picture]: true, [s.pictureLoading]: !isLoaded() }}
           {...rest}
         />
       </Show>
-    </AspectRatio>
+    </>
   )
 }

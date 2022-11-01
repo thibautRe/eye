@@ -2,10 +2,11 @@ import { style } from "@vanilla-extract/css"
 import { vars } from "../Styles/theme.css"
 
 export const picture = style({
-  position: "absolute",
+  position: "relative",
   height: "100%",
   width: "100%",
   borderRadius: vars.radii.m,
+  objectFit: "cover",
   transition: `opacity 0.2s, mix-blend-mode 0.2s, filter 0.2s`,
 })
 export const pictureLoading = style({

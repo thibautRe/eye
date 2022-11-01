@@ -6,6 +6,7 @@ import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
 import { PictureGrid } from "../Picture/PictureGrid"
 import { Stack } from "../Stack/Stack"
+import { T } from "../T/T"
 
 export default () => {
   const albumsPaginated = createPaginatedLoader(apiGetAlbums)
@@ -14,11 +15,17 @@ export default () => {
       <For each={albumsPaginated.data().items}>
         {album => (
           <Stack d="v" fgColor="g11">
-            <Stack dist="xs" a="center">
-              <Link href={`/album/${album.id}`}>
-                <h1>{album.name}</h1>
-              </Link>
-              <span>({album.picturesAmt} pictures)</span>
+            <Stack dist="xs" a="baseline" ph="s">
+              <T t="l" fgColor="g11">
+                {props => (
+                  <Link {...props} href={`/album/${album.id}`}>
+                    {album.name}
+                  </Link>
+                )}
+              </T>
+              <T t="s" fgColor="g10">
+                ({album.picturesAmt} pictures)
+              </T>
             </Stack>
             <PictureGrid pictures={album.picturesExcerpt} />
           </Stack>
