@@ -24,16 +24,12 @@ export const PictureGrid: VoidComponent<PictureGridProps> = p => {
     <Grid {...rest}>
       <For each={local.pictures}>
         {picture => (
-          <Stack d="v" fgColor="g11" style={{ height: "100%" }}>
-            <Stack>
-              {props => (
-                <AspectRatio aspectRatio={3 / 2} {...props}>
-                  <Link href={`/picture/${picture.id}`}>
-                    <Picture picture={picture} sizes={local.sizes} />
-                  </Link>
-                </AspectRatio>
-              )}
-            </Stack>
+          <Stack d="v" fgColor="g11" style={{ height: "100%" }} a="start">
+            <AspectRatio aspectRatio={3 / 2}>
+              <Link href={`/picture/${picture.id}`}>
+                <Picture picture={picture} sizes={local.sizes} />
+              </Link>
+            </AspectRatio>
             <Show when={local.onDeletePicture}>
               {onDeletePicture => (
                 <button onClick={() => onDeletePicture(picture.id)}>
