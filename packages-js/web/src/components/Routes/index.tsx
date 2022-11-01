@@ -3,8 +3,6 @@ import { Component, JSX, lazy as solidLazy } from "solid-js"
 import { withAdminFence } from "../AuthFence"
 
 export const routes = {
-  Root: "/",
-
   Pictures: "/pictures",
   Picture: "/picture/:id",
 
@@ -28,7 +26,6 @@ const lazy = (getter: () => Promise<{ default: Component<any> }>) =>
     }),
   )
 
-const Root = () => <h1>Home</h1>
 const Pictures = lazy(() => import("./PictureListRoute"))
 const Picture = lazy(() => import("./PictureRoute"))
 const Albums = lazy(() => import("./AlbumListRoute"))
@@ -39,13 +36,13 @@ const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGen")))
 
 export const AppRoutes = () => (
   <Routes>
-    <Route path={routes.Root} component={Root} />
     <Route path={routes.Pictures} component={Pictures} />
     <Route path={routes.Picture} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
 
     {/* Convenience redirects */}
+    <Route path={"/"} component={r(routes.Albums)} />
     <Route path={"/picture/"} component={r(routes.Pictures)} />
     <Route path={"/album/"} component={r(routes.Albums)} />
 

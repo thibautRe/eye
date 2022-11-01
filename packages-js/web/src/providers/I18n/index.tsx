@@ -62,5 +62,5 @@ const useI18nContext = () => useContext(I18nContext)
  */
 export const useTrans = () => {
   const { catalogue } = useI18nContext()
-  return (key: CatalogueKey) => catalogue[key]
+  return <T extends CatalogueKey>(key: T): Catalogue[T] => catalogue[key]
 }

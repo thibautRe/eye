@@ -1,6 +1,7 @@
 import { Link } from "solid-app-router"
 import { For, Show } from "solid-js"
 import { apiCreateAlbum, apiGetAlbums } from "../../api"
+import { useTrans } from "../../providers/I18n"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
@@ -9,6 +10,7 @@ import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 
 export default () => {
+  const t = useTrans()
   const albumsPaginated = createPaginatedLoader(apiGetAlbums)
   return (
     <Stack d="v" dist="m">
@@ -24,7 +26,7 @@ export default () => {
                 )}
               </T>
               <T t="s" fgColor="g10">
-                ({album.picturesAmt} pictures)
+                ({t("picturesAmt")(album.picturesAmt)})
               </T>
             </Stack>
             <PictureGrid pictures={album.picturesExcerpt} />
