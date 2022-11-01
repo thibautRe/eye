@@ -27,6 +27,19 @@ export const delete_http = async <T>(route: string, data?: T) =>
 export const get_json = async <T = unknown>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
 
+export const makeCachedGet = <T>() => {
+  const cache = new Map<string, T>()
+  return [
+    async (route: string) => {
+      if (cache.has(route)) return cache.get(route)!
+      const val = await get_json<T>(route)
+      cache.set(route, val)
+      return val
+    },
+    { cache: { clear: cache.clear } },
+  ] as const
+}
+
 export const withParams = <
   T extends Record<string, string | number | boolean | undefined>,
 >(

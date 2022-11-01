@@ -1,8 +1,15 @@
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
 import { UserApi } from "../types/user"
-import { makePaginatedApi } from "./pagination"
-import { delete_http, get, get_json, post, withParams } from "./utils"
+import { makeCachedPaginatedApi, makePaginatedApi } from "./pagination"
+import {
+  delete_http,
+  get,
+  get_json,
+  makeCachedGet,
+  post,
+  withParams,
+} from "./utils"
 
 const routes = {
   pictures: `/api/pictures/`,
@@ -19,19 +26,23 @@ const routes = {
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
 } as const
 
-export const apiGetPictures = makePaginatedApi<
+export const apiGetPictures = makeCachedPaginatedApi<
   PictureApi,
   { albumId?: number; notAlbumId?: number }
 >(routes.pictures, parsePicture)
-export const apiGetAlbums = makePaginatedApi<AlbumApi>(
+export const apiGetAlbums = makeCachedPaginatedApi<AlbumApi>(
   routes.albums,
   parseAlbum,
 )
 
-export const apiGetPicture = (id: PictureApi["id"]) =>
-  get_json<PictureApi>(routes.picture(id)).then(parsePicture)
-export const apiGetAlbum = (id: AlbumApi["id"]) =>
-  get_json<AlbumApi>(routes.album(id)).then(parseAlbum)
+const [getPictureCached] = makeCachedGet<PictureApi>()
+export const apiGetPicture = async (id: PictureApi["id"]) =>
+  parsePicture(await getPictureCached(routes.picture(id)))
+
+const [getAlbumCached] = makeCachedGet<AlbumApi>()
+export const apiGetAlbum = async (id: AlbumApi["id"]) =>
+  parseAlbum(await getAlbumCached(routes.album(id)))
+
 export const apiAdminUsers = () => get_json<UserApi[]>(routes.users)
 export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (

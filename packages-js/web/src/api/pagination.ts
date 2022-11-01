@@ -1,4 +1,4 @@
-import { get_json, withParams } from "./utils"
+import { get_json, makeCachedGet, withParams } from "./utils"
 
 export interface PaginatedApi<T> {
   items: T[]
@@ -29,6 +29,22 @@ export const makePaginatedApi =
     )
     return mapper ? mapPaginated(mapper)(res) : res
   }
+
+export const makeCachedPaginatedApi = <
+  T,
+  P extends Record<string, number | string> = {},
+>(
+  route: string,
+  mapper?: (item: T) => T,
+): PaginatedApiLoader<T, P> => {
+  const [getCached] = makeCachedGet<PaginatedApi<T>>()
+  return async (loaderProps, extraProps) => {
+    const res = await getCached(
+      withParams(route, { ...loaderProps, ...extraProps }),
+    )
+    return mapper ? mapPaginated(mapper)(res) : res
+  }
+}
 
 export const mapPaginated =
   <T>(mapper: (item: T) => T) =>
