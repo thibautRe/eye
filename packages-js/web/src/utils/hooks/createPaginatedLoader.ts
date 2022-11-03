@@ -2,11 +2,16 @@ import { Accessor, createEffect, createSignal } from "solid-js"
 import { PaginatedApiLoader } from "../../api/pagination"
 
 interface PaginatedSignal<T> {
-  items: T[]
-  nextPage: number | null
-  shouldLoadNextPage: boolean
-  isLoadingNextPage: boolean
+  readonly items: readonly T[]
+  readonly nextPage: number | null
+  readonly shouldLoadNextPage: boolean
+  readonly isLoadingNextPage: boolean
 }
+
+const cached = new Map<
+  string,
+  { items: readonly any[]; nextPage: number | null }
+>()
 
 export interface PaginatedLoader<T> {
   readonly data: Accessor<PaginatedSignal<T>>
@@ -16,28 +21,42 @@ export interface PaginatedLoader<T> {
   readonly onLoadNextContinuous: () => void
   readonly onLoadNextContinuousAbort: () => void
 }
-export const createPaginatedLoader = <T, P extends {} | undefined>(
-  loader: PaginatedApiLoader<T, P>,
-  params?: P,
+
+interface CreatePaginatedLoaderParams<T, P extends {}> {
+  loader: PaginatedApiLoader<T, P>
+  params?: P
+  cacheKey?: Accessor<string>
+}
+export const createPaginatedLoader = <T, P extends {}>(
+  params: CreatePaginatedLoaderParams<T, P>,
 ): PaginatedLoader<T> => {
   const initSignal: PaginatedSignal<T> = {
-    items: [],
-    nextPage: 1,
-    shouldLoadNextPage: true,
+    ...(params.cacheKey && cached.has(params.cacheKey())
+      ? { ...cached.get(params.cacheKey())!, shouldLoadNextPage: false }
+      : { items: [], nextPage: 1, shouldLoadNextPage: true }),
     isLoadingNextPage: false,
   }
   const [signal, setSignal] = createSignal<PaginatedSignal<T>>(initSignal)
   let keepLoading = false
 
   createEffect(async () => {
-    const { nextPage, shouldLoadNextPage, isLoadingNextPage } = signal()
+    const {
+      nextPage,
+      shouldLoadNextPage,
+      isLoadingNextPage,
+      items: oldItems,
+    } = signal()
     if (!(nextPage !== null && shouldLoadNextPage && !isLoadingNextPage)) return
 
     setSignal(p => ({ ...p, isLoadingNextPage: true }))
-    const res = await loader({ page: nextPage }, params)
+    const res = await params.loader({ page: nextPage }, params.params)
+    const items = [...oldItems, ...res.items]
+    if (params.cacheKey) {
+      cached.set(params.cacheKey(), { items, nextPage: res.info.nextPage })
+    }
     setSignal(p => ({
       ...p,
-      items: [...p.items, ...res.items],
+      items,
       nextPage: res.info.nextPage,
       isLoadingNextPage: false,
       shouldLoadNextPage: keepLoading,

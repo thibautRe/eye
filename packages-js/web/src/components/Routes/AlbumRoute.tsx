@@ -35,9 +35,10 @@ export default () => {
   const params = useParams<{ id: string }>()
   const getAlbumId = () => parseInt(params.id, 10)
   const [albumRes] = createResource(getAlbumId, apiGetAlbum)
-  const picturesLoader = createPaginatedLoader(props =>
-    apiGetPictures(props, { albumId: getAlbumId() }),
-  )
+  const picturesLoader = createPaginatedLoader({
+    loader: props => apiGetPictures(props, { albumId: getAlbumId() }),
+    cacheKey: () => `album-${getAlbumId()}`,
+  })
 
   return (
     <Show when={albumRes()}>
@@ -106,9 +107,9 @@ interface AlbumAddPicturesSidebarProps {
 const AlbumAddPicturesSidebar: VoidComponent<
   AlbumAddPicturesSidebarProps
 > = p => {
-  const loader = createPaginatedLoader(props =>
-    apiGetPictures(props, { notAlbumId: p.albumId }),
-  )
+  const loader = createPaginatedLoader({
+    loader: props => apiGetPictures(props, { notAlbumId: p.albumId }),
+  })
   const [pictureIds, { toggle }] = createSetSignal<PictureApi["id"]>()
   return (
     <Stack d="v" dist="m" style={{ "max-height": "100%" }}>

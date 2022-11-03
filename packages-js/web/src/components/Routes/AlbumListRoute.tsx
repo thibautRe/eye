@@ -11,7 +11,10 @@ import { T } from "../T/T"
 
 export default () => {
   const t = useTrans()
-  const albumsPaginated = createPaginatedLoader(apiGetAlbums)
+  const albumsPaginated = createPaginatedLoader({
+    loader: apiGetAlbums,
+    cacheKey: () => "albums",
+  })
   return (
     <Stack d="v" dist="m">
       <For each={albumsPaginated.data().items}>
