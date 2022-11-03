@@ -25,7 +25,10 @@ export default () => {
         {picture => (
           <Stack d="v" fgColor="g10" a="center">
             <Box
-              style={{ width: `${(picture.width / picture.height) * 100}vh` }}
+              style={{
+                width: `${(picture.width / picture.height) * 100}vh`,
+                "max-width": "100%",
+              }}
             >
               <AspectRatio aspectRatio={picture.width / picture.height}>
                 <Picture picture={picture} sizes="90vw" />
