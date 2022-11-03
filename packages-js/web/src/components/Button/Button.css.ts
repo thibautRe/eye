@@ -4,7 +4,7 @@ import { vars } from "../Styles/theme.css"
 export const button = style({
   appearance: "none",
   border: "none",
-  minWidth: "120px",
+  minWidth: "70px",
   textAlign: "center",
 
   fontFamily: "inherit",
@@ -15,7 +15,7 @@ export const button = style({
   paddingRight: vars.space.m,
 
   background: vars.color.p4,
-  color: vars.color.p12,
+  color: vars.color.p11,
 
   borderRadius: vars.radii.m,
   cursor: "pointer",

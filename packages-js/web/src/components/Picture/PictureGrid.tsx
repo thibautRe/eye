@@ -1,6 +1,7 @@
 import { Link } from "solid-app-router"
 import { For, JSX, mergeProps, Show, splitProps, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
+import { Box } from "../Box/Box"
 import { Button } from "../Button"
 import { Grid, GridProps } from "../Grid/Grid"
 import { Stack } from "../Stack/Stack"
@@ -25,11 +26,24 @@ export const PictureGrid: VoidComponent<PictureGridProps> = p => {
     <Grid {...rest}>
       <For each={local.pictures}>
         {picture => (
-          <Stack d="v" fgColor="g11" style={{ height: "100%" }} a="start">
+          <Stack
+            d="v"
+            dist="s"
+            fgColor="g11"
+            style={{ height: "100%" }}
+            a="start"
+          >
             <AspectRatio aspectRatio={3 / 2}>
-              <Link href={`/picture/${picture.id}`}>
-                <Picture picture={picture} sizes={local.sizes} />
-              </Link>
+              <Box
+                br="m"
+                style={{ display: "block", width: "100%", height: "100%" }}
+              >
+                {p => (
+                  <Link {...p} href={`/picture/${picture.id}`}>
+                    <Picture picture={picture} sizes={local.sizes} />
+                  </Link>
+                )}
+              </Box>
             </AspectRatio>
             <Show when={local.onDeletePicture}>
               {onDeletePicture => (

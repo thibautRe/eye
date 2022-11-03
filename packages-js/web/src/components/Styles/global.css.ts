@@ -9,6 +9,13 @@ globalStyle("*, *::before, *::after", {
   boxSizing: "inherit",
 })
 
+globalStyle("*:focus-visible", {
+  outlineStyle: "solid",
+  outlineWidth: 2,
+  outlineColor: vars.color.p11,
+  outlineOffset: vars.space.xxs,
+})
+
 globalStyle("body", {
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
