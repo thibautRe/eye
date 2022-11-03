@@ -1,8 +1,8 @@
 import clipboardCopy from "clipboard-copy"
 import { VoidComponent } from "solid-js"
 import { updateIdentityX } from "../../providers/Identity"
-import { CopyableButton } from "../Admin/Buttons"
 import { Box } from "../Box/Box"
+import { Button, CopyableButton } from "../Button"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 import { jwt } from "./Jwt.css"
@@ -18,13 +18,13 @@ export const Jwt: VoidComponent<JwtProps> = p => {
   return (
     <Stack dist="xxs" bgColor="g5" fgColor="g7" ph="s" pv="xs" br="m">
       <T t="xs" class={jwt}>
-        <Box fgColor="amber11">{p => <span {...p}>{jwtp1()}</span>}</Box>.
-        <Box fgColor="amber12">{p => <span {...p}>{jwtp2()}</span>}</Box>.
-        <Box fgColor="amber11">{p => <span {...p}>{jwtp3()}</span>}</Box>
+        <Box fgColor="p11">{p => <span {...p}>{jwtp1()}</span>}</Box>.
+        <Box fgColor="p12">{p => <span {...p}>{jwtp2()}</span>}</Box>.
+        <Box fgColor="p11">{p => <span {...p}>{jwtp3()}</span>}</Box>
       </T>
       <Stack d="v" dist="xxs">
         <CopyableButton onCopy={() => clipboardCopy(p.jwt)} />
-        <button onClick={() => updateIdentityX(p.jwt)}>Use</button>
+        <Button onClick={() => updateIdentityX(p.jwt)}>Use</Button>
       </Stack>
     </Stack>
   )

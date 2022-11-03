@@ -3,6 +3,9 @@ import { classList } from "solid-js/web"
 import { Box, BoxProps } from "../Box/Box"
 import * as s from "./T.css"
 
+export const Tsizes = s.sizes
+export const Tweights = s.weights
+
 export interface TOwnProps {
   t: "xs" | "s" | "m" | "l"
   w?: "bold" | "normal"

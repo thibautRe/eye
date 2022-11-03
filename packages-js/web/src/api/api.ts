@@ -24,11 +24,13 @@ const routes = {
 
   users: `/api/users/`,
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
+  userPictureAccess: `/api/users/picture_access/`,
 } as const
 
+export type GetPicturesProps = { albumId?: number; notAlbumId?: number }
 export const apiGetPictures = makeCachedPaginatedApi<
   PictureApi,
-  { albumId?: number; notAlbumId?: number }
+  GetPicturesProps
 >(routes.pictures, parsePicture)
 export const apiGetAlbums = makeCachedPaginatedApi<AlbumApi>(
   routes.albums,
@@ -48,6 +50,13 @@ export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (
     await get(withParams(routes.userJwt(userId), { withAdminRole }))
   ).text()
+export const apiAdminUsersAddPictureAccess = async (
+  userIds: UserApi["id"][],
+  {
+    pictureIds,
+    albumIds,
+  }: { pictureIds?: PictureApi["id"][]; albumIds?: AlbumApi["id"][] },
+) => await post(routes.userPictureAccess, { userIds, pictureIds, albumIds })
 
 export const apiCreateAlbum = async (name: string) =>
   await post(routes.albumCreate, { name })

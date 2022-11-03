@@ -5,6 +5,7 @@ import { useTrans } from "../../providers/I18n"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
+import { Button } from "../Button"
 import { PictureGrid } from "../Picture/PictureGrid"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
@@ -38,7 +39,7 @@ export default () => {
       </For>
       <AdminFenceOptional>
         <Box pv="l">
-          <button
+          <Button
             onClick={async () => {
               const name = prompt("Album name")
               if (!name) return
@@ -47,7 +48,7 @@ export default () => {
             }}
           >
             Create new album
-          </button>
+          </Button>
         </Box>
       </AdminFenceOptional>
     </Stack>

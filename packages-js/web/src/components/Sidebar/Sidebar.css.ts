@@ -1,8 +1,8 @@
 import { style } from "@vanilla-extract/css"
-import { vars } from "../../Styles/theme.css"
+import { vars } from "../Styles/theme.css"
 
 export const sidebar = style({
-  position: "absolute",
+  position: "fixed",
   top: vars.space.m,
   right: vars.space.m,
   bottom: vars.space.m,

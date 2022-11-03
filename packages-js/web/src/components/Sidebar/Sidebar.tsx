@@ -1,6 +1,6 @@
-import { ParentComponent, Show } from "solid-js"
+import { ParentComponent, Show, Suspense } from "solid-js"
 import { Portal } from "solid-js/web"
-import { Box } from "../../Box/Box"
+import { Box } from "../Box/Box"
 import { sidebar } from "./Sidebar.css"
 
 export interface SidebarProps {
@@ -9,13 +9,15 @@ export interface SidebarProps {
 }
 export const Sidebar: ParentComponent<SidebarProps> = p => {
   return (
-    <Show when={p.isOpen}>
-      <SidebarPortal>
-        <Box class={sidebar} bgColor="g3" br="l">
-          {p.children}
-        </Box>
-      </SidebarPortal>
-    </Show>
+    <Suspense>
+      <Show when={p.isOpen}>
+        <SidebarPortal>
+          <Box class={sidebar} bgColor="g3" br="l">
+            {p.children}
+          </Box>
+        </SidebarPortal>
+      </Show>
+    </Suspense>
   )
 }
 

@@ -7,5 +7,5 @@ export const navcontainer = style({
 
 export const navlink = style({
   textDecoration: "none",
-  selectors: { "&.active": { color: vars.color.amber10 } },
+  selectors: { "&.active": { color: vars.color.p11 } },
 })

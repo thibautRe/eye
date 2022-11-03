@@ -1,11 +1,15 @@
 import { useParams } from "solid-app-router"
 import { createResource, Show, VoidComponent } from "solid-js"
-import { apiGetPicture } from "../../api"
+import { apiAdminUsersAddPictureAccess, apiGetPicture } from "../../api"
 import { useTrans } from "../../providers/I18n"
 import { PictureApi } from "../../types/picture"
+import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
+import { Button } from "../Button"
 import { Picture, PictureMetadata } from "../Picture"
 import { AspectRatio } from "../Picture/AspectRatio"
+import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
+import { SidebarButton } from "../Sidebar/SidebarButton"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 
@@ -29,6 +33,21 @@ export default () => {
             </Box>
             <PictureMetadata picture={picture} />
             <PictureActions picture={picture} />
+            <AdminFenceOptional>
+              <SidebarButton
+                renderButton={p => <Button {...p}>Grant user access</Button>}
+                renderChildren={({ onClose }) => (
+                  <UserSelectSidebar
+                    onSelectUsers={async userIds => {
+                      await apiAdminUsersAddPictureAccess(userIds, {
+                        pictureIds: [picture.id],
+                      })
+                      onClose()
+                    }}
+                  />
+                )}
+              />
+            </AdminFenceOptional>
           </Stack>
         )}
       </Show>
@@ -43,14 +62,14 @@ const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
     .sort((p1, p2) => p2.width - p1.width)[0]
   return (
     <Stack dist="m" a="center">
-      <T t="s" fgColor="amber10">
+      <T t="s" fgColor="p10">
         {props => (
           <a {...props} rel="external" href={highestResSize.url}>
             {t("fullResolution")}
           </a>
         )}
       </T>
-      <T t="s" fgColor="amber10">
+      <T t="s" fgColor="p10">
         {props => (
           <a {...props} rel="external" href={highestResSize.url} download>
             {t("download")}

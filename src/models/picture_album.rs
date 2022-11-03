@@ -24,6 +24,10 @@ pub type GetPictureIdsForAlbumId = Select<
   Filter<picture_albums::table, Eq<picture_albums::album_id, i32>>,
   picture_albums::picture_id,
 >;
+pub type GetPictureIdsForAlbumIds = Select<
+  Filter<picture_albums::table, EqAny<picture_albums::album_id, Vec<i32>>>,
+  picture_albums::picture_id,
+>;
 pub type GetAlbumIdsWithPublicPictures = Select<
   Filter<picture_albums::table, EqAny<picture_albums::picture_id, GetPublicIds>>,
   picture_albums::album_id,
@@ -44,6 +48,11 @@ impl PictureAlbum {
   pub fn get_picture_ids_for_album_id(id: i32) -> GetPictureIdsForAlbumId {
     picture_albums::table
       .filter(picture_albums::album_id.eq(id))
+      .select(picture_albums::picture_id)
+  }
+  pub fn get_picture_ids_for_album_ids(ids: Vec<i32>) -> GetPictureIdsForAlbumIds {
+    picture_albums::table
+      .filter(picture_albums::album_id.eq_any(ids))
       .select(picture_albums::picture_id)
   }
 
