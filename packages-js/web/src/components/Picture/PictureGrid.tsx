@@ -15,7 +15,14 @@ export interface PictureGridProps extends GridProps {
   onDeletePicture?: (pictureId: PictureApi["id"]) => Promise<void>
 }
 export const PictureGrid: VoidComponent<PictureGridProps> = p => {
-  p = mergeProps({ sizes: "28vw", gap: "xl" as const }, p)
+  p = mergeProps(
+    {
+      sizes: "28vw",
+      rowGap: "xl" as const,
+      columnGap: "xl" as const,
+    },
+    p,
+  )
   const [local, rest] = splitProps(p, [
     "pictures",
     "extra",

@@ -6,33 +6,31 @@ import { ThemeSpaceKey, vars } from "../Styles/theme.css"
 import * as s from "./Grid.css"
 
 export interface GridProps extends BoxProps {
-  gap?: ThemeSpaceKey
-  gapRow?: ThemeSpaceKey
-  gapColumn?: ThemeSpaceKey
+  rowGap?: ThemeSpaceKey
+  columnGap?: ThemeSpaceKey
 }
 export const Grid: Component<GridProps> = p => {
   const [local, rest] = splitProps(p, [
-    "gap",
-    "gapColumn",
-    "gapRow",
+    "columnGap",
+    "rowGap",
     "style",
     "classList",
   ])
 
-  const gapRow = () => local.gapRow ?? local.gap
-  const gapColumn = () => local.gapColumn ?? local.gap
   const style = () =>
     mergeStyle(
       local.style,
       assignInlineVars({
-        ...(gapRow() ? { [s.rowGapVar]: vars.space[gapRow()!] } : {}),
-        ...(gapColumn() ? { [s.columnGapVar]: vars.space[gapColumn()!] } : {}),
+        ...(local.rowGap ? { [s.rowGapVar]: vars.space[local.rowGap] } : {}),
+        ...(local.columnGap
+          ? { [s.columnGapVar]: vars.space[local.columnGap] }
+          : {}),
       }),
     )
   const classList = () => ({
     [s.gridS]: true,
-    [s.rowGapGrid]: Boolean(gapRow()),
-    [s.columnGapGrid]: Boolean(gapColumn()),
+    [s.rowGapGrid]: Boolean(local.rowGap),
+    [s.columnGapGrid]: Boolean(local.columnGap),
     ...local.classList,
   })
   return (

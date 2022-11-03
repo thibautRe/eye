@@ -26,7 +26,12 @@ export const PictureSelectSidebar: VoidComponent<
   return (
     <Stack d="v" dist="m" style={{ "max-height": "100%" }}>
       <Box p="m">{p => <h2 {...p}>Select pictures</h2>}</Box>
-      <Grid p="m" gap="xs" style={{ flex: 1, "overflow-y": "auto" }}>
+      <Grid
+        p="m"
+        rowGap="xs"
+        columnGap="xs"
+        style={{ flex: 1, "overflow-y": "auto" }}
+      >
         <For each={loader.data().items}>
           {picture => (
             <AspectRatio aspectRatio={3 / 2}>
