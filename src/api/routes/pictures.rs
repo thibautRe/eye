@@ -12,6 +12,7 @@ use crate::{
   models::{
     picture::Picture,
     picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
+    user::User,
   },
 };
 
@@ -58,6 +59,20 @@ async fn picture_handler(
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db)?))
 }
 
+#[get("/{id}/user_access/")]
+async fn picture_user_access_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+  let picture_id = path.0;
+  let users = User::get_by_picture_access(picture_id).load::<User>(&mut db)?;
+  Ok(HttpResponse::Ok().json(users))
+}
+
 #[post("/{id}/user_access/")]
 async fn picture_user_access_create_handler(
   jwt_key: web::Data<JwtKey>,
@@ -96,6 +111,7 @@ pub fn pictures_routes() -> Scope {
   web::scope("/pictures")
     .service(pictures_handler)
     .service(picture_handler)
+    .service(picture_user_access_handler)
     .service(picture_user_access_create_handler)
     .service(picture_user_access_delete_handler)
 }

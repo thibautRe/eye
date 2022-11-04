@@ -3,7 +3,6 @@ import { createResource, Show, VoidComponent } from "solid-js"
 import {
   apiAddAlbumPictures,
   apiAdminUserAddAlbumAccess,
-  apiAdminUsersAddPictureAccess,
   apiDeleteAlbum,
   apiDeleteAlbumPictures,
   apiGetAlbum,

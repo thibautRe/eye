@@ -7,19 +7,28 @@ pub struct PictureUserAccess {
   pub user_id: i32,
 }
 
-pub type GetByUserId = Select<
+pub type GetPictureIdByUserId = Select<
   Filter<picture_user_access::table, Eq<picture_user_access::user_id, i32>>,
   picture_user_access::picture_id,
+>;
+pub type GetUserIdByPictureId = Select<
+  Filter<picture_user_access::table, Eq<picture_user_access::picture_id, i32>>,
+  picture_user_access::user_id,
 >;
 type GetByPictureIdsAndUserIds = Filter<
   Filter<picture_user_access::table, EqAny<picture_user_access::user_id, Vec<i32>>>,
   EqAny<picture_user_access::picture_id, Vec<i32>>,
 >;
 impl PictureUserAccess {
-  pub fn get_by_user_id(user_id: i32) -> GetByUserId {
+  pub fn get_picture_id_by_user_id(user_id: i32) -> GetPictureIdByUserId {
     picture_user_access::table
       .filter(picture_user_access::user_id.eq(user_id))
       .select(picture_user_access::picture_id)
+  }
+  pub fn get_user_id_by_picture_id(picture_id: i32) -> GetUserIdByPictureId {
+    picture_user_access::table
+      .filter(picture_user_access::picture_id.eq(picture_id))
+      .select(picture_user_access::user_id)
   }
 
   pub fn get_by_picture_ids_and_user_ids(

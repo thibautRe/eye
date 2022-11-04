@@ -51,6 +51,9 @@ export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (
     await get(withParams(routes.userJwt(userId), { withAdminRole }))
   ).text()
+export const apiAdminGetUsersPictureAccess = async (
+  pictureId: PictureApi["id"],
+) => await get_json<UserApi[]>(routes.pictureUserAccess(pictureId))
 export const apiAdminUsersAddPictureAccess = async (
   userIds: UserApi["id"][],
   pictureId: PictureApi["id"],

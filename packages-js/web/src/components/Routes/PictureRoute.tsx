@@ -1,6 +1,11 @@
 import { useParams } from "solid-app-router"
-import { createResource, Show, VoidComponent } from "solid-js"
-import { apiAdminUsersAddPictureAccess, apiGetPicture } from "../../api"
+import { createResource, For, Show, Suspense, VoidComponent } from "solid-js"
+import {
+  apiAdminGetUsersPictureAccess,
+  apiAdminUsersAddPictureAccess,
+  apiAdminUsersRemovePictureAccess,
+  apiGetPicture,
+} from "../../api"
 import { useTrans } from "../../providers/I18n"
 import { PictureApi } from "../../types/picture"
 import { AdminFenceOptional } from "../AuthFence"
@@ -23,31 +28,26 @@ export default () => {
     <Stack d="v" dist="m">
       <Show when={pictureRes()}>
         {picture => (
-          <Stack d="v" fgColor="g10" a="center">
-            <Box
-              style={{
-                width: `${(picture.width / picture.height) * 100}vh`,
-                "max-width": "100%",
-              }}
-            >
-              <AspectRatio aspectRatio={picture.width / picture.height}>
-                <Picture picture={picture} sizes="90vw" />
-              </AspectRatio>
-            </Box>
-            <PictureMetadata picture={picture} />
-            <PictureActions picture={picture} />
+          <Stack d="v" dist="xl" fgColor="g10">
+            <Stack d="v" a="center">
+              <Box
+                style={{
+                  width: `${(picture.width / picture.height) * 100}vh`,
+                  "max-width": "100%",
+                }}
+              >
+                <AspectRatio aspectRatio={picture.width / picture.height}>
+                  <Picture picture={picture} sizes="90vw" />
+                </AspectRatio>
+              </Box>
+              <PictureMetadata picture={picture} />
+              <PictureActions picture={picture} />
+            </Stack>
+
             <AdminFenceOptional>
-              <SidebarButton
-                renderButton={p => <Button {...p}>Grant user access</Button>}
-                renderChildren={({ onClose }) => (
-                  <UserSelectSidebar
-                    onSelectUsers={async userIds => {
-                      await apiAdminUsersAddPictureAccess(userIds, picture.id)
-                      onClose()
-                    }}
-                  />
-                )}
-              />
+              <Suspense>
+                <PictureUserAccessActions pictureId={picture.id} />
+              </Suspense>
             </AdminFenceOptional>
           </Stack>
         )}
@@ -77,6 +77,55 @@ const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
           </a>
         )}
       </T>
+    </Stack>
+  )
+}
+
+const PictureUserAccessActions: VoidComponent<{
+  pictureId: PictureApi["id"]
+}> = p => {
+  const [userAccessRes, userAccessResActions] = createResource(
+    () => p.pictureId,
+    apiAdminGetUsersPictureAccess,
+  )
+  return (
+    <Stack d="v" dist="s" a="start" p="xl">
+      <SidebarButton
+        renderButton={p => <Button {...p}>Grant user access</Button>}
+        renderChildren={({ onClose }) => (
+          <UserSelectSidebar
+            onSelectUsers={async userIds => {
+              await apiAdminUsersAddPictureAccess(userIds, p.pictureId)
+              userAccessResActions.refetch()
+              onClose()
+            }}
+          />
+        )}
+      />
+      <Show when={userAccessRes()}>
+        {users => (
+          <Stack d="v" dist="xs">
+            <For each={users}>
+              {user => (
+                <Stack a="center">
+                  <T t="s">{user.name}</T>
+                  <Button
+                    onClick={async () => {
+                      await apiAdminUsersRemovePictureAccess(
+                        [user.id],
+                        p.pictureId,
+                      )
+                      userAccessResActions.refetch()
+                    }}
+                  >
+                    Remove access
+                  </Button>
+                </Stack>
+              )}
+            </For>
+          </Stack>
+        )}
+      </Show>
     </Stack>
   )
 }

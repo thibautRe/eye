@@ -5,7 +5,7 @@ use super::{
   camera_lenses::CameraLens,
   picture_album::PictureAlbum,
   picture_size::{PictureSize, PictureSizeApi},
-  picture_user_access::{GetByUserId, PictureUserAccess},
+  picture_user_access::{GetPictureIdByUserId, PictureUserAccess},
   AccessType,
 };
 use crate::{
@@ -80,7 +80,7 @@ pub struct PictureApi {
 type Table = Order<pictures::table, Asc<pictures::shot_at>>;
 
 type EqPublic = Eq<pictures::access_type, &'static str>;
-type EqShared = Or<EqPublic, EqAny<pictures::id, GetByUserId>>;
+type EqShared = Or<EqPublic, EqAny<pictures::id, GetPictureIdByUserId>>;
 pub type GetPublicIds = Select<Filter<pictures::table, EqPublic>, pictures::id>;
 pub type GetSharedIds = Select<Filter<pictures::table, EqShared>, pictures::id>;
 
@@ -150,7 +150,7 @@ impl Picture {
     pictures::access_type.eq(AccessType::Public.to_string())
   }
   fn shared(user_id: i32) -> EqShared {
-    Self::public().or(pictures::id.eq_any(PictureUserAccess::get_by_user_id(user_id)))
+    Self::public().or(pictures::id.eq_any(PictureUserAccess::get_picture_id_by_user_id(user_id)))
   }
 
   pub fn into_api_full(
