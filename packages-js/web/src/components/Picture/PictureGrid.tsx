@@ -5,6 +5,7 @@ import { Box } from "../Box/Box"
 import { Button } from "../Button"
 import { Grid, GridProps } from "../Grid/Grid"
 import { Stack } from "../Stack/Stack"
+import { breakpoints } from "../Styles/theme.css"
 import { AspectRatio } from "./AspectRatio"
 import { Picture } from "./PictureComponent"
 
@@ -17,9 +18,11 @@ export interface PictureGridProps extends GridProps {
 export const PictureGrid: VoidComponent<PictureGridProps> = p => {
   p = mergeProps(
     {
-      sizes: "28vw",
+      sizes: `(max-width: ${breakpoints.m}px) 48vw, 28vw`,
       rowGap: "xl" as const,
+      rowGapM: "m" as const,
       columnGap: "xl" as const,
+      columnGapM: "m" as const,
     },
     p,
   )

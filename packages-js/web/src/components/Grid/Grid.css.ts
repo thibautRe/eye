@@ -1,16 +1,18 @@
 import { createVar, CSSProperties, style } from "@vanilla-extract/css"
-import { vars } from "../Styles/theme.css"
+import { propVarFactory } from "../Styles/propVarFactory"
+import { resp, vars } from "../Styles/theme.css"
 
-function makePropVar<T extends keyof CSSProperties>(prop: T) {
-  const v = createVar(`grid-${prop}`)
-  return [v, style({ [prop]: v })] as const
-}
+const { makePropVar, makePropVarM } = propVarFactory("grid")
 
 export const [columnGapVar, columnGapGrid] = makePropVar("columnGap")
+export const [columnGapVarM, columnGapGridM] = makePropVarM("columnGap")
 export const [rowGapVar, rowGapGrid] = makePropVar("rowGap")
+export const [rowGapVarM, rowGapGridM] = makePropVarM("rowGap")
 
 export const gridS = style({
   display: "grid",
   gridTemplateRows: "repeat(auto-fill, 1fr)",
+
   gridTemplateColumns: "repeat(3, 1fr)",
+  "@media": { [resp.m]: { gridTemplateColumns: "repeat(2, 1fr)" } },
 })

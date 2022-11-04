@@ -77,3 +77,10 @@ export type ThemeColorKey = keyof ThemeColor
 export type ThemeRadiiKey = keyof ThemeRadii
 
 export const vars = createGlobalTheme(":root", defaultTheme)
+
+export const breakpoints = {
+  m: 768,
+}
+export const resp = {
+  m: `screen and (max-width: ${breakpoints.m}px)`,
+}
