@@ -14,17 +14,18 @@ import {
 const routes = {
   pictures: `/api/pictures/`,
   picture: (id: PictureApi["id"]) => `/api/pictures/${id}`,
+  pictureUserAccess: (id: PictureApi["id"]) =>
+    `/api/pictures/${id}/user_access/`,
 
   albums: `/api/albums/`,
   albumCreate: `/api/albums/`,
   album: (id: AlbumApi["id"]) => `/api/albums/${id}`,
   albumDelete: (id: AlbumApi["id"]) => `/api/albums/${id}`,
-  albumAddPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
-  albumDeletePictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures`,
+  albumPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures/`,
+  albumUserAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/user_access/`,
 
   users: `/api/users/`,
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
-  userPictureAccess: `/api/users/picture_access/`,
 } as const
 
 export type GetPicturesProps = { albumId?: number; notAlbumId?: number }
@@ -52,11 +53,20 @@ export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   ).text()
 export const apiAdminUsersAddPictureAccess = async (
   userIds: UserApi["id"][],
-  {
-    pictureIds,
-    albumIds,
-  }: { pictureIds?: PictureApi["id"][]; albumIds?: AlbumApi["id"][] },
-) => await post(routes.userPictureAccess, { userIds, pictureIds, albumIds })
+  pictureId: PictureApi["id"],
+) => await post(routes.pictureUserAccess(pictureId), userIds)
+export const apiAdminUsersRemovePictureAccess = async (
+  userIds: UserApi["id"][],
+  pictureId: PictureApi["id"],
+) => await delete_http(routes.pictureUserAccess(pictureId), userIds)
+export const apiAdminUserAddAlbumAccess = async (
+  userIds: UserApi["id"][],
+  albumId: AlbumApi["id"],
+) => await post(routes.albumUserAccess(albumId), userIds)
+export const apiAdminUserRemoveAlbumAccess = async (
+  userIds: UserApi["id"][],
+  albumId: AlbumApi["id"],
+) => await delete_http(routes.albumUserAccess(albumId), userIds)
 
 export const apiCreateAlbum = async (name: string) =>
   await post(routes.albumCreate, { name })
@@ -64,7 +74,7 @@ export const apiAddAlbumPictures = async (
   albumId: AlbumApi["id"],
   pictureIds: PictureApi["id"][],
 ) => {
-  await post(routes.albumAddPictures(albumId), pictureIds)
+  await post(routes.albumPictures(albumId), pictureIds)
 }
 export const apiDeleteAlbum = async (albumId: AlbumApi["id"]) =>
   await delete_http(routes.albumDelete(albumId))
@@ -73,5 +83,5 @@ export const apiDeleteAlbumPictures = async (
   albumId: AlbumApi["id"],
   pictureIds: PictureApi["id"][],
 ) => {
-  await delete_http(routes.albumDeletePictures(albumId), pictureIds)
+  await delete_http(routes.albumPictures(albumId), pictureIds)
 }

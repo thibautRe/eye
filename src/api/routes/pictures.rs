@@ -1,4 +1,4 @@
-use actix_web::{get, web, HttpRequest, HttpResponse, Scope};
+use actix_web::{delete, get, post, web, HttpRequest, HttpResponse, Scope};
 use diesel::RunQueryDsl;
 
 use crate::{
@@ -9,7 +9,10 @@ use crate::{
   },
   database::{db_connection, Pool},
   jwt::{Claims, JwtKey},
-  models::picture::Picture,
+  models::{
+    picture::Picture,
+    picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
+  },
 };
 
 #[derive(Debug, Deserialize)]
@@ -55,8 +58,44 @@ async fn picture_handler(
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db)?))
 }
 
+#[post("/{id}/user_access/")]
+async fn picture_user_access_create_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  data: web::Json<Vec<i32>>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+
+  let picture_ids = vec![path.0];
+  let user_ids = data.0;
+  insert_pictures_user_access(picture_ids, user_ids, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
+#[delete("/{id}/user_access/")]
+async fn picture_user_access_delete_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  data: web::Json<Vec<i32>>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+
+  let picture_ids = vec![path.0];
+  let user_ids = data.0;
+  delete_pictures_user_access(picture_ids, user_ids, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
 pub fn pictures_routes() -> Scope {
   web::scope("/pictures")
     .service(pictures_handler)
     .service(picture_handler)
+    .service(picture_user_access_create_handler)
+    .service(picture_user_access_delete_handler)
 }

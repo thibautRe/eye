@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "solid-app-router"
 import { createResource, Show, VoidComponent } from "solid-js"
 import {
   apiAddAlbumPictures,
+  apiAdminUserAddAlbumAccess,
   apiAdminUsersAddPictureAccess,
   apiDeleteAlbum,
   apiDeleteAlbumPictures,
@@ -55,9 +56,7 @@ export default () => {
                 renderChildren={({ onClose }) => (
                   <UserSelectSidebar
                     onSelectUsers={async userIds => {
-                      await apiAdminUsersAddPictureAccess(userIds, {
-                        albumIds: [album.id],
-                      })
+                      await apiAdminUserAddAlbumAccess(userIds, album.id)
                       onClose()
                     }}
                   />

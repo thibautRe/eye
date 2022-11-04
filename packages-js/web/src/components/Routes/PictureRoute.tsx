@@ -42,9 +42,7 @@ export default () => {
                 renderChildren={({ onClose }) => (
                   <UserSelectSidebar
                     onSelectUsers={async userIds => {
-                      await apiAdminUsersAddPictureAccess(userIds, {
-                        pictureIds: [picture.id],
-                      })
+                      await apiAdminUsersAddPictureAccess(userIds, picture.id)
                       onClose()
                     }}
                   />

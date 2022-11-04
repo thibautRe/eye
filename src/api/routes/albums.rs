@@ -12,7 +12,8 @@ use crate::{
   jwt::{Claims, JwtKey},
   models::{
     album::{soft_delete_album, update_album_date, Album, AlbumInsert},
-    picture_album::{delete_pictures_album, PictureAlbumInsert},
+    picture_album::{delete_pictures_album, PictureAlbum, PictureAlbumInsert},
+    picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
   },
 };
 
@@ -90,7 +91,7 @@ async fn album_delete_handler(
   Ok(HttpResponse::Ok().finish())
 }
 
-#[post("/{id}/pictures")]
+#[post("/{id}/pictures/")]
 async fn album_add_pictures_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
@@ -118,7 +119,7 @@ async fn album_add_pictures_handler(
   Ok(HttpResponse::Ok().finish())
 }
 
-#[delete("/{id}/pictures")]
+#[delete("/{id}/pictures/")]
 async fn album_delete_picture_handler(
   jwt_key: web::Data<JwtKey>,
   req: HttpRequest,
@@ -140,6 +141,42 @@ async fn album_delete_picture_handler(
   Ok(HttpResponse::Ok().finish())
 }
 
+#[post("/{id}/user_access/")]
+async fn album_user_access_create_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  data: web::Json<Vec<i32>>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+
+  let album_id = path.0;
+  let user_ids = data.0;
+  let picture_ids = PictureAlbum::get_picture_ids_for_album_id(album_id).load::<i32>(&mut db)?;
+  insert_pictures_user_access(picture_ids, user_ids, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
+#[delete("/{id}/user_access/")]
+async fn album_user_access_delete_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  data: web::Json<Vec<i32>>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+
+  let album_id = path.0;
+  let user_ids = data.0;
+  let picture_ids = PictureAlbum::get_picture_ids_for_album_id(album_id).load::<i32>(&mut db)?;
+  delete_pictures_user_access(picture_ids, user_ids, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
 pub fn album_routes() -> Scope {
   web::scope("/albums")
     .service(albums_handler)
@@ -148,4 +185,6 @@ pub fn album_routes() -> Scope {
     .service(album_handler)
     .service(album_add_pictures_handler)
     .service(album_delete_picture_handler)
+    .service(album_user_access_create_handler)
+    .service(album_user_access_delete_handler)
 }
