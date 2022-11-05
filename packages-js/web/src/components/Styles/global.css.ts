@@ -1,8 +1,21 @@
-import { globalStyle } from "@vanilla-extract/css"
+import { globalFontFace, globalStyle } from "@vanilla-extract/css"
 import { vars } from "./theme.css"
+
+// https://fonts.google.com/specimen/Albert+Sans
+globalFontFace("AlbertSans", {
+  src: `url("/src/assets/AlbertSans-Regular.woff2") format("woff2"),
+        url("/src/assets/AlbertSans-Regular.woff") format("woff")`,
+  fontWeight: 400,
+})
+globalFontFace("AlbertSans", {
+  src: `url("/src/assets/AlbertSans-SemiBold.woff2") format("woff2"),
+        url("/src/assets/AlbertSans-SemiBold.woff") format("woff")`,
+  fontWeight: 600,
+})
 
 globalStyle("html, body", {
   margin: 0,
+  fontFamily: "AlbertSans",
 })
 
 globalStyle("*, *::before, *::after", {
@@ -17,9 +30,6 @@ globalStyle("*:focus-visible", {
 })
 
 globalStyle("body", {
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-  WebkitFontSmoothing: "antialised",
   MozOsxFontSmoothing: "grayscale",
   boxSizing: "border-box",
   overflowY: "scroll",

@@ -8,6 +8,6 @@ export const sizes = {
 }
 
 export const weights = {
-  normal: style({ fontWeight: "normal" }),
-  bold: style({ fontWeight: "bold" }),
+  normal: style({ fontWeight: "400" }),
+  bold: style({ fontWeight: "600" }),
 }
