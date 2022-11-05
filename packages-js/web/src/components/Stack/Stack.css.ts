@@ -35,8 +35,17 @@ export const distVar = {
   pong: createVar("stack-dist-pong"),
 }
 
-globalStyle(`${stackD.h}${stackDepth.ping} > *+*`, { marginLeft: distVar.ping })
-globalStyle(`${stackD.v}${stackDepth.ping} > *+*`, { marginTop: distVar.ping })
+type StackD = keyof typeof stackD
+type StackDepth = keyof typeof stackDepth
+const makeSel = (d: StackD, depth: StackDepth) =>
+  `${stackD[d]}${stackDepth[depth]}`
 
-globalStyle(`${stackD.h}${stackDepth.pong} > *+*`, { marginLeft: distVar.pong })
-globalStyle(`${stackD.v}${stackDepth.pong} > *+*`, { marginTop: distVar.pong })
+globalStyle(makeSel("h", "ping"), { rowGap: distVar.ping })
+globalStyle(makeSel("h", "pong"), { rowGap: distVar.pong })
+
+const makeSelChild = (d: StackD, depth: StackDepth) =>
+  `${makeSel(d, depth)} > :not(:last-child)`
+globalStyle(makeSelChild("h", "ping"), { marginRight: distVar.ping })
+globalStyle(makeSelChild("h", "pong"), { marginRight: distVar.pong })
+globalStyle(makeSelChild("v", "ping"), { marginBottom: distVar.ping })
+globalStyle(makeSelChild("v", "pong"), { marginBottom: distVar.pong })

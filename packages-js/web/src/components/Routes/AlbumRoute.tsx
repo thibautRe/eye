@@ -65,7 +65,7 @@ const AlbumAdminActions: VoidComponent<{
 }> = p => {
   const navigate = useNavigate()
   return (
-    <Stack dist="xs" a="center">
+    <Stack dist="xs" a="center" wrap>
       <SidebarButton
         renderButton={p => <Button {...p}>Add pictures</Button>}
         renderChildren={({ onClose }) => (

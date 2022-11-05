@@ -78,7 +78,7 @@ pub struct PictureApi {
 }
 
 type Table = Order<pictures::table, Asc<pictures::shot_at>>;
-
+type GetById = Filter<pictures::table, Eq<pictures::id, i32>>;
 type EqPublic = Eq<pictures::access_type, &'static str>;
 type EqShared = Or<EqPublic, EqAny<pictures::id, GetPictureIdByUserId>>;
 pub type GetPublicIds = Select<Filter<pictures::table, EqPublic>, pictures::id>;
@@ -87,6 +87,10 @@ pub type GetSharedIds = Select<Filter<pictures::table, EqShared>, pictures::id>;
 impl Picture {
   pub fn all() -> Table {
     pictures::table.order(pictures::shot_at.asc())
+  }
+
+  pub fn get_by_id(picture_id: i32) -> GetById {
+    pictures::table.filter(pictures::id.eq(picture_id))
   }
 
   pub fn get_filters(
@@ -121,7 +125,6 @@ impl Picture {
 
     query
   }
-
 
   pub fn get_by_album_id(
     id: i32,
@@ -182,4 +185,15 @@ impl PictureInsert {
     use self::pictures::dsl::*;
     insert_into(pictures).values(self).get_result::<Picture>(db)
   }
+}
+
+pub fn update_pictures_access(
+  picture_ids: Vec<i32>,
+  access_type: AccessType,
+  db: &mut PooledConnection,
+) -> Result<usize, diesel::result::Error> {
+  diesel::update(pictures::table)
+    .filter(pictures::id.eq_any(picture_ids))
+    .set(pictures::access_type.eq(access_type.to_string()))
+    .execute(db)
 }

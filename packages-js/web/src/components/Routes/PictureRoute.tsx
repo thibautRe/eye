@@ -1,7 +1,17 @@
 import { useParams } from "solid-app-router"
-import { createResource, For, Show, Suspense, VoidComponent } from "solid-js"
 import {
+  createResource,
+  ErrorBoundary,
+  For,
+  Show,
+  Suspense,
+  VoidComponent,
+} from "solid-js"
+import {
+  apiAdminGetPicturePublicAccess,
   apiAdminGetUsersPictureAccess,
+  apiAdminRemovePicturePublicAccess,
+  apiAdminSetPicturePublicAccess,
   apiAdminUsersAddPictureAccess,
   apiAdminUsersRemovePictureAccess,
   apiGetPicture,
@@ -46,7 +56,9 @@ export default () => {
 
             <AdminFenceOptional>
               <Suspense>
-                <PictureUserAccessActions pictureId={picture.id} />
+                <ErrorBoundary fallback={<T t="xs">Could not load actions</T>}>
+                  <PictureUserAccessActions pictureId={picture.id} />
+                </ErrorBoundary>
               </Suspense>
             </AdminFenceOptional>
           </Stack>
@@ -88,6 +100,10 @@ const PictureUserAccessActions: VoidComponent<{
     () => p.pictureId,
     apiAdminGetUsersPictureAccess,
   )
+  const [publicAccessRes, publicAccessResActions] = createResource(
+    () => p.pictureId,
+    apiAdminGetPicturePublicAccess,
+  )
   return (
     <Stack d="v" dist="s" a="start" p="xl">
       <SidebarButton
@@ -102,6 +118,28 @@ const PictureUserAccessActions: VoidComponent<{
           />
         )}
       />
+      <Show
+        when={publicAccessRes()}
+        fallback={
+          <Button
+            onClick={async () => {
+              await apiAdminSetPicturePublicAccess(p.pictureId)
+              publicAccessResActions.refetch()
+            }}
+          >
+            Enable public access
+          </Button>
+        }
+      >
+        <Button
+          onClick={async () => {
+            await apiAdminRemovePicturePublicAccess(p.pictureId)
+            publicAccessResActions.refetch()
+          }}
+        >
+          Remove public access
+        </Button>
+      </Show>
       <Show when={userAccessRes()}>
         {users => (
           <Stack d="v" dist="xs">

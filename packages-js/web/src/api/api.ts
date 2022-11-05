@@ -16,6 +16,8 @@ const routes = {
   picture: (id: PictureApi["id"]) => `/api/pictures/${id}`,
   pictureUserAccess: (id: PictureApi["id"]) =>
     `/api/pictures/${id}/user_access/`,
+  picturePublicAccess: (id: PictureApi["id"]) =>
+    `/api/pictures/${id}/public_access/`,
 
   albums: `/api/albums/`,
   albumCreate: `/api/albums/`,
@@ -51,6 +53,7 @@ export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (
     await get(withParams(routes.userJwt(userId), { withAdminRole }))
   ).text()
+
 export const apiAdminGetUsersPictureAccess = async (
   pictureId: PictureApi["id"],
 ) => await get_json<UserApi[]>(routes.pictureUserAccess(pictureId))
@@ -70,6 +73,16 @@ export const apiAdminUserRemoveAlbumAccess = async (
   userIds: UserApi["id"][],
   albumId: AlbumApi["id"],
 ) => await delete_http(routes.albumUserAccess(albumId), userIds)
+
+export const apiAdminGetPicturePublicAccess = async (
+  pictureId: PictureApi["id"],
+) => await get_json<boolean>(routes.picturePublicAccess(pictureId))
+export const apiAdminSetPicturePublicAccess = async (
+  pictureId: PictureApi["id"],
+) => await post(routes.picturePublicAccess(pictureId))
+export const apiAdminRemovePicturePublicAccess = async (
+  pictureId: PictureApi["id"],
+) => await delete_http(routes.picturePublicAccess(pictureId))
 
 export const apiCreateAlbum = async (name: string) =>
   await post(routes.albumCreate, { name })
