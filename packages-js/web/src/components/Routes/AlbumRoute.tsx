@@ -2,6 +2,8 @@ import { useNavigate, useParams } from "solid-app-router"
 import { createResource, Show, VoidComponent } from "solid-js"
 import {
   apiAddAlbumPictures,
+  apiAdminRemoveAlbumPublicAccess,
+  apiAdminSetAlbumPublicAccess,
   apiAdminUserAddAlbumAccess,
   apiAdminUserRemoveAlbumAccess,
   apiDeleteAlbum,
@@ -22,7 +24,6 @@ import { PictureSelectSidebar } from "../Sidebar/admin/PictureSelectSidebar"
 import { SidebarButton } from "../Sidebar/SidebarButton"
 import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
 import { Button } from "../Button"
-import { PaginatedApi } from "../../api/pagination"
 import { PictureApi } from "../../types/picture"
 
 export default () => {
@@ -101,6 +102,24 @@ const AlbumAdminActions: VoidComponent<{
           />
         )}
       />
+      <Button
+        onClick={async () => {
+          if (!confirm("Do you really want to make all pictures public?"))
+            return
+          await apiAdminSetAlbumPublicAccess(p.albumId)
+        }}
+      >
+        Make public
+      </Button>
+      <Button
+        onClick={async () => {
+          if (!confirm("Do you really want to make all pictures private?"))
+            return
+          await apiAdminRemoveAlbumPublicAccess(p.albumId)
+        }}
+      >
+        Make private
+      </Button>
       <Button
         onClick={async () => {
           if (!confirm("Do you really want to delete this album?")) return

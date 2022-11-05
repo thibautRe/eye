@@ -25,6 +25,7 @@ const routes = {
   albumDelete: (id: AlbumApi["id"]) => `/api/albums/${id}`,
   albumPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures/`,
   albumUserAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/user_access/`,
+  albumPublicAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/public_access/`,
 
   users: `/api/users/`,
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
@@ -83,6 +84,12 @@ export const apiAdminSetPicturePublicAccess = async (
 export const apiAdminRemovePicturePublicAccess = async (
   pictureId: PictureApi["id"],
 ) => await delete_http(routes.picturePublicAccess(pictureId))
+
+export const apiAdminSetAlbumPublicAccess = async (albumId: AlbumApi["id"]) =>
+  await post(routes.albumPublicAccess(albumId))
+export const apiAdminRemoveAlbumPublicAccess = async (
+  albumId: AlbumApi["id"],
+) => await delete_http(routes.albumPublicAccess(albumId))
 
 export const apiCreateAlbum = async (name: string) =>
   await post(routes.albumCreate, { name })

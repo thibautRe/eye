@@ -12,8 +12,10 @@ use crate::{
   jwt::{Claims, JwtKey},
   models::{
     album::{soft_delete_album, update_album_date, Album, AlbumInsert},
+    picture::update_pictures_access,
     picture_album::{delete_pictures_album, PictureAlbum, PictureAlbumInsert},
     picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
+    AccessType,
   },
 };
 
@@ -177,6 +179,34 @@ async fn album_user_access_delete_handler(
   Ok(HttpResponse::Ok().finish())
 }
 
+#[post("/{id}/public_access/")]
+async fn album_public_access_create_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+  let picture_ids = PictureAlbum::get_picture_ids_for_album_id(path.0).load::<i32>(&mut db)?;
+  update_pictures_access(picture_ids, AccessType::Public, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
+#[delete("/{id}/public_access/")]
+async fn album_public_access_delete_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+  let picture_ids = PictureAlbum::get_picture_ids_for_album_id(path.0).load::<i32>(&mut db)?;
+  update_pictures_access(picture_ids, AccessType::Private, &mut db)?;
+  Ok(HttpResponse::Ok().finish())
+}
+
 pub fn album_routes() -> Scope {
   web::scope("/albums")
     .service(albums_handler)
@@ -187,4 +217,6 @@ pub fn album_routes() -> Scope {
     .service(album_delete_picture_handler)
     .service(album_user_access_create_handler)
     .service(album_user_access_delete_handler)
+    .service(album_public_access_create_handler)
+    .service(album_public_access_delete_handler)
 }
