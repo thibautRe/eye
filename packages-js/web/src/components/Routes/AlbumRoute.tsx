@@ -3,13 +3,17 @@ import { createResource, Show, VoidComponent } from "solid-js"
 import {
   apiAddAlbumPictures,
   apiAdminUserAddAlbumAccess,
+  apiAdminUserRemoveAlbumAccess,
   apiDeleteAlbum,
   apiDeleteAlbumPictures,
   apiGetAlbum,
   apiGetPictures,
 } from "../../api"
 import { AlbumApi } from "../../types/album"
-import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
+import {
+  createPaginatedLoader,
+  PaginatedLoader,
+} from "../../utils/hooks/createPaginatedLoader"
 import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 import { Stack } from "../Stack/Stack"
@@ -18,6 +22,8 @@ import { PictureSelectSidebar } from "../Sidebar/admin/PictureSelectSidebar"
 import { SidebarButton } from "../Sidebar/SidebarButton"
 import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
 import { Button } from "../Button"
+import { PaginatedApi } from "../../api/pagination"
+import { PictureApi } from "../../types/picture"
 
 export default () => {
   const params = useParams<{ id: string }>()
@@ -37,31 +43,7 @@ export default () => {
               {p => <h1 {...p}>{album.name}</h1>}
             </T>
             <AdminFenceOptional>
-              <SidebarButton
-                renderButton={p => <Button {...p}>Add pictures</Button>}
-                renderChildren={({ onClose }) => (
-                  <PictureSelectSidebar
-                    loaderProps={{ notAlbumId: album.id }}
-                    onSelectPictures={async pictureIds => {
-                      await apiAddAlbumPictures(album.id, pictureIds)
-                      picturesLoader.onReload()
-                      onClose()
-                    }}
-                  />
-                )}
-              />
-              <SidebarButton
-                renderButton={p => <Button {...p}>Grant user access</Button>}
-                renderChildren={({ onClose }) => (
-                  <UserSelectSidebar
-                    onSelectUsers={async userIds => {
-                      await apiAdminUserAddAlbumAccess(userIds, album.id)
-                      onClose()
-                    }}
-                  />
-                )}
-              />
-              <AlbumDelete albumId={album.id} />
+              <AlbumAdminActions albumId={album.id} loader={picturesLoader} />
             </AdminFenceOptional>
           </Stack>
           <PictureGridPaginated
@@ -77,17 +59,57 @@ export default () => {
   )
 }
 
-const AlbumDelete: VoidComponent<{ albumId: AlbumApi["id"] }> = p => {
+const AlbumAdminActions: VoidComponent<{
+  albumId: AlbumApi["id"]
+  loader: PaginatedLoader<PictureApi>
+}> = p => {
   const navigate = useNavigate()
   return (
-    <Button
-      onClick={async () => {
-        if (!confirm("Do you really want to delete this album?")) return
-        await apiDeleteAlbum(p.albumId)
-        navigate("/albums", { replace: true })
-      }}
-    >
-      Delete album
-    </Button>
+    <Stack dist="xs" a="center">
+      <SidebarButton
+        renderButton={p => <Button {...p}>Add pictures</Button>}
+        renderChildren={({ onClose }) => (
+          <PictureSelectSidebar
+            loaderProps={{ notAlbumId: p.albumId }}
+            onSelectPictures={async pictureIds => {
+              await apiAddAlbumPictures(p.albumId, pictureIds)
+              p.loader.onReload()
+              onClose()
+            }}
+          />
+        )}
+      />
+      <SidebarButton
+        renderButton={p => <Button {...p}>Grant user access</Button>}
+        renderChildren={({ onClose }) => (
+          <UserSelectSidebar
+            onSelectUsers={async userIds => {
+              await apiAdminUserAddAlbumAccess(userIds, p.albumId)
+              onClose()
+            }}
+          />
+        )}
+      />
+      <SidebarButton
+        renderButton={p => <Button {...p}>Remove user access</Button>}
+        renderChildren={({ onClose }) => (
+          <UserSelectSidebar
+            onSelectUsers={async userIds => {
+              await apiAdminUserRemoveAlbumAccess(userIds, p.albumId)
+              onClose()
+            }}
+          />
+        )}
+      />
+      <Button
+        onClick={async () => {
+          if (!confirm("Do you really want to delete this album?")) return
+          await apiDeleteAlbum(p.albumId)
+          navigate("/albums", { replace: true })
+        }}
+      >
+        Delete album
+      </Button>
+    </Stack>
   )
 }

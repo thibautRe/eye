@@ -107,7 +107,7 @@ const PictureUserAccessActions: VoidComponent<{
           <Stack d="v" dist="xs">
             <For each={users}>
               {user => (
-                <Stack a="center">
+                <Stack dist="xs" a="center">
                   <T t="s">{user.name}</T>
                   <Button
                     onClick={async () => {
