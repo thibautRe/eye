@@ -21,7 +21,7 @@ export const UserRow: VoidComponent<UserRowProps> = p => {
         {p.user.name}
       </T>
       <T t="s" class={s.emailRow}>
-        {p.user.name}
+        {p.user.email}
       </T>
       <CopyableButton
         onCopy={async () => clipboardCopy(await apiAdminJwtGen(p.user.id))}

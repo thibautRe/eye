@@ -15,7 +15,7 @@ export default () => {
           <PageTitle>JWT Gen</PageTitle>
           <Stack dist="s">
             <T t="xs" pt="xs">
-              Token
+              Admin Token
             </T>
             <Jwt jwt={jwtRes()!} />
           </Stack>

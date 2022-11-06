@@ -1,10 +1,13 @@
 import { Component, ParentComponent, Show } from "solid-js"
-import { isAdmin } from "../providers/Identity"
+import { isAdmin, isStoredAdmin } from "../providers/Identity"
 import { UnauthorizedRoute } from "./Routes"
 
-export const AdminFenceOptional: ParentComponent = p => {
-  return <Show when={isAdmin()}>{p.children}</Show>
-}
+export const AdminFenceOptional: ParentComponent = p => (
+  <Show when={isAdmin()}>{p.children}</Show>
+)
+export const StoredAdminFenceOptional: ParentComponent = p => (
+  <Show when={isStoredAdmin()}>{p.children}</Show>
+)
 
 export function adminOptionalValue<T>(val: T): T | undefined {
   return isAdmin() ? val : undefined

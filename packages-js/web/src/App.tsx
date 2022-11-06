@@ -1,6 +1,7 @@
 import {
   Component,
   ErrorBoundary,
+  lazy,
   ParentComponent,
   Suspense,
   VoidComponent,
@@ -14,6 +15,7 @@ import {
 } from "./components/Routes"
 import { HttpError, isHttpError } from "./utils/errors"
 import { I18nProvider } from "./providers/I18n"
+import { StoredAdminFenceOptional } from "./components/AuthFence"
 
 const AppProviders: ParentComponent = p => (
   <Router>
@@ -26,7 +28,16 @@ const AppProviders: ParentComponent = p => (
         <I18nProvider>{p.children}</I18nProvider>
       </ErrorBoundary>
     </Suspense>
+    <Suspense>
+      <StoredAdminFenceOptional>
+        <LazyAdminToobar />
+      </StoredAdminFenceOptional>
+    </Suspense>
   </Router>
+)
+
+const LazyAdminToobar = lazy(
+  () => import("./components/Admin/AdminToolbar/AdminToolbar"),
 )
 
 const App: Component = () => (
