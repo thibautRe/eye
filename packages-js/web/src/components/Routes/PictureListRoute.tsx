@@ -1,5 +1,6 @@
 import { apiGetPictures } from "../../api"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
+import { PageLayout } from "../Layout/PageLayout"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 
 export default () => {
@@ -7,5 +8,9 @@ export default () => {
     loader: apiGetPictures,
     cacheKey: () => "picture-list-route",
   })
-  return <PictureGridPaginated ph="s" pv="m" loader={loader} />
+  return (
+    <PageLayout>
+      <PictureGridPaginated ph="s" pv="m" loader={loader} />
+    </PageLayout>
+  )
 }

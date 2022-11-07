@@ -13,7 +13,7 @@ export interface BoxOwnProps {
   /** background theme color */
   bgColor?: ThemeColorKey
   /** text color theme color */
-  fgColor?: ThemeColorKey
+  fgColor?: ThemeColorKey | "currentColor"
 
   /** padding */
   p?: ThemeSpaceKey
@@ -76,7 +76,14 @@ export const Box: Component<BoxProps> = p => {
       local.style,
       assignInlineVars({
         ...(local.bgColor ? { [s.bgColorVar]: vars.color[local.bgColor] } : {}),
-        ...(local.fgColor ? { [s.fgColorVar]: vars.color[local.fgColor] } : {}),
+        ...(local.fgColor
+          ? {
+              [s.fgColorVar]:
+                local.fgColor === "currentColor"
+                  ? "currentColor"
+                  : vars.color[local.fgColor],
+            }
+          : {}),
         ...(pl() ? { [s.plVar]: vars.space[pl()!] } : {}),
         ...(pr() ? { [s.prVar]: vars.space[pr()!] } : {}),
         ...(pt() ? { [s.ptVar]: vars.space[pt()!] } : {}),

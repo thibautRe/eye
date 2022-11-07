@@ -21,6 +21,7 @@ import { PictureApi } from "../../types/picture"
 import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
 import { Button } from "../Button"
+import { PageLayout } from "../Layout/PageLayout"
 import { Picture, PictureMetadata } from "../Picture"
 import { AspectRatio } from "../Picture/AspectRatio"
 import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
@@ -35,36 +36,26 @@ export default () => {
     apiGetPicture,
   )
   return (
-    <Stack d="v" dist="m">
-      <Show when={pictureRes()}>
-        {picture => (
-          <Stack d="v" dist="xl" fgColor="g10">
-            <Stack d="v" a="center">
-              <Box
-                style={{
-                  width: `${(picture.width / picture.height) * 100}vh`,
-                  "max-width": "100%",
-                }}
-              >
-                <AspectRatio aspectRatio={picture.width / picture.height}>
-                  <Picture picture={picture} sizes="90vw" />
-                </AspectRatio>
-              </Box>
-              <PictureMetadata picture={picture} />
-              <PictureActions picture={picture} />
+    <PageLayout>
+      <Stack d="v" dist="m">
+        <Show when={pictureRes()}>
+          {picture => (
+            <Stack d="v" dist="xl">
+              <PictureItem picture={picture} />
+              <AdminFenceOptional>
+                <Suspense>
+                  <ErrorBoundary
+                    fallback={<T t="xs">Could not load actions</T>}
+                  >
+                    <PictureUserAccessActions pictureId={picture.id} />
+                  </ErrorBoundary>
+                </Suspense>
+              </AdminFenceOptional>
             </Stack>
-
-            <AdminFenceOptional>
-              <Suspense>
-                <ErrorBoundary fallback={<T t="xs">Could not load actions</T>}>
-                  <PictureUserAccessActions pictureId={picture.id} />
-                </ErrorBoundary>
-              </Suspense>
-            </AdminFenceOptional>
-          </Stack>
-        )}
-      </Show>
-    </Stack>
+          )}
+        </Show>
+      </Stack>
+    </PageLayout>
   )
 }
 
@@ -164,6 +155,25 @@ const PictureUserAccessActions: VoidComponent<{
           </Stack>
         )}
       </Show>
+    </Stack>
+  )
+}
+const PictureItem: VoidComponent<{ picture: PictureApi }> = p => {
+  return (
+    <Stack d="v" dist="l" a="center" fgColor="g10">
+      <Box
+        style={{
+          width: `${(p.picture.width / p.picture.height) * 100}vh`,
+          "max-width": "100%",
+        }}
+        ref={boxRef => requestAnimationFrame(() => boxRef?.scrollIntoView?.())}
+      >
+        <AspectRatio aspectRatio={p.picture.width / p.picture.height}>
+          <Picture picture={p.picture} sizes="90vw" />
+        </AspectRatio>
+      </Box>
+      <PictureMetadata picture={p.picture} />
+      <PictureActions picture={p.picture} />
     </Stack>
   )
 }

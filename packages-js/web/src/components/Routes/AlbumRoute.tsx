@@ -25,6 +25,7 @@ import { SidebarButton } from "../Sidebar/SidebarButton"
 import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
 import { Button } from "../Button"
 import { PictureApi } from "../../types/picture"
+import { PageLayout } from "../Layout/PageLayout"
 
 export default () => {
   const params = useParams<{ id: string }>()
@@ -36,27 +37,29 @@ export default () => {
   })
 
   return (
-    <Show when={albumRes()}>
-      {album => (
-        <Stack d="v" dist="m" fgColor="g10" ph="s">
-          <Stack dist="m" a="center">
-            <T t="l" fgColor="g11">
-              {p => <h1 {...p}>{album.name}</h1>}
-            </T>
-            <AdminFenceOptional>
-              <AlbumAdminActions albumId={album.id} loader={picturesLoader} />
-            </AdminFenceOptional>
+    <PageLayout>
+      <Show when={albumRes()}>
+        {album => (
+          <Stack d="v" dist="m" fgColor="g10" ph="s">
+            <Stack dist="m" a="center">
+              <T t="l" fgColor="g11">
+                {p => <h1 {...p}>{album.name}</h1>}
+              </T>
+              <AdminFenceOptional>
+                <AlbumAdminActions albumId={album.id} loader={picturesLoader} />
+              </AdminFenceOptional>
+            </Stack>
+            <PictureGridPaginated
+              loader={picturesLoader}
+              onDeletePicture={adminOptionalValue(async id => {
+                await apiDeleteAlbumPictures(album.id, [id])
+                picturesLoader.onReload()
+              })}
+            />
           </Stack>
-          <PictureGridPaginated
-            loader={picturesLoader}
-            onDeletePicture={adminOptionalValue(async id => {
-              await apiDeleteAlbumPictures(album.id, [id])
-              picturesLoader.onReload()
-            })}
-          />
-        </Stack>
-      )}
-    </Show>
+        )}
+      </Show>
+    </PageLayout>
   )
 }
 

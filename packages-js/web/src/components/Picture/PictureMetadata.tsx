@@ -47,7 +47,7 @@ export const PictureFocalLength: PictureMetadataComponent = props => (
 )
 export const PictureShotAt: PictureMetadataComponent = props => (
   <Show when={props.picture.shotAt}>
-    {shotAt => <span>{shotAt.toString()}</span>}
+    {shotAt => <span>{shotAt.toLocaleDateString()}</span>}
   </Show>
 )
 export const PictureCameraLens: PictureMetadataComponent = props => (
@@ -59,7 +59,7 @@ export const PictureCameraLens: PictureMetadataComponent = props => (
 export const PictureMetadata: PictureMetadataComponent = props => (
   <Stack d="v" dist="xs">
     <PictureName picture={props.picture} />
-    <Stack dist="xs">
+    <Stack dist="s">
       <PictureIso picture={props.picture} />
       <PictureAperture picture={props.picture} />
       <PictureFocalLength picture={props.picture} />
