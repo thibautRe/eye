@@ -8,6 +8,7 @@ import {
   VoidComponent,
 } from "solid-js"
 import { apiAdminJwtGen, apiAdminUsers } from "../../../api"
+import { setLang__debug } from "../../../providers/I18n"
 import {
   isAdmin,
   isKnown,
@@ -64,6 +65,12 @@ const AdminToolbarLoggedInAs: VoidComponent = () => {
   )
 }
 
+const AdminToolbarLang: VoidComponent = () => (
+  <Button onClick={() => setLang__debug(l => (l === "fr" ? "en" : "fr"))}>
+    Switch lang
+  </Button>
+)
+
 const AdminToolbarUsers: VoidComponent = () => {
   const [userRes] = createResource(apiAdminUsers)
 
@@ -95,6 +102,7 @@ const AdminToolbarUsers: VoidComponent = () => {
 const AdminToolbarContent: VoidComponent = () => (
   <Stack d="v" dist="m">
     <AdminToolbarLoggedInAs />
+    <AdminToolbarLang />
     <Suspense>
       <ErrorBoundary fallback="">
         <AdminToolbarUsers />

@@ -20,13 +20,15 @@ import { StoredAdminFenceOptional } from "./components/AuthFence"
 const AppProviders: ParentComponent = p => (
   <Router>
     <Suspense fallback={<div>Loading...</div>}>
-      <ErrorBoundary
-        fallback={(err, onRetry) => (
-          <ErrorBoundaryFallback error={err} onRetry={onRetry} />
-        )}
-      >
-        <I18nProvider>{p.children}</I18nProvider>
-      </ErrorBoundary>
+      <I18nProvider>
+        <ErrorBoundary
+          fallback={(err, onRetry) => (
+            <ErrorBoundaryFallback error={err} onRetry={onRetry} />
+          )}
+        >
+          {p.children}
+        </ErrorBoundary>
+      </I18nProvider>
     </Suspense>
     <Suspense>
       <StoredAdminFenceOptional>

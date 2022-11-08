@@ -1,6 +1,9 @@
 import { Navigate, Route, Routes } from "solid-app-router"
-import { Component, lazy as solidLazy } from "solid-js"
+import { Component, lazy as solidLazy, ParentComponent } from "solid-js"
+import { useTrans } from "../../providers/I18n"
 import { withAdminFence } from "../AuthFence"
+import { PageLayout } from "../Layout/PageLayout"
+import { Stack } from "../Stack/Stack"
 
 export const routes = {
   Pictures: "/pictures",
@@ -53,10 +56,18 @@ export const AppRoutes = () => (
   </Routes>
 )
 
-export const NotFoundRoute = () => <h1>Not found</h1>
-export const UnauthorizedRoute = () => <h1>This content is private</h1>
+// Error route helper
+const Err: ParentComponent = p => (
+  <PageLayout>
+    <Stack j="center">
+      <h1>{p.children}</h1>
+    </Stack>
+  </PageLayout>
+)
+export const NotFoundRoute = () => <Err>{useTrans()("notFound")}</Err>
+export const UnauthorizedRoute = () => <Err>This content is private</Err>
 export const MaintenanceRoute = () => (
-  <h1>
+  <Err>
     The website is not available right now. It will be back in an hour or two
-  </h1>
+  </Err>
 )

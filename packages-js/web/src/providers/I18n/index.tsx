@@ -33,8 +33,9 @@ const I18nContext = createContext<I18nContext>({
   },
 })
 
+const [lang, setLang] = createSignal<I18nLang>(defaultLang)
+export { setLang as setLang__debug }
 export const I18nProvider: ParentComponent = p => {
-  const [lang, setLang] = createSignal<I18nLang>(defaultLang)
   const [catalogueRes] = createResource(lang, async lang => {
     return (await import(`./catalogues/${lang}.ts`)).default as Catalogue
   })
