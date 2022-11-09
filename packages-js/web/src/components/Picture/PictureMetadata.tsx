@@ -47,7 +47,14 @@ export const PictureFocalLength: PictureMetadataComponent = props => (
 )
 export const PictureShotAt: PictureMetadataComponent = props => (
   <Show when={props.picture.shotAt}>
-    {shotAt => <span>{shotAt.toLocaleDateString()}</span>}
+    {shotAt => (
+      <span>
+        {shotAt.toLocaleString(window.navigator.language, {
+          dateStyle: "full",
+          timeStyle: "short",
+        })}
+      </span>
+    )}
   </Show>
 )
 export const PictureCameraLens: PictureMetadataComponent = props => (

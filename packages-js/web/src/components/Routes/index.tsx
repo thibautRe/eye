@@ -4,6 +4,7 @@ import { useTrans } from "../../providers/I18n"
 import { withAdminFence } from "../AuthFence"
 import { PageLayout } from "../Layout/PageLayout"
 import { Stack } from "../Stack/Stack"
+import { T } from "../T/T"
 
 export const routes = {
   Pictures: "/pictures",
@@ -60,7 +61,7 @@ export const AppRoutes = () => (
 const Err: ParentComponent = p => (
   <PageLayout>
     <Stack j="center">
-      <h1>{p.children}</h1>
+      <T t="l">{props => <h1 {...props}>{p.children}</h1>}</T>
     </Stack>
   </PageLayout>
 )

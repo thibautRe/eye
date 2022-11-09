@@ -1,5 +1,6 @@
 import {
   Component,
+  createEffect,
   ErrorBoundary,
   lazy,
   ParentComponent,
@@ -15,7 +16,13 @@ import {
 } from "./components/Routes"
 import { HttpError, isHttpError } from "./utils/errors"
 import { I18nProvider } from "./providers/I18n"
-import { StoredAdminFenceOptional } from "./components/AuthFence"
+import {
+  AdminFenceOptional,
+  StoredAdminFenceOptional,
+} from "./components/AuthFence"
+import { PageLayout } from "./components/Layout/PageLayout"
+import { Stack } from "./components/Stack/Stack"
+import { T } from "./components/T/T"
 
 const AppProviders: ParentComponent = p => (
   <Router>
@@ -60,10 +67,24 @@ const ErrorBoundaryFallback: VoidComponent<ErrorBoundaryFallbackProps> = ({
     return <HttpErrorFallback error={error} onRetry={onRetry} />
   }
 
-  return <UnexpectedError />
+  return <UnexpectedError error={error} />
 }
 
-const UnexpectedError = () => <div>An error occured</div>
+const UnexpectedError: VoidComponent<{ error: any }> = p => {
+  createEffect(() => console.error(p.error))
+  return (
+    <PageLayout>
+      <Stack d="v" dist="m" a="center">
+        <T t="l">{props => <h1 {...props}>An error occured</h1>}</T>
+        <AdminFenceOptional>
+          <T t="s" fgColor="g11" bgColor="g3" ph="m" pv="s" br="m">
+            {p.error.toString?.()}
+          </T>
+        </AdminFenceOptional>
+      </Stack>
+    </PageLayout>
+  )
+}
 
 const HttpErrorFallback: VoidComponent<{
   error: HttpError
@@ -78,7 +99,7 @@ const HttpErrorFallback: VoidComponent<{
     case 502:
       return <MaintenanceRoute />
     default:
-      return <UnexpectedError />
+      return <UnexpectedError error={error} />
   }
 }
 
