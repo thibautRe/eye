@@ -20,10 +20,11 @@ export const triggerWrapper = style({
   position: "absolute",
   top: 200,
   right: 0,
+  height: 0,
   transform: "rotate(90deg)",
 })
 export const trigger = style({
-  transform: "translateY(-66px)",
+  transform: "translateY(-81px)",
   width: "110px",
   paddingTop: vars.space.s,
   paddingBottom: vars.space.s,

@@ -37,17 +37,20 @@ export default () => {
   })
 
   return (
-    <PageLayout>
+    <PageLayout
+      adminToolbarItems={
+        <Show when={albumRes()}>
+          {a => <AlbumAdminActions albumId={a.id} loader={picturesLoader} />}
+        </Show>
+      }
+    >
       <Show when={albumRes()}>
         {album => (
-          <Stack d="v" dist="m" fgColor="g10" ph="s">
+          <Stack d="v" dist="m" fgColor="g10" ph="xl" phM="s">
             <Stack dist="m" a="center">
               <T t="l" fgColor="g11">
                 {p => <h1 {...p}>{album.name}</h1>}
               </T>
-              <AdminFenceOptional>
-                <AlbumAdminActions albumId={album.id} loader={picturesLoader} />
-              </AdminFenceOptional>
             </Stack>
             <PictureGridPaginated
               loader={picturesLoader}
@@ -69,7 +72,7 @@ const AlbumAdminActions: VoidComponent<{
 }> = p => {
   const navigate = useNavigate()
   return (
-    <Stack dist="xs" a="center" wrap>
+    <>
       <SidebarButton
         renderButton={p => <Button {...p}>Add pictures</Button>}
         renderChildren={({ onClose }) => (
@@ -132,6 +135,6 @@ const AlbumAdminActions: VoidComponent<{
       >
         Delete album
       </Button>
-    </Stack>
+    </>
   )
 }

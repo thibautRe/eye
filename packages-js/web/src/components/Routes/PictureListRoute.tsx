@@ -10,7 +10,7 @@ export default () => {
   })
   return (
     <PageLayout>
-      <PictureGridPaginated ph="s" pv="m" loader={loader} />
+      <PictureGridPaginated ph="xl" phM="s" pv="m" loader={loader} />
     </PageLayout>
   )
 }

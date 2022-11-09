@@ -26,7 +26,7 @@ import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
 import * as s from "./AdminToolbar.css"
 
-const AdminToolbarWrapper: ParentComponent<{}> = p => {
+const AdminToolbarWrapper: ParentComponent = p => {
   const [isOpen, { toggle }] = createEscKeySignal(false)
   return (
     <div classList={{ [s.wrapper]: true, [s.wrapperOpen]: isOpen() }}>
@@ -119,12 +119,21 @@ const AdminToolbarContent: VoidComponent = () => (
   </Stack>
 )
 
-const AdminToolbar: VoidComponent = () => {
+const AdminToolbar: ParentComponent = p => {
   return (
     <AdminToolbarWrapper>
       <Stack d="v" dist="m" p="m">
         <T t="m">Admin Toolbar</T>
         <AdminToolbarContent />
+        <Box
+          bgColor="g7"
+          style={{ height: "1px", width: "100%", border: "none" }}
+        >
+          {props => <hr {...props} />}
+        </Box>
+        <ErrorBoundary fallback="Could not load extra actions">
+          {p.children}
+        </ErrorBoundary>
       </Stack>
     </AdminToolbarWrapper>
   )

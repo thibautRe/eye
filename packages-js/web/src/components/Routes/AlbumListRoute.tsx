@@ -18,25 +18,24 @@ export default () => {
     cacheKey: () => "albums",
   })
   return (
-    <PageLayout>
-      <AdminFenceOptional>
-        <Box pv="l">
-          <Button
-            onClick={async () => {
-              const name = prompt("Album name")
-              if (!name) return
-              await apiCreateAlbum(name)
-              albumsPaginated.onReload()
-            }}
-          >
-            Create new album
-          </Button>
-        </Box>
-      </AdminFenceOptional>
+    <PageLayout
+      adminToolbarItems={
+        <Button
+          onClick={async () => {
+            const name = prompt("Album name")
+            if (!name) return
+            await apiCreateAlbum(name)
+            albumsPaginated.onReload()
+          }}
+        >
+          Create new album
+        </Button>
+      }
+    >
       <Stack d="v" dist="m">
         <For each={albumsPaginated.data().items}>
           {album => (
-            <Stack d="v" dist="m" fgColor="g11" ph="s">
+            <Stack d="v" dist="m" fgColor="g11" ph="xl" phM="s">
               <Stack dist="xs" a="baseline">
                 <T t="l" fgColor="g11">
                   {props => (

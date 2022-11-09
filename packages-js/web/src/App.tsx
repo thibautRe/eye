@@ -2,7 +2,6 @@ import {
   Component,
   createEffect,
   ErrorBoundary,
-  lazy,
   ParentComponent,
   Suspense,
   VoidComponent,
@@ -16,10 +15,7 @@ import {
 } from "./components/Routes"
 import { HttpError, isHttpError } from "./utils/errors"
 import { I18nProvider } from "./providers/I18n"
-import {
-  AdminFenceOptional,
-  StoredAdminFenceOptional,
-} from "./components/AuthFence"
+import { AdminFenceOptional } from "./components/AuthFence"
 import { PageLayout } from "./components/Layout/PageLayout"
 import { Stack } from "./components/Stack/Stack"
 import { T } from "./components/T/T"
@@ -37,16 +33,7 @@ const AppProviders: ParentComponent = p => (
         </ErrorBoundary>
       </I18nProvider>
     </Suspense>
-    <Suspense>
-      <StoredAdminFenceOptional>
-        <LazyAdminToobar />
-      </StoredAdminFenceOptional>
-    </Suspense>
   </Router>
-)
-
-const LazyAdminToobar = lazy(
-  () => import("./components/Admin/AdminToolbar/AdminToolbar"),
 )
 
 const App: Component = () => (

@@ -1,10 +1,10 @@
 import { useParams } from "solid-app-router"
 import {
   createResource,
-  ErrorBoundary,
   For,
+  JSX,
+  ParentComponent,
   Show,
-  Suspense,
   VoidComponent,
 } from "solid-js"
 import {
@@ -18,9 +18,9 @@ import {
 } from "../../api"
 import { useTrans } from "../../providers/I18n"
 import { PictureApi } from "../../types/picture"
-import { AdminFenceOptional } from "../AuthFence"
 import { Box } from "../Box/Box"
 import { Button } from "../Button"
+import { TextLink } from "../Button/TextLink"
 import { PageLayout } from "../Layout/PageLayout"
 import { Picture, PictureMetadata } from "../Picture"
 import { AspectRatio } from "../Picture/AspectRatio"
@@ -36,21 +36,18 @@ export default () => {
     apiGetPicture,
   )
   return (
-    <PageLayout>
+    <PageLayout
+      adminToolbarItems={
+        <Show when={pictureRes()}>
+          {picture => <PictureUserAccessActions pictureId={picture.id} />}
+        </Show>
+      }
+    >
       <Stack d="v" dist="m">
         <Show when={pictureRes()}>
           {picture => (
             <Stack d="v" dist="xl">
               <PictureItem picture={picture} />
-              <AdminFenceOptional>
-                <Suspense>
-                  <ErrorBoundary
-                    fallback={<T t="xs">Could not load actions</T>}
-                  >
-                    <PictureUserAccessActions pictureId={picture.id} />
-                  </ErrorBoundary>
-                </Suspense>
-              </AdminFenceOptional>
             </Stack>
           )}
         </Show>
@@ -66,20 +63,12 @@ const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
     .sort((p1, p2) => p2.width - p1.width)[0]
   return (
     <Stack dist="m" a="center">
-      <T t="s" fgColor="p10">
-        {props => (
-          <a {...props} rel="external" href={highestResSize.url}>
-            {t("fullResolution")}
-          </a>
-        )}
-      </T>
-      <T t="s" fgColor="p10">
-        {props => (
-          <a {...props} rel="external" href={highestResSize.url} download>
-            {t("download")}
-          </a>
-        )}
-      </T>
+      <TextLink rel="external" href={highestResSize.url}>
+        {t("fullResolution")}
+      </TextLink>
+      <TextLink rel="external" href={highestResSize.url} download>
+        {t("download")}
+      </TextLink>
     </Stack>
   )
 }
@@ -96,7 +85,7 @@ const PictureUserAccessActions: VoidComponent<{
     apiAdminGetPicturePublicAccess,
   )
   return (
-    <Stack d="v" dist="s" a="start" p="xl">
+    <>
       <SidebarButton
         renderButton={p => <Button {...p}>Grant user access</Button>}
         renderChildren={({ onClose }) => (
@@ -155,9 +144,10 @@ const PictureUserAccessActions: VoidComponent<{
           </Stack>
         )}
       </Show>
-    </Stack>
+    </>
   )
 }
+
 const PictureItem: VoidComponent<{ picture: PictureApi }> = p => {
   return (
     <Stack d="v" dist="l" a="center" fgColor="g10">
