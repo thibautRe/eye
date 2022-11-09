@@ -4,7 +4,7 @@ import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { PaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
 import { Box } from "../Box/Box"
 import { PictureGrid, PictureGridProps } from "./PictureGrid"
-import { PicturePlaceholder } from "./PicturePlaceholder"
+import { PicturePlaceholders } from "./PicturePlaceholder"
 
 interface PictureGridPaginatedProps
   extends Omit<PictureGridProps, "pictures" | "extra"> {
@@ -20,12 +20,7 @@ export const PictureGridPaginated: VoidComponent<
       extra={
         local.loader.data().nextPage != null && (
           <>
-            <PicturePlaceholder />
-            <PicturePlaceholder />
-            <PicturePlaceholder />
-            <PicturePlaceholder />
-            <PicturePlaceholder />
-            <PicturePlaceholder />
+            <PicturePlaceholders />
             <Box
               style={{ height: "200vh" }}
               ref={createBecomesVisible({

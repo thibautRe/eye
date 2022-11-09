@@ -8,7 +8,7 @@ import { Button } from "../../Button"
 import { Grid } from "../../Grid/Grid"
 import { Picture } from "../../Picture"
 import { AspectRatio } from "../../Picture/AspectRatio"
-import { PicturePlaceholder } from "../../Picture/PicturePlaceholder"
+import { PicturePlaceholders } from "../../Picture/PicturePlaceholder"
 import { Stack } from "../../Stack/Stack"
 import { vars } from "../../Styles/theme.css"
 
@@ -30,7 +30,7 @@ export const PictureSelectSidebar: VoidComponent<
         p="m"
         rowGap="xs"
         columnGap="xs"
-        style={{ flex: 1, "overflow-y": "auto" }}
+        style={{ flex: 1, "overflow-y": "auto", "overflow-x": "hidden" }}
       >
         <For each={loader.data().items}>
           {picture => (
@@ -39,6 +39,7 @@ export const PictureSelectSidebar: VoidComponent<
                 br="m"
                 p="0"
                 style={{
+                  position: "relative",
                   height: "100%",
                   width: "100%",
                   "background-color": "transparent",
@@ -59,7 +60,7 @@ export const PictureSelectSidebar: VoidComponent<
           )}
         </For>
         {loader.data().nextPage !== null && (
-          <PicturePlaceholder onBecomeVisible={loader.onLoadNext} />
+          <PicturePlaceholders onFirstBecomeInvisible={loader.onLoadNext} />
         )}
       </Grid>
       <Box p="m">
