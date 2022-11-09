@@ -17,18 +17,25 @@ export interface BoxOwnProps {
 
   /** padding */
   p?: ThemeSpaceKey
+  pM?: ThemeSpaceKey
   /** padding horizontal */
   ph?: ThemeSpaceKey
+  phM?: ThemeSpaceKey
   /** padding vertical */
   pv?: ThemeSpaceKey
+  pvM?: ThemeSpaceKey
   /** padding left */
   pl?: ThemeSpaceKey
+  plM?: ThemeSpaceKey
   /** padding right */
   pr?: ThemeSpaceKey
+  prM?: ThemeSpaceKey
   /** padding top */
   pt?: ThemeSpaceKey
+  ptM?: ThemeSpaceKey
   /** padding bottom */
   pb?: ThemeSpaceKey
+  pbM?: ThemeSpaceKey
 
   /** border radius */
   br?: ThemeRadiiKey
@@ -47,12 +54,19 @@ export const Box: Component<BoxProps> = p => {
     "bgColor",
     "fgColor",
     "p",
+    "pM",
     "pl",
+    "plM",
     "pr",
+    "prM",
     "pt",
+    "ptM",
     "pb",
+    "pbM",
     "pv",
+    "pvM",
     "ph",
+    "phM",
     "br",
     "classList",
     "style",
@@ -61,6 +75,10 @@ export const Box: Component<BoxProps> = p => {
   const pr = () => local.pr || local.ph || local.p
   const pt = () => local.pt || local.pv || local.p
   const pb = () => local.pb || local.pv || local.p
+  const plM = () => local.plM || local.phM || local.pM
+  const prM = () => local.prM || local.phM || local.pM
+  const ptM = () => local.ptM || local.pvM || local.pM
+  const pbM = () => local.pbM || local.pvM || local.pM
   const classList = () => ({
     [s.bgBox]: Boolean(local.bgColor),
     [s.fgBox]: Boolean(local.fgColor),
@@ -68,6 +86,10 @@ export const Box: Component<BoxProps> = p => {
     [s.prBox]: Boolean(pr()),
     [s.ptBox]: Boolean(pt()),
     [s.pbBox]: Boolean(pb()),
+    [s.plMBox]: Boolean(plM()),
+    [s.prMBox]: Boolean(prM()),
+    [s.ptMBox]: Boolean(ptM()),
+    [s.pbMBox]: Boolean(pbM()),
     [s.brBox]: Boolean(local.br),
     ...local.classList,
   })
@@ -88,6 +110,10 @@ export const Box: Component<BoxProps> = p => {
         ...(pr() ? { [s.prVar]: vars.space[pr()!] } : {}),
         ...(pt() ? { [s.ptVar]: vars.space[pt()!] } : {}),
         ...(pb() ? { [s.pbVar]: vars.space[pb()!] } : {}),
+        ...(plM() ? { [s.plMVar]: vars.space[plM()!] } : {}),
+        ...(prM() ? { [s.prMVar]: vars.space[prM()!] } : {}),
+        ...(ptM() ? { [s.ptMVar]: vars.space[ptM()!] } : {}),
+        ...(pbM() ? { [s.pbMVar]: vars.space[pbM()!] } : {}),
         ...(local.br ? { [s.brVar]: vars.radii[local.br] } : {}),
       }),
     )
