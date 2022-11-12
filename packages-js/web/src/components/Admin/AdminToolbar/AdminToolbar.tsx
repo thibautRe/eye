@@ -44,24 +44,28 @@ const AdminToolbarWrapper: ParentComponent = p => {
 const AdminToolbarLoggedInAs: VoidComponent = () => {
   return (
     <T t="xs">
-      Logged in as:{" "}
-      <Show
-        when={isAdmin()}
-        fallback={
+      {props => (
+        <span {...props}>
+          Logged in as:{" "}
           <Show
-            when={isUnknown()}
+            when={isAdmin()}
             fallback={
-              <Show when={user().type === "known" && (user() as KnownUser)}>
-                {user => `User ID ${user.jwt.user_id}`}
+              <Show
+                when={isUnknown()}
+                fallback={
+                  <Show when={user().type === "known" && (user() as KnownUser)}>
+                    {user => `User ID ${user.jwt.user_id}`}
+                  </Show>
+                }
+              >
+                Public
               </Show>
             }
           >
-            Public
+            Admin
           </Show>
-        }
-      >
-        Admin
-      </Show>
+        </span>
+      )}
     </T>
   )
 }
@@ -78,7 +82,7 @@ const AdminToolbarUsers: VoidComponent = () => {
   return (
     <Show when={userRes()}>
       {users => (
-        <Stack d="v" dist="xs">
+        <Stack d="v" dist="xs" pt="s">
           <For each={users}>
             {user => (
               <Stack dist="s" a="center">
@@ -102,21 +106,25 @@ const AdminToolbarUsers: VoidComponent = () => {
 
 const AdminToolbarContent: VoidComponent = () => (
   <Stack d="v" dist="m">
-    <AdminToolbarLoggedInAs />
-    <AdminToolbarLang />
     <Suspense>
       <ErrorBoundary fallback="">
-        <AdminToolbarUsers />
+        <details>
+          <summary>
+            <AdminToolbarLoggedInAs />
+          </summary>
+          <Stack d="v" dist="xs">
+            <AdminToolbarUsers />
+            <Show when={isKnown()}>
+              <Button onClick={logOut}>Log in as public</Button>
+            </Show>
+            <Show when={!isAdmin()}>
+              <Button onClick={logInAsStoredAdminX}>Log in as admin</Button>
+            </Show>
+          </Stack>
+        </details>
       </ErrorBoundary>
     </Suspense>
-    <Stack d="v" dist="s">
-      <Show when={isKnown()}>
-        <Button onClick={logOut}>Log in as public</Button>
-      </Show>
-      <Show when={!isAdmin()}>
-        <Button onClick={logInAsStoredAdminX}>Log in as admin</Button>
-      </Show>
-    </Stack>
+    <AdminToolbarLang />
   </Stack>
 )
 
@@ -124,7 +132,9 @@ const AdminToolbar: ParentComponent = p => {
   return (
     <AdminToolbarWrapper>
       <Stack d="v" dist="m" p="m">
-        <T t="m">Admin Toolbar</T>
+        <T t="m" fgColor="g11">
+          Admin Toolbar
+        </T>
         <AdminToolbarContent />
 
         <AdminToolbarSeparator />
