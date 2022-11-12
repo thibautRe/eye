@@ -20,15 +20,17 @@ export const PictureGridPaginated: VoidComponent<
       extra={
         local.loader.data().nextPage != null && (
           <>
+            <Box style={{ position: "relative" }}>
+              <Box
+                style={{ height: "200vh", width: "1px", position: "absolute" }}
+                ref={createBecomesVisible({
+                  disconnectAfterVisible: false,
+                  onBecomesVisible: local.loader.onLoadNextContinuous,
+                  onBecomesInvisible: local.loader.onLoadNextContinuousAbort,
+                })}
+              />
+            </Box>
             <PicturePlaceholders />
-            <Box
-              style={{ height: "200vh" }}
-              ref={createBecomesVisible({
-                disconnectAfterVisible: false,
-                onBecomesVisible: local.loader.onLoadNextContinuous,
-                onBecomesInvisible: local.loader.onLoadNextContinuousAbort,
-              })}
-            />
           </>
         )
       }

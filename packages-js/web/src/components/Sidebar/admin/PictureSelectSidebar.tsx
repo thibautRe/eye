@@ -60,7 +60,10 @@ export const PictureSelectSidebar: VoidComponent<
           )}
         </For>
         {loader.data().nextPage !== null && (
-          <PicturePlaceholders onFirstBecomeInvisible={loader.onLoadNext} />
+          <PicturePlaceholders
+            onFirstBecomeVisible={loader.onLoadNextContinuous}
+            onFirstBecomeInvisible={loader.onLoadNextContinuousAbort}
+          />
         )}
       </Grid>
       <Box p="m">
