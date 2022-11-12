@@ -1,5 +1,5 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { Component, splitProps } from "solid-js"
+import { Component, mergeProps, splitProps } from "solid-js"
 import { mergeStyle } from "../../utils/mergeStyle"
 import { Box, BoxProps } from "../Box/Box"
 import { ThemeSpaceKey, vars } from "../Styles/theme.css"
@@ -10,13 +10,19 @@ export interface GridProps extends BoxProps {
   rowGapM?: ThemeSpaceKey
   columnGap?: ThemeSpaceKey
   columnGapM?: ThemeSpaceKey
+
+  columns?: number
+  columnsM?: number
 }
 export const Grid: Component<GridProps> = p => {
-  const [local, rest] = splitProps(p, [
+  const props = mergeProps({ columns: 3, columnsM: 2 }, p)
+  const [local, rest] = splitProps(props, [
     "rowGap",
     "rowGapM",
     "columnGap",
     "columnGapM",
+    "columns",
+    "columnsM",
 
     "style",
     "classList",
@@ -26,6 +32,8 @@ export const Grid: Component<GridProps> = p => {
     mergeStyle(
       local.style,
       assignInlineVars({
+        ...{ [s.gridTemplateColumnsVar]: `${local.columns}` },
+        ...{ [s.gridTemplateColumnsVarM]: `${local.columnsM}` },
         ...(local.rowGap ? { [s.rowGapVar]: vars.space[local.rowGap] } : {}),
         ...(local.rowGapM ? { [s.rowGapVarM]: vars.space[local.rowGapM] } : {}),
         ...(local.columnGap
@@ -38,6 +46,8 @@ export const Grid: Component<GridProps> = p => {
     )
   const classList = () => ({
     [s.gridS]: true,
+    [s.gridTemplateColumnsGrid]: true,
+    [s.gridTemplateColumnsGridM]: true,
     [s.rowGapGrid]: Boolean(local.rowGap),
     [s.rowGapGridM]: Boolean(local.rowGapM),
     [s.columnGapGrid]: Boolean(local.columnGap),
@@ -46,7 +56,7 @@ export const Grid: Component<GridProps> = p => {
   })
   return (
     <Box {...rest} classList={classList()} style={style()}>
-      {p.children}
+      {rest.children}
     </Box>
   )
 }

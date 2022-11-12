@@ -32,7 +32,7 @@ export default () => {
         </Button>
       }
     >
-      <Stack d="v" dist="m">
+      <Stack d="v" dist="xl">
         <For each={albumsPaginated.data().items}>
           {album => (
             <Stack d="v" dist="m" fgColor="g11" ph="xl" phM="s">
@@ -48,7 +48,12 @@ export default () => {
                   ({t("picturesAmt")(album.picturesAmt)})
                 </T>
               </Stack>
-              <PictureGrid pictures={album.picturesExcerpt} />
+              <PictureGrid
+                columns={5}
+                columnsM={3}
+                columnGap="s"
+                pictures={album.picturesExcerpt}
+              />
             </Stack>
           )}
         </For>

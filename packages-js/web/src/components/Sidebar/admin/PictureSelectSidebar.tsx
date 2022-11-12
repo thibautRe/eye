@@ -27,6 +27,7 @@ export const PictureSelectSidebar: VoidComponent<
     <Stack d="v" dist="m" style={{ "max-height": "100%" }}>
       <Box p="m">{p => <h2 {...p}>Select pictures</h2>}</Box>
       <Grid
+        columns={2}
         p="m"
         rowGap="xs"
         columnGap="xs"
