@@ -80,7 +80,7 @@ const AdminToolbarUsers: VoidComponent = () => {
         <Stack d="v" dist="xs">
           <For each={users}>
             {user => (
-              <Stack dist="s">
+              <Stack dist="s" a="center">
                 <T t="xs">{user.name}</T>
                 <Button
                   onClick={async () => {
