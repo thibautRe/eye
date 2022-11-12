@@ -25,6 +25,7 @@ import { Button } from "../../Button"
 import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
 import * as s from "./AdminToolbar.css"
+import { AdminToolbarSeparator } from "./AdminToolbarSeparator"
 
 const AdminToolbarWrapper: ParentComponent = p => {
   const [isOpen, { toggle }] = createEscKeySignal(false)
@@ -125,12 +126,9 @@ const AdminToolbar: ParentComponent = p => {
       <Stack d="v" dist="m" p="m">
         <T t="m">Admin Toolbar</T>
         <AdminToolbarContent />
-        <Box
-          bgColor="g7"
-          style={{ height: "1px", width: "100%", border: "none" }}
-        >
-          {props => <hr {...props} />}
-        </Box>
+
+        <AdminToolbarSeparator />
+
         <ErrorBoundary fallback="Could not load extra actions">
           {p.children}
         </ErrorBoundary>

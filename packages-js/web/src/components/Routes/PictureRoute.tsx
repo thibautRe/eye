@@ -85,7 +85,7 @@ const PictureUserAccessActions: VoidComponent<{
     apiAdminGetPicturePublicAccess,
   )
   return (
-    <>
+    <Stack d="v" dist="xs">
       <SidebarButton
         renderButton={p => <Button {...p}>Grant user access</Button>}
         renderChildren={({ onClose }) => (
@@ -126,7 +126,7 @@ const PictureUserAccessActions: VoidComponent<{
             <For each={users}>
               {user => (
                 <Stack dist="xs" a="center">
-                  <T t="s">{user.name}</T>
+                  <T t="xs">{user.name}</T>
                   <Button
                     onClick={async () => {
                       await apiAdminUsersRemovePictureAccess(
@@ -144,7 +144,7 @@ const PictureUserAccessActions: VoidComponent<{
           </Stack>
         )}
       </Show>
-    </>
+    </Stack>
   )
 }
 
