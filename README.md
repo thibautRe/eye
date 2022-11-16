@@ -24,8 +24,17 @@ cargo install diesel_cli --no-default-features --features postgres
 # edit the .env values as needed
 cp .env.example .env
 
+# create the "extract from" folder
+mkdir .extract-from
+
 # run migration
 yarn db:migrate
+
+# extract the pictures in the "extract from" folder.
+#
+# Note: It is recommended to add the `-r` (release) flag, which makes thumbnail extraction
+# much faster and can be worth the overhead of extra compilation time.
+cargo run -r extract-pictures
 
 # start api server
 yarn start:rs
@@ -44,7 +53,7 @@ yarn db:migrate
 yarn db:migrate:redo
 ```
 
-## Generate a JWT secret
+### Generate a JWT secret
 
 Run this in your browser
 
