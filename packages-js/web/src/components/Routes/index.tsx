@@ -69,6 +69,6 @@ export const NotFoundRoute = () => <Err>{useTrans()("notFound")}</Err>
 export const UnauthorizedRoute = () => <Err>This content is private</Err>
 export const MaintenanceRoute = () => (
   <Err>
-    The website is not available right now. It will be back in an hour or two
+    The website is not available right now. It will be back in a few minutes
   </Err>
 )
