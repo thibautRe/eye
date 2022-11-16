@@ -1,5 +1,11 @@
 import { useNavigate, useParams } from "solid-app-router"
-import { createResource, Show, VoidComponent } from "solid-js"
+import {
+  Accessor,
+  createResource,
+  createSignal,
+  Show,
+  VoidComponent,
+} from "solid-js"
 import {
   apiAddAlbumPictures,
   apiAdminRemoveAlbumPublicAccess,
@@ -27,6 +33,9 @@ import { Button } from "../Button"
 import { PictureApi } from "../../types/picture"
 import { PageLayout } from "../Layout/PageLayout"
 import { AdminToolbarSeparator } from "../Admin/AdminToolbar/AdminToolbarSeparator"
+import { createBooleanSignal } from "../../utils/hooks/createBooleanSignal"
+
+const [showEditAlbum, showEditAlbumActions] = createBooleanSignal()
 
 export default () => {
   const params = useParams<{ id: string }>()
@@ -55,10 +64,14 @@ export default () => {
             </Stack>
             <PictureGridPaginated
               loader={picturesLoader}
-              onDeletePicture={adminOptionalValue(async id => {
-                await apiDeleteAlbumPictures(album.id, [id])
-                picturesLoader.onReload()
-              })}
+              onDeletePicture={
+                showEditAlbum()
+                  ? adminOptionalValue(async id => {
+                      await apiDeleteAlbumPictures(album.id, [id])
+                      picturesLoader.onReload()
+                    })
+                  : undefined
+              }
             />
           </Stack>
         )}
@@ -88,6 +101,9 @@ const AlbumAdminActions: VoidComponent<{
             />
           )}
         />
+        <Button onClick={showEditAlbumActions.toggle}>
+          {!showEditAlbum() ? "Edit album content" : "Stop editing content"}
+        </Button>
         <Button
           onClick={async () => {
             if (!confirm("Do you really want to delete this album?")) return
