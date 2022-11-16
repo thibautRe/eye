@@ -3,6 +3,7 @@ import { PaginatedApiLoader } from "../../api/pagination"
 
 interface PaginatedSignal<T> {
   readonly items: readonly T[]
+  readonly error?: any
   readonly nextPage: number | null
   readonly shouldLoadNextPage: boolean
   readonly isLoadingNextPage: boolean
@@ -33,7 +34,11 @@ export const createPaginatedLoader = <T, P extends {}>(
   const initSignal: PaginatedSignal<T> = {
     ...(params.cacheKey && cached.has(params.cacheKey())
       ? { ...cached.get(params.cacheKey())!, shouldLoadNextPage: false }
-      : { items: [], nextPage: 1, shouldLoadNextPage: true }),
+      : {
+          items: [],
+          nextPage: 1,
+          shouldLoadNextPage: true,
+        }),
     isLoadingNextPage: false,
   }
   const [signal, setSignal] = createSignal<PaginatedSignal<T>>(initSignal)
@@ -48,19 +53,30 @@ export const createPaginatedLoader = <T, P extends {}>(
     } = signal()
     if (!(nextPage !== null && shouldLoadNextPage && !isLoadingNextPage)) return
 
-    setSignal(p => ({ ...p, isLoadingNextPage: true }))
-    const res = await params.loader({ page: nextPage }, params.params)
-    const items = [...oldItems, ...res.items]
-    if (params.cacheKey) {
-      cached.set(params.cacheKey(), { items, nextPage: res.info.nextPage })
+    setSignal(p => ({ ...p, isLoadingNextPage: true, status: "loading" }))
+
+    try {
+      const res = await params.loader({ page: nextPage }, params.params)
+      const items = [...oldItems, ...res.items]
+      if (params.cacheKey) {
+        cached.set(params.cacheKey(), { items, nextPage: res.info.nextPage })
+      }
+      setSignal(p => ({
+        ...p,
+        items,
+        nextPage: res.info.nextPage,
+        isLoadingNextPage: false,
+        shouldLoadNextPage: keepLoading,
+      }))
+    } catch (error) {
+      console.error(error)
+      setSignal(p => ({
+        ...p,
+        error,
+        isLoadingNextPage: false,
+        shouldLoadNextPage: false,
+      }))
     }
-    setSignal(p => ({
-      ...p,
-      items,
-      nextPage: res.info.nextPage,
-      isLoadingNextPage: false,
-      shouldLoadNextPage: keepLoading,
-    }))
   })
 
   const onLoadNext = () => {
@@ -80,8 +96,14 @@ export const createPaginatedLoader = <T, P extends {}>(
 
   const onReload = () => setSignal(initSignal)
 
+  const data = () => {
+    const sig = signal()
+    if (sig.error) throw sig.error
+    return sig
+  }
+
   return {
-    data: signal,
+    data,
     onLoadNext,
     onReload,
     onLoadNextContinuous,
