@@ -107,22 +107,22 @@ const AdminToolbarUsers: VoidComponent = () => {
 const AdminToolbarContent: VoidComponent = () => (
   <Stack d="v" dist="m">
     <Suspense>
-      <ErrorBoundary fallback="">
-        <details>
-          <summary>
-            <AdminToolbarLoggedInAs />
-          </summary>
-          <Stack d="v" dist="xs">
+      <details>
+        <summary>
+          <AdminToolbarLoggedInAs />
+        </summary>
+        <Stack d="v" dist="xs">
+          <ErrorBoundary fallback="">
             <AdminToolbarUsers />
-            <Show when={isKnown()}>
-              <Button onClick={logOut}>Log in as public</Button>
-            </Show>
-            <Show when={!isAdmin()}>
-              <Button onClick={logInAsStoredAdminX}>Log in as admin</Button>
-            </Show>
-          </Stack>
-        </details>
-      </ErrorBoundary>
+          </ErrorBoundary>
+          <Show when={isKnown()}>
+            <Button onClick={logOut}>Log in as public</Button>
+          </Show>
+          <Show when={!isAdmin()}>
+            <Button onClick={logInAsStoredAdminX}>Log in as admin</Button>
+          </Show>
+        </Stack>
+      </details>
     </Suspense>
     <AdminToolbarLang />
   </Stack>
