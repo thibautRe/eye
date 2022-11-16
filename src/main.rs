@@ -121,12 +121,19 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     .unwrap();
 
     let cache_path = Path::new(&args.cache_path);
-    create_subsize_picture(&pic, &dyn_img, 1600, cache_path, &mut db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 900, cache_path, &mut db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 600, cache_path, &mut db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 320, cache_path, &mut db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 100, cache_path, &mut db).unwrap();
-    create_subsize_picture(&pic, &dyn_img, 50, cache_path, &mut db).unwrap();
+    for &(max_size, filter_type) in [
+      (2500, FilterType::CatmullRom),
+      (1800, FilterType::CatmullRom),
+      (1200, FilterType::CatmullRom),
+      (900, FilterType::Nearest),
+      (600, FilterType::Nearest),
+      (320, FilterType::Nearest),
+      (100, FilterType::Nearest),
+    ]
+    .iter()
+    {
+      create_subsize_picture(&pic, &dyn_img, max_size, filter_type, cache_path, &mut db).unwrap();
+    }
   }
   Ok(())
 }
@@ -140,12 +147,13 @@ fn create_subsize_picture(
   pic: &Picture,
   img: &DynamicImage,
   max_size: u32,
+  filter_type: FilterType,
   cache_path: &Path,
   db: &mut PooledConnection,
 ) -> Result<(), ImageError> {
   let pic_name = pic.name.clone().unwrap_or("unknown.jpg".into());
   eprintln!("Resizing image {} for size {}...", pic_name, max_size);
-  let resized_img = img.resize(max_size, max_size, FilterType::Nearest);
+  let resized_img = img.resize(max_size, max_size, filter_type);
   let file_path = max_size.to_string() + "-" + &rand::random::<u64>().to_string() + "-" + &pic_name;
   PictureSizeInsert {
     picture_id: pic.id,
