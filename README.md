@@ -8,7 +8,7 @@ The backend of the web service is running a compiled program written in Rust. Th
 
 The API used to communicate with the web clients is a REST API. Authentication is handled via [JWT](https://jwt.io/).
 
-The frontend of the web service is a TypeScript webapp using the [SolidJS](https://www.solidjs.com/) framework. SolidJS was chosen for its lower network footprint, compared to other frameworks such as React. The styling of the app is handled using [vanilla-extract](https://vanilla-extract.style/) as a CSS-in-JS utility. The color theme is using colors from the [Radix-UI Colors](https://www.radix-ui.com/docs/colors/palette-composition/the-scales) project.
+The frontend of the web service is a TypeScript webapp using the [SolidJS](https://www.solidjs.com/) framework, and bundled using [Vite](https://vitejs.dev/). SolidJS was chosen for its lower network footprint, compared to other frameworks such as React. The styling of the app is handled using [vanilla-extract](https://vanilla-extract.style/) as a CSS-in-JS utility. The color theme is using colors from the [Radix-UI Colors](https://www.radix-ui.com/docs/colors/palette-composition/the-scales) project.
 
 The images placeholders are generated and presented using [Blurhash](https://blurha.sh/).
 
