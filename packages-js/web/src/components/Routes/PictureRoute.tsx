@@ -63,7 +63,7 @@ const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
     .sort((p1, p2) => p2.width - p1.width)[0]
   return (
     <Stack dist="m" a="center">
-      <TextLink rel="external" href={highestResSize.url}>
+      <TextLink rel="external" target="_blank" href={highestResSize.url}>
         {t("fullResolution")}
       </TextLink>
       <TextLink rel="external" href={highestResSize.url} download>
