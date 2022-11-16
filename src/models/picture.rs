@@ -77,7 +77,7 @@ pub struct PictureApi {
   pub shot_with_iso: Option<i32>,
 }
 
-type Table = Order<pictures::table, Asc<pictures::shot_at>>;
+type Table = Order<pictures::table, Desc<pictures::shot_at>>;
 type GetById = Filter<pictures::table, Eq<pictures::id, i32>>;
 type EqPublic = Eq<pictures::access_type, &'static str>;
 type EqShared = Or<EqPublic, EqAny<pictures::id, GetPictureIdByUserId>>;
@@ -86,7 +86,7 @@ pub type GetSharedIds = Select<Filter<pictures::table, EqShared>, pictures::id>;
 
 impl Picture {
   pub fn all() -> Table {
-    pictures::table.order(pictures::shot_at.asc())
+    pictures::table.order(pictures::shot_at.desc())
   }
 
   pub fn get_by_id(picture_id: i32) -> GetById {
