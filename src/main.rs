@@ -19,7 +19,7 @@ use std::{
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 use api::api_routes;
-use cli_args::{Commands, ExtractPicturesArgs, Opt, ServeArgs};
+use cli_args::{Commands, Opt, ServeArgs};
 use database::{Pool, PooledConnection};
 use diesel::{QueryDsl, RunQueryDsl};
 use exif_helpers::*;
@@ -54,7 +54,7 @@ async fn main() -> std::io::Result<()> {
 
   match opt.command {
     Commands::Serve(args) => start_server(args, pool).await,
-    Commands::ExtractPictures(args) => extract_pictures(args, pool),
+    Commands::ExtractPictures => extract_pictures(opt.extract_from, opt.cache_path, pool),
   }
 }
 
@@ -66,7 +66,7 @@ fn is_picture_file(file: &walkdir::DirEntry) -> bool {
     })
 }
 
-fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
+fn extract_pictures(extract_from: String, cache_path: String, pool: Pool) -> CommandReturn {
   let mut db = database::db_connection(&pool).unwrap();
 
   let lenses = CameraLens::all().load::<CameraLens>(&mut db).unwrap();
@@ -81,7 +81,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     .unwrap();
   let all_pictures: HashSet<_> = all_pictures.into_iter().collect();
 
-  for entry in WalkDir::new(args.extract_from)
+  for entry in WalkDir::new(extract_from)
     .follow_links(true)
     .into_iter()
     .filter_map(|e| e.ok())
@@ -120,7 +120,7 @@ fn extract_pictures(args: ExtractPicturesArgs, pool: Pool) -> CommandReturn {
     .insert(&mut db)
     .unwrap();
 
-    let cache_path = Path::new(&args.cache_path);
+    let cache_path = Path::new(&cache_path);
     for &(max_size, filter_type) in [
       (2500, FilterType::CatmullRom),
       (1800, FilterType::CatmullRom),

@@ -9,6 +9,13 @@ pub struct Opt {
   /// Database URL
   #[clap(long, env = "DATABASE_URL")]
   pub database_url: String,
+
+  /// Path to extract pictures from
+  #[clap(long, env = "EXTRACT_FROM")]
+  pub extract_from: String,
+
+  #[clap(long, env = "EYE_CACHE_FILES", default_value = ".eye_cache")]
+  pub cache_path: String,
 }
 
 #[derive(Debug, Subcommand, Clone)]
@@ -17,7 +24,7 @@ pub enum Commands {
   Serve(ServeArgs),
 
   /// Run picture extraction process
-  ExtractPictures(ExtractPicturesArgs),
+  ExtractPictures,
 }
 
 #[derive(Debug, Args, Clone)]
@@ -38,14 +45,4 @@ pub struct ServeArgs {
   /// Can be useful to generate JWT tokens using the secret passed
   #[clap(long)]
   pub unsafe_no_jwt_checks: bool,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct ExtractPicturesArgs {
-  /// Path to extract pictures from
-  #[clap(long, env = "EXTRACT_FROM")]
-  pub extract_from: String,
-
-  #[clap(long, env = "EYE_CACHE_FILES", default_value = ".eye_cache")]
-  pub cache_path: String,
 }
