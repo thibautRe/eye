@@ -1,5 +1,6 @@
 use std::{
   collections::{HashMap, HashSet},
+  fs,
   path::Path,
 };
 
@@ -86,18 +87,32 @@ fn process_picture(
   .insert(db)
   .unwrap();
 
+  let file_cache_path = Path::new(&rand::random::<u8>().to_string())
+    .join(&rand::random::<u8>().to_string())
+    .join(&rand::random::<u64>().to_string());
+  fs::create_dir_all(cache_path.join(&file_cache_path))?;
+
   for &(max_size, filter_type) in [
     (2500, FilterType::CatmullRom),
     (1800, FilterType::CatmullRom),
     (1200, FilterType::CatmullRom),
-    (900, FilterType::Nearest),
-    (600, FilterType::Nearest),
+    (900, FilterType::CatmullRom),
+    (600, FilterType::CatmullRom),
     (320, FilterType::Nearest),
     (100, FilterType::Nearest),
   ]
   .iter()
   {
-    create_subsize_picture(&pic, &dyn_img, max_size, filter_type, cache_path, db).unwrap();
+    create_subsize_picture(
+      &pic,
+      &dyn_img,
+      max_size,
+      filter_type,
+      cache_path,
+      &file_cache_path,
+      db,
+    )
+    .unwrap();
   }
   Ok(())
 }
@@ -121,19 +136,23 @@ fn create_subsize_picture(
   max_size: u32,
   filter_type: FilterType,
   cache_path: &Path,
+  file_cache_path: &Path,
   db: &mut PooledConnection,
 ) -> Result<(), ImageError> {
   let pic_name = pic.name.clone().unwrap_or("unknown.jpg".into());
   eprintln!("Resizing image {} for size {}...", pic_name, max_size);
   let resized_img = img.resize(max_size, max_size, filter_type);
-  let file_path = max_size.to_string() + "-" + &rand::random::<u64>().to_string() + "-" + &pic_name;
+
+  let file_name = max_size.to_string() + "-" + &pic_name;
+  let file_path_and_name = file_cache_path.join(file_name);
   PictureSizeInsert {
     picture_id: pic.id,
     height: resized_img.height() as i32,
     width: resized_img.width() as i32,
-    file_path: file_path.clone(),
+    file_path: file_path_and_name.to_str().unwrap().to_string(),
   }
   .insert(db)
   .unwrap();
-  resized_img.save(cache_path.join(file_path))
+
+  resized_img.save(cache_path.join(file_path_and_name))
 }
