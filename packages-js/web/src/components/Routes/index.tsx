@@ -43,7 +43,7 @@ export const AppRoutes = () => (
     <Route path={routes.Pictures} component={Pictures} />
     <Route path={routes.Picture} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
-    {/* <Route path={routes.Album} component={Album} /> */}
+    <Route path={routes.Album} component={Album} />
 
     {/* Convenience redirects */}
     <Route path={"/"} component={r(routes.Pictures)} />
