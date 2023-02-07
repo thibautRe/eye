@@ -124,9 +124,28 @@ pub struct PaginatedInfo {
   pub next_page: Option<i64>,
 }
 
+impl PaginatedInfo {
+  fn empty() -> Self {
+    Self {
+      total_count: 0,
+      total_pages: 0,
+      next_page: None,
+    }
+  }
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginatedApi<T> {
   pub items: Vec<T>,
   pub info: PaginatedInfo,
+}
+
+impl<T> PaginatedApi<T> {
+  pub fn empty() -> Self {
+    PaginatedApi {
+      items: vec![],
+      info: PaginatedInfo::empty(),
+    }
+  }
 }

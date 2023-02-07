@@ -11,7 +11,7 @@ use crate::{
   errors::ServiceError,
   jwt::{Claims, JwtKey},
   models::{
-    album::{soft_delete_album, update_album_date, Album, AlbumInsert},
+    album::{soft_delete_album, update_album_date, Album, AlbumApi, AlbumInsert},
     picture::update_pictures_access,
     picture_album::{delete_pictures_album, PictureAlbum, PictureAlbumInsert},
     picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
@@ -33,6 +33,11 @@ async fn albums_handler(
   query: web::Query<AlbumsRequest>,
 ) -> RouteResult {
   let claims = Claims::from_request(&req, &jwt_key).ok();
+
+  // prevent albums from being seen in public
+  if claims.is_none() {
+    return Ok(HttpResponse::Ok().json(PaginatedApi::<AlbumApi>::empty()));
+  };
 
   let mut db = db_connection(&pool)?;
   let (albums, info) = Album::get_filters(claims, None)
@@ -73,6 +78,12 @@ async fn album_handler(
   path: web::Path<(i32,)>,
 ) -> RouteResult {
   let claims = Claims::from_request(&req, &jwt_key).ok();
+
+  // prevent albums from being seen in public
+  if claims.is_none() {
+    return Err(ServiceError::NotFound);
+  };
+
   let mut db = db_connection(&pool)?;
   let album_id = path.0;
   let album: Album = Album::get_filters(claims, Some(album_id)).first(&mut db)?;
