@@ -1,8 +1,6 @@
 import { VoidComponent, For } from "solid-js"
 import { apiGetPictures, GetPicturesProps } from "../../../api"
 import { PictureApi } from "../../../types/picture"
-import { createPaginatedLoader } from "../../../utils/hooks/createPaginatedLoader"
-import { createSetSignal } from "../../../utils/hooks/createSetSignal"
 import { Box } from "../../Box/Box"
 import { Button } from "../../Button"
 import { Grid } from "../../Grid/Grid"
@@ -11,6 +9,8 @@ import { AspectRatio } from "../../Picture/AspectRatio"
 import { PicturePlaceholders } from "../../Picture/PicturePlaceholder"
 import { Stack } from "../../Stack/Stack"
 import { vars } from "../../Styles/theme.css"
+import { createPaginatedLoader } from "../../../utils/hooks/createPaginatedLoader"
+import { createListSelectionBehaviour } from "../../../utils/hooks/createListSelectionBehaviour"
 
 export interface PictureSelectSidebarProps {
   loaderProps: GetPicturesProps
@@ -22,7 +22,10 @@ export const PictureSelectSidebar: VoidComponent<
   const loader = createPaginatedLoader({
     loader: props => apiGetPictures(props, p.loaderProps),
   })
-  const [pictureIds, { toggle }] = createSetSignal<PictureApi["id"]>()
+  const [selectedIds, handleClick] = createListSelectionBehaviour(() =>
+    loader.data().items.map(i => i.id),
+  )
+
   return (
     <Stack d="v" dist="m" style={{ "max-height": "100%" }}>
       <Box p="m">{p => <h2 {...p}>Select pictures</h2>}</Box>
@@ -46,13 +49,13 @@ export const PictureSelectSidebar: VoidComponent<
                   "background-color": "transparent",
                   "border-width": "2px",
                   "border-style": "solid",
-                  "border-color": pictureIds().has(picture.id)
+                  "border-color": selectedIds().has(picture.id)
                     ? vars.color.p9
                     : "transparent",
                 }}
               >
                 {props => (
-                  <button onClick={() => toggle(picture.id)} {...props}>
+                  <button onClick={e => handleClick(picture.id, e)} {...props}>
                     <Picture picture={picture} sizes="100px" />
                   </button>
                 )}
@@ -69,10 +72,10 @@ export const PictureSelectSidebar: VoidComponent<
       </Grid>
       <Box p="m">
         <Button
-          disabled={pictureIds().size === 0}
-          onClick={() => p.onSelectPictures([...pictureIds()])}
+          disabled={selectedIds().size === 0}
+          onClick={() => p.onSelectPictures([...selectedIds()])}
         >
-          Select {pictureIds().size} picture(s)
+          Select {selectedIds().size} picture(s)
         </Button>
       </Box>
     </Stack>
