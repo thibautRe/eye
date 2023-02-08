@@ -56,7 +56,7 @@ async fn start_server(args: ServeArgs, pool: Pool) -> CommandReturn {
       .app_data(Data::new(jwt_key.clone()))
       .app_data(Data::new(args.clone()))
       .wrap(Logger::default())
-      .service(actix_files::Files::new("/api/static/", ".eye_cache").show_files_listing())
+      .service(actix_files::Files::new("/api/static/", ".eye_cache"))
       .service(api_routes())
   })
   .bind((host.clone(), port))
