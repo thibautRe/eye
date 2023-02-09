@@ -1,7 +1,7 @@
 import { Id } from "./id"
 
 export interface PictureSizeApi {
-  readonly width: Id<"picture-size">
+  readonly width: number
   readonly height: number
   readonly url: string
 }
@@ -17,6 +17,7 @@ export interface PictureApi {
   readonly alt: string
   readonly blurhash: string
   readonly sizes: readonly PictureSizeApi[]
+  readonly original: PictureSizeApi
 
   readonly shotWithCameraLens?: CameraLens
   readonly shotAt?: Date

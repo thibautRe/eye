@@ -58,15 +58,14 @@ export default () => {
 
 const PictureActions: VoidComponent<{ picture: PictureApi }> = p => {
   const t = useTrans()
-  const highestResSize = p.picture.sizes
-    .slice()
-    .sort((p1, p2) => p2.width - p1.width)[0]
+  // prettier-ignore
+  const href = `${p.picture.original.url}?b=${encodeURIComponent(p.picture.blurhash)}`
   return (
     <Stack dist="m" a="center">
-      <TextLink rel="external" target="_blank" href={highestResSize.url}>
+      <TextLink rel="external" target="_blank" href={href}>
         {t("fullResolution")}
       </TextLink>
-      <TextLink rel="external" href={highestResSize.url} download>
+      <TextLink rel="external" href={href} download>
         {t("download")}
       </TextLink>
     </Stack>

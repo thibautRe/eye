@@ -68,6 +68,7 @@ pub struct PictureApi {
   pub alt: String,
   pub blurhash: String,
   pub sizes: Vec<PictureSizeApi>,
+  pub original: PictureSizeApi,
 
   pub shot_with_camera_lens: Option<CameraLens>,
   pub shot_at: Option<NaiveDateTime>,
@@ -169,6 +170,11 @@ impl Picture {
       name: self.name,
       blurhash: self.blurhash,
       sizes: sizes.into_iter().map(|f| PictureSizeApi::from(f)).collect(),
+      original: PictureSizeApi {
+        height: self.original_height,
+        width: self.original_width,
+        url: format!("/api/pictures/{}/original/", self.id),
+      },
 
       shot_with_camera_lens,
       shot_at: self.shot_at,

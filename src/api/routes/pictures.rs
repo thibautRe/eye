@@ -8,6 +8,7 @@ use crate::{
     RouteResult,
   },
   database::{db_connection, Pool},
+  errors::ServiceError,
   jwt::{Claims, JwtKey},
   models::{
     picture::{update_pictures_access, Picture},
@@ -58,6 +59,28 @@ async fn picture_handler(
   let picture = Picture::get_filters(claims, Some(path.0), None, None).first::<Picture>(&mut db)?;
 
   Ok(HttpResponse::Ok().json(complete_picture(picture, &mut db)?))
+}
+
+#[derive(Debug, Deserialize)]
+struct PictureOriginalRequest {
+  b: String,
+}
+#[get("/{id}/original/")]
+async fn picture_original_handler(
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(i32,)>,
+  query: web::Query<PictureOriginalRequest>,
+) -> RouteResult {
+  let mut db = db_connection(&pool)?;
+  let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db)?;
+  if picture.blurhash != query.b {
+    return Err(ServiceError::NotFound);
+  }
+  let file = actix_files::NamedFile::open_async(picture.original_file_path)
+    .await
+    .unwrap();
+  Ok(file.into_response(&req))
 }
 
 #[get("/{id}/user_access/")]
@@ -151,6 +174,7 @@ pub fn pictures_routes() -> Scope {
   web::scope("/pictures")
     .service(pictures_handler)
     .service(picture_handler)
+    .service(picture_original_handler)
     .service(picture_user_access_handler)
     .service(picture_user_access_create_handler)
     .service(picture_user_access_delete_handler)
