@@ -25,5 +25,5 @@
   "dependencies": {
     "typescript": "^4.6.4"
   },
-  "packageManager": "yarn@3.2.1"
+  "packageManager": "yarn@4.0.0-rc.49"
 }
