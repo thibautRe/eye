@@ -14,6 +14,8 @@ The images placeholders are generated and presented using [Blurhash](https://blu
 
 ## Install
 
+Install postgresql, and `libpq-dev`. On Fedora, run `sudo dnf install libpq-devel`.
+
 Install diesel-cli:
 
 ```sh
@@ -71,4 +73,5 @@ Run this in your browser
 ```
 
 Put the result in the `JWT_SECRET` env variable in `.env`.
-Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `localhost:5750/admin/jwt_gen#force-admin` to get a valid admin JWT and hit the "use" button. You can then restart the cargo server without the flag.
+Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `http://localhost:5750/admin/jwt_gen#force-admin` to get a valid admin JWT and hit the "use" button.
+You can then restart the cargo server without the flag.

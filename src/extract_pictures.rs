@@ -62,12 +62,18 @@ fn process_picture(
   let dyn_img = image::open(entry.path()).unwrap();
   let exif = get_exif(&std::fs::File::open(entry.path())?);
 
+  let orientation = get_orientation(&exif).unwrap();
+  let (original_width, original_height) = get_dimensions_for_orientation(
+    orientation,
+    (dyn_img.width() as i32, dyn_img.height() as i32),
+  );
+
   let pic = PictureInsert {
     name: Some(entry_name.into()),
     uploaded_at: chrono::Local::now().naive_local(),
     original_file_path: file_path.into(),
-    original_width: dyn_img.width() as i32,
-    original_height: dyn_img.height() as i32,
+    original_width,
+    original_height,
     blurhash: create_blurhash(dyn_img.thumbnail(128, 128)).into(),
     alt: "".into(),
     access_type: None,
@@ -108,6 +114,7 @@ fn process_picture(
       &dyn_img,
       max_size,
       filter_type,
+      orientation,
       cache_path,
       &file_cache_path,
       db,
@@ -130,25 +137,47 @@ fn create_blurhash(img: DynamicImage) -> String {
   blurhash::encode(4, 3, width, height, &img.to_rgba8())
 }
 
+/// Flip dimensions if orientation is 90 or 270deg
+fn get_dimensions_for_orientation(orientation: i16, dimensions: (i32, i32)) -> (i32, i32) {
+  match orientation {
+    6 | 8 => (dimensions.1, dimensions.0),
+    _ => (dimensions.0, dimensions.1),
+  }
+}
+
 fn create_subsize_picture(
   pic: &Picture,
   img: &DynamicImage,
   max_size: u32,
   filter_type: FilterType,
+  // see EXIT doc for Orientation https://exiftool.org/TagNames/EXIF.html
+  orientation: i16,
   cache_path: &Path,
   file_cache_path: &Path,
   db: &mut PooledConnection,
 ) -> Result<(), ImageError> {
   let pic_name = pic.name.clone().unwrap_or("unknown.jpg".into());
   eprintln!("Resizing image {} for size {}...", pic_name, max_size);
-  let resized_img = img.resize(max_size, max_size, filter_type);
+  let mut resized_img = img.resize(max_size, max_size, filter_type);
+
+  resized_img = match orientation {
+    3 => resized_img.rotate180(),
+    6 => resized_img.rotate90(),
+    8 => resized_img.rotate270(),
+    _ => resized_img,
+  };
+
+  let (width, height) = get_dimensions_for_orientation(
+    orientation,
+    (resized_img.width() as i32, resized_img.height() as i32),
+  );
 
   let file_name = max_size.to_string() + "-" + &pic_name;
   let file_path_and_name = file_cache_path.join(file_name);
   PictureSizeInsert {
     picture_id: pic.id,
-    height: resized_img.height() as i32,
-    width: resized_img.width() as i32,
+    height,
+    width,
     file_path: file_path_and_name.to_str().unwrap().to_string(),
   }
   .insert(db)

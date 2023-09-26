@@ -77,3 +77,13 @@ pub fn get_shot_by_camera_lens_name(exif: &Exif) -> Option<&str> {
     })
     .flatten()
 }
+
+pub fn get_orientation(exif: &Exif) -> Option<i16> {
+  exif
+    .get_field(Tag::Orientation, In::PRIMARY)
+    .map(|f| match f.value {
+      Value::Short(ref v) => Some(v[0] as i16),
+      _ => None,
+    })
+    .flatten()
+}
