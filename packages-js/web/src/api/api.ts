@@ -28,6 +28,7 @@ const routes = {
   albumPublicAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/public_access/`,
 
   users: `/api/users/`,
+  userCreate: `/api/users/`,
   userJwt: (id: UserApi["id"]) => `/api/users/${id}/jwt`,
 } as const
 
@@ -50,6 +51,8 @@ export const apiGetAlbum = async (id: AlbumApi["id"]) =>
   parseAlbum(await getAlbumCached(routes.album(id)))
 
 export const apiAdminUsers = () => get_json<UserApi[]>(routes.users)
+export const apiAdminCreateUser = async (name: string) =>
+  await post(routes.userCreate, { name, email: `${name}@example.com` })
 export const apiAdminJwtGen = async (userId = 1, withAdminRole = false) =>
   await (
     await get(withParams(routes.userJwt(userId), { withAdminRole }))
