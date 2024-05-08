@@ -57,19 +57,10 @@ yarn db:migrate:redo
 
 ### Generate a JWT secret
 
-Run this in your browser
+Run this in a shell
 
-```js
-;(() => {
-  const GUID_LENGTH = 100
-  const bytes = crypto.getRandomValues(new Uint8Array(GUID_LENGTH))
-  let output = ``
-  for (let i = 0; i < GUID_LENGTH; i++) {
-    const code = bytes[i] & 31
-    output += String.fromCharCode(code < 10 ? code + 48 : code + 87)
-  }
-  return output
-})()
+```sh
+node -p "require('crypto').randomBytes(100).toString('hex')"
 ```
 
 Put the result in the `JWT_SECRET` env variable in `.env`.
