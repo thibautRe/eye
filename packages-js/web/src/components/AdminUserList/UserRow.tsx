@@ -13,7 +13,7 @@ interface UserRowProps {
 }
 export const UserRow: VoidComponent<UserRowProps> = p => {
   return (
-    <Stack dist="xs">
+    <Stack dist="xs" a="center">
       <T t="s" class={s.idRow}>
         {p.user.id}
       </T>
@@ -23,11 +23,6 @@ export const UserRow: VoidComponent<UserRowProps> = p => {
       <T t="s" class={s.emailRow}>
         {p.user.email}
       </T>
-      <CopyableButton
-        onCopy={async () => clipboardCopy(await apiAdminJwtGen(p.user.id))}
-      >
-        Copy token
-      </CopyableButton>
       <CopyableButton
         onCopy={async () =>
           clipboardCopy(makeAuthUrl(await apiAdminJwtGen(p.user.id)))

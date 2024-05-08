@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css"
 
 export const container = style({
-  maxWidth: "550px",
+  maxWidth: "800px",
 })

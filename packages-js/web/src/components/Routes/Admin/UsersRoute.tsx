@@ -12,7 +12,8 @@ export default () => {
     <Show when={usersRes()} fallback="No users">
       <AdminContainer>
         <Stack d="v" dist="m">
-          <Stack dist="m">
+          <Stack dist="m" a="center" j="space-between">
+            <PageTitle>Users</PageTitle>
             <Button
               onClick={async () => {
                 const name = prompt("User name")
@@ -24,7 +25,6 @@ export default () => {
               Create user
             </Button>
           </Stack>
-          <PageTitle>Users</PageTitle>
           <UserList users={usersRes()!} />
         </Stack>
       </AdminContainer>

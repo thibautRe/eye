@@ -5,7 +5,9 @@ import {
   styleVariants,
 } from "@vanilla-extract/css"
 
-export const stack = style({ display: "flex" }, "stack")
+export const gapVar = createVar("gap")
+
+export const stack = style({ display: "flex", gap: gapVar }, "stack")
 export const stackWrap = style({ flexWrap: "wrap" })
 
 export const stackD = styleVariants({
@@ -23,29 +25,7 @@ export const stackJ = styleVariants({
   start: { justifyContent: "flex-start" },
   center: { justifyContent: "center" },
   end: { justifyContent: "flex-end" },
+  "space-between": { justifyContent: "space-between" },
+  "space-around": { justifyContent: "space-around" },
+  "space-evenly": { justifyContent: "space-evenly" },
 })
-
-export const stackDepth = styleVariants({
-  ping: {},
-  pong: {},
-})
-
-export const distVar = {
-  ping: createVar("stack-dist-ping"),
-  pong: createVar("stack-dist-pong"),
-}
-
-type StackD = keyof typeof stackD
-type StackDepth = keyof typeof stackDepth
-const makeSel = (d: StackD, depth: StackDepth) =>
-  `${stackD[d]}${stackDepth[depth]}`
-
-globalStyle(makeSel("h", "ping"), { rowGap: distVar.ping })
-globalStyle(makeSel("h", "pong"), { rowGap: distVar.pong })
-
-const makeSelChild = (d: StackD, depth: StackDepth) =>
-  `${makeSel(d, depth)} > :not(:last-child)`
-globalStyle(makeSelChild("h", "ping"), { marginRight: distVar.ping })
-globalStyle(makeSelChild("h", "pong"), { marginRight: distVar.pong })
-globalStyle(makeSelChild("v", "ping"), { marginBottom: distVar.ping })
-globalStyle(makeSelChild("v", "pong"), { marginBottom: distVar.pong })

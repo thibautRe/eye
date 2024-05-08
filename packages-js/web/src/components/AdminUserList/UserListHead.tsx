@@ -5,7 +5,7 @@ import * as s from "./UserList.css"
 
 export const UserListHead: VoidComponent = p => {
   return (
-    <Stack dist="xs">
+    <Stack dist="xs" a="center">
       <T t="s" class={s.idRow}>
         ID
       </T>

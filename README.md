@@ -60,7 +60,7 @@ yarn db:migrate:redo
 Run this in a shell
 
 ```sh
-node -p "require('crypto').randomBytes(100).toString('hex')"
+node -p "require('crypto').randomBytes(100).toString('base64')"
 ```
 
 Put the result in the `JWT_SECRET` env variable in `.env`.
