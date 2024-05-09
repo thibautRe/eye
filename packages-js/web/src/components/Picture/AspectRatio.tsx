@@ -5,6 +5,7 @@ import {
   aspectRatioInnerC,
   aspectRatioVar,
 } from "./AspectRatio.css"
+import { PictureApi } from "../../types/picture"
 
 export interface AspectRatioProps {
   /** width / height */
@@ -20,4 +21,15 @@ export const AspectRatio: ParentComponent<AspectRatioProps> = props => (
   >
     <div class={aspectRatioInnerC}>{props.children}</div>
   </div>
+)
+
+export interface AspectRatioPictureProps {
+  picture: Pick<PictureApi, "height" | "width">
+}
+export const AspectRatioPicture: ParentComponent<
+  AspectRatioPictureProps
+> = p => (
+  <AspectRatio aspectRatio={p.picture.width / p.picture.height}>
+    {p.children}
+  </AspectRatio>
 )

@@ -13,6 +13,9 @@ export const routes = {
   Albums: "/albums",
   Album: "/album/:id",
 
+  Posts: "/p",
+  Post: "/p/:id",
+
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
   AdminJwtGen: "/admin/jwt_gen",
@@ -34,6 +37,7 @@ const Pictures = lazy(() => import("./PictureListRoute"))
 const Picture = lazy(() => import("./PictureRoute"))
 const Albums = lazy(() => import("./AlbumListRoute"))
 const Album = lazy(() => import("./AlbumRoute"))
+const Post = lazy(() => import("./PostRoute"))
 const AdminRoot = withAdminFence(r(routes.AdminUsers))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/UsersRoute")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGenRoute")))
@@ -44,6 +48,7 @@ export const AppRoutes = () => (
     <Route path={routes.Picture} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
+    <Route path={routes.Post} component={Post} />
 
     {/* Convenience redirects */}
     <Route path={"/"} component={r(routes.Pictures)} />

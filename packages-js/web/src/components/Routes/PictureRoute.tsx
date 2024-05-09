@@ -16,7 +16,7 @@ import { Button } from "../Button"
 import { TextLink } from "../Button/TextLink"
 import { PageLayout } from "../Layout/PageLayout"
 import { Picture, PictureMetadata } from "../Picture"
-import { AspectRatio } from "../Picture/AspectRatio"
+import { AspectRatioPicture } from "../Picture/AspectRatio"
 import { UserSelectSidebar } from "../Sidebar/admin/UserSelectSidebar"
 import { SidebarButton } from "../Sidebar/SidebarButton"
 import { Stack } from "../Stack/Stack"
@@ -36,15 +36,9 @@ export default () => {
         </Show>
       }
     >
-      <Stack d="v" dist="m">
-        <Show when={pictureRes()}>
-          {picture => (
-            <Stack d="v" dist="xl">
-              <PictureItem picture={picture()} />
-            </Stack>
-          )}
-        </Show>
-      </Stack>
+      <Show when={pictureRes()}>
+        {picture => <PictureItem picture={picture()} />}
+      </Show>
     </PageLayout>
   )
 }
@@ -150,9 +144,9 @@ const PictureItem: VoidComponent<{ picture: PictureApi }> = p => {
         }}
         ref={boxRef => requestAnimationFrame(() => boxRef?.scrollIntoView?.())}
       >
-        <AspectRatio aspectRatio={p.picture.width / p.picture.height}>
+        <AspectRatioPicture picture={p.picture}>
           <Picture picture={p.picture} sizes="90vw" />
-        </AspectRatio>
+        </AspectRatioPicture>
       </Box>
       <PictureMetadata picture={p.picture} />
       <PictureActions picture={p.picture} />
