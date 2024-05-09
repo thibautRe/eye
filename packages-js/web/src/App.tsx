@@ -6,7 +6,7 @@ import {
   Suspense,
   VoidComponent,
 } from "solid-js"
-import { Router } from "solid-app-router"
+import { Router } from "@solidjs/router"
 import {
   AppRoutes,
   MaintenanceRoute,
@@ -14,26 +14,24 @@ import {
   UnauthorizedRoute,
 } from "./components/Routes"
 import { HttpError, isHttpError } from "./utils/errors"
-import { I18nProvider } from "./providers/I18n"
+import { I18nProvider, useTrans } from "./providers/I18n"
 import { AdminFenceOptional } from "./components/AuthFence"
 import { PageLayout } from "./components/Layout/PageLayout"
 import { Stack } from "./components/Stack/Stack"
 import { T } from "./components/T/T"
 
 const AppProviders: ParentComponent = p => (
-  <Router>
-    <Suspense fallback={<div>Loading...</div>}>
-      <I18nProvider>
-        <ErrorBoundary
-          fallback={(err, onRetry) => (
-            <ErrorBoundaryFallback error={err} onRetry={onRetry} />
-          )}
-        >
-          {p.children}
-        </ErrorBoundary>
-      </I18nProvider>
-    </Suspense>
-  </Router>
+  <Suspense fallback={<div>Loading...</div>}>
+    <I18nProvider>
+      <ErrorBoundary
+        fallback={(err, onRetry) => (
+          <ErrorBoundaryFallback error={err} onRetry={onRetry} />
+        )}
+      >
+        {p.children}
+      </ErrorBoundary>
+    </I18nProvider>
+  </Suspense>
 )
 
 const App: Component = () => (

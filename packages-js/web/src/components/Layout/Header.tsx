@@ -1,4 +1,4 @@
-import { Link } from "solid-app-router"
+import { A } from "@solidjs/router"
 import { VoidComponent } from "solid-js"
 import { EyeIcon } from "../Icons"
 import { Stack } from "../Stack/Stack"
@@ -11,7 +11,7 @@ export const Header: VoidComponent = () => {
         <header {...props}>
           <Stack dist="m" a="center" fgColor="g11">
             {props => (
-              <Link href="/" {...props}>
+              <A href="/" {...props}>
                 <EyeIcon size={24} />
                 <T
                   t="m"
@@ -20,7 +20,7 @@ export const Header: VoidComponent = () => {
                 >
                   EYE
                 </T>
-              </Link>
+              </A>
             )}
           </Stack>
         </header>

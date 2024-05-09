@@ -8,7 +8,7 @@ import {
   VoidComponent,
 } from "solid-js"
 import { apiAdminJwtGen, apiAdminUsers } from "../../../api"
-import { setLang__debug } from "../../../providers/I18n"
+import { setLang } from "../../../providers/I18n"
 import {
   isAdmin,
   isKnown,
@@ -20,7 +20,6 @@ import {
   user,
 } from "../../../providers/Identity"
 import { createEscKeySignal } from "../../../utils/hooks/createEscKeyHandler"
-import { Box } from "../../Box/Box"
 import { Button } from "../../Button"
 import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
@@ -54,7 +53,7 @@ const AdminToolbarLoggedInAs: VoidComponent = () => {
                 when={isUnknown()}
                 fallback={
                   <Show when={user().type === "known" && (user() as KnownUser)}>
-                    {user => `User ID ${user.jwt.user_id}`}
+                    {user => `User ID ${user().jwt.user_id}`}
                   </Show>
                 }
               >
@@ -71,7 +70,7 @@ const AdminToolbarLoggedInAs: VoidComponent = () => {
 }
 
 const AdminToolbarLang: VoidComponent = () => (
-  <Button onClick={() => setLang__debug(l => (l === "fr" ? "en" : "fr"))}>
+  <Button onClick={() => setLang(l => (l === "fr" ? "en" : "fr"))}>
     Switch lang
   </Button>
 )
@@ -83,7 +82,7 @@ const AdminToolbarUsers: VoidComponent = () => {
     <Show when={userRes()}>
       {users => (
         <Stack d="v" dist="xs" pt="s">
-          <For each={users}>
+          <For each={users()}>
             {user => (
               <Stack dist="s" a="center">
                 <T t="xs">{user.name}</T>

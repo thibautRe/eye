@@ -1,6 +1,5 @@
-import { NavLink } from "solid-app-router"
+import { A } from "@solidjs/router"
 import { ParentComponent, VoidComponent } from "solid-js"
-import { classListToClass } from "../../utils/mergeStyle"
 import { Box } from "../Box/Box"
 import { routes } from "../Routes"
 import { Stack } from "../Stack/Stack"
@@ -10,13 +9,9 @@ import { navcontainer, navlink } from "./Nav.css"
 const AdminNavLink: ParentComponent<{ href: string }> = props => (
   <T t="s" fgColor="g10">
     {p => (
-      <NavLink
-        href={props.href}
-        class={`${navlink} ${classListToClass(p.classList)}`}
-        {...p}
-      >
+      <A href={props.href} classList={p.classList} class={navlink} {...p}>
         {props.children}
-      </NavLink>
+      </A>
     )}
   </T>
 )

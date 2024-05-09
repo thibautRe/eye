@@ -1,6 +1,6 @@
 import { Named, Number, ReadonlyObject, Static } from "funtypes"
-import jwtDecode from "jwt-decode"
-import { Role, RoleSchema } from "./role"
+import { jwtDecode } from "jwt-decode"
+import { RoleSchema } from "./role"
 
 export const JWTSchema = Named(
   "JWT",

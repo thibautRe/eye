@@ -9,8 +9,6 @@ import {
 import type { PictureApi, PictureSizeApi } from "../../types/picture"
 import { createBecomesVisible } from "../../utils/hooks/createBecomesVisible"
 import { createBooleanSignal } from "../../utils/hooks/createBooleanSignal"
-import { Box } from "../Box/Box"
-import { AspectRatio } from "./AspectRatio"
 import { PictureBlurhash } from "./PictureBlurhash"
 import * as s from "./PictureComponent.css"
 

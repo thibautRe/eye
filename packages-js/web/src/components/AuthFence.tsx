@@ -1,4 +1,4 @@
-import { Component, ParentComponent, Show } from "solid-js"
+import { ParentComponent, Show } from "solid-js"
 import { isAdmin, isStoredAdmin } from "../providers/Identity"
 import { UnauthorizedRoute } from "./Routes"
 
@@ -21,8 +21,10 @@ const AdminFence: ParentComponent = p => {
   )
 }
 
-export function withAdminFence<P>(InnerComponent: Component<P>): Component<P> {
-  return (p: P) => (
+export function withAdminFence(
+  InnerComponent: ParentComponent,
+): ParentComponent {
+  return p => (
     <AdminFence>
       <InnerComponent {...p} />
     </AdminFence>

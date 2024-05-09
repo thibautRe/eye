@@ -14,17 +14,3 @@ export const mergeStyle = (
   ...styles: (JSX.CSSProperties | string | undefined)[]
 ): JSX.CSSProperties =>
   styles.map(styleToProp).reduce((a, b) => ({ ...a, ...b }), {})
-
-/**
- * Transforms a `classList` prop to a `class` one
- * @deprecated this is only used until https://github.com/solidjs/solid-app-router/pull/139 is fixed
- */
-export const classListToClass = (
-  classList?: Record<string, boolean | undefined>,
-): string =>
-  classList
-    ? Object.entries(classList)
-        .filter(([_, val]) => val)
-        .map(([key]) => key)
-        .join(" ")
-    : ``

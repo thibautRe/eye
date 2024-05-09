@@ -14,7 +14,7 @@ export { Catalogue }
 export type CatalogueKey = keyof Catalogue
 
 const allLangs = ["en", "fr"] as const
-type I18nLang = typeof allLangs[number]
+type I18nLang = (typeof allLangs)[number]
 
 const defaultLang: I18nLang =
   navigator.languages
@@ -23,22 +23,22 @@ const defaultLang: I18nLang =
 
 interface I18nContext {
   readonly lang: Accessor<I18nLang>
-  readonly catalogue: Catalogue
+  readonly catalogue: Accessor<Catalogue>
 }
+
 const I18nContext = createContext<I18nContext>({
   lang: () => defaultLang,
-  // @ts-expect-error
   catalogue: () => {
     throw new Error("No catalogue in dummy provider")
   },
 })
 
-const [lang, setLang] = createSignal<I18nLang>(defaultLang)
-export { setLang as setLang__debug }
+export const [lang, setLang] = createSignal<I18nLang>(defaultLang)
 export const I18nProvider: ParentComponent = p => {
-  const [catalogueRes] = createResource(lang, async lang => {
-    return (await import(`./catalogues/${lang}.ts`)).default as Catalogue
-  })
+  const [catalogueRes] = createResource<Catalogue, I18nLang>(
+    lang,
+    async lang => (await import(`./catalogues/${lang}.ts`)).default,
+  )
 
   createEffect(() => {
     document.documentElement.lang = lang()
@@ -54,14 +54,12 @@ export const I18nProvider: ParentComponent = p => {
   )
 }
 
-const useI18nContext = () => useContext(I18nContext)
-
 /**
  * @example
  *    const t = useTrans()
  *    return <span>{t("download")}</span>
  */
 export const useTrans = () => {
-  const { catalogue } = useI18nContext()
-  return <T extends CatalogueKey>(key: T): Catalogue[T] => catalogue[key]
+  const { catalogue } = useContext(I18nContext)
+  return <T extends CatalogueKey>(key: T): Catalogue[T] => catalogue()[key]
 }

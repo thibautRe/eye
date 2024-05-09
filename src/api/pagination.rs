@@ -17,9 +17,9 @@ pub trait Paginate: Sized {
 impl<T> Paginate for T {
   fn paginate(self, page: i64) -> Paginated<Self> {
     Paginated {
+      page,
       query: self,
       per_page: DEFAULT_PER_PAGE,
-      page: page,
       offset: (page - 1) * DEFAULT_PER_PAGE,
     }
   }

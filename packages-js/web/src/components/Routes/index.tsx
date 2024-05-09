@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "solid-app-router"
+import { Navigate, Route, Router } from "@solidjs/router"
 import { Component, lazy as solidLazy, ParentComponent } from "solid-js"
 import { useTrans } from "../../providers/I18n"
 import { withAdminFence } from "../AuthFence"
@@ -22,7 +22,7 @@ export const routes = {
 const r = (href: string) => () => <Navigate href={href} />
 
 /** Rewraps Solid's lazy component with error logging in case chunks fail to run */
-const lazy = (getter: () => Promise<{ default: Component<any> }>) =>
+const lazy = (getter: () => Promise<{ default: Component }>) =>
   solidLazy(() =>
     getter().catch(err => {
       console.error(err)
@@ -39,7 +39,7 @@ const AdminUsers = withAdminFence(lazy(() => import("./Admin/UsersRoute")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGenRoute")))
 
 export const AppRoutes = () => (
-  <Routes>
+  <Router>
     <Route path={routes.Pictures} component={Pictures} />
     <Route path={routes.Picture} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
@@ -54,7 +54,7 @@ export const AppRoutes = () => (
     <Route path={routes.AdminUsers} component={AdminUsers} />
     <Route path={routes.AdminJwtGen} component={AdminJwtGen} />
     <Route path="*" component={NotFoundRoute} />
-  </Routes>
+  </Router>
 )
 
 // Error route helper

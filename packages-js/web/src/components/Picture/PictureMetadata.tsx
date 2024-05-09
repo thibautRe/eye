@@ -1,6 +1,7 @@
 import { Show, VoidComponent } from "solid-js"
 import { PictureApi } from "../../types/picture"
 import { Stack } from "../Stack/Stack"
+import { lang } from "../../providers/I18n"
 
 export interface PictureMetadataProps {
   picture: PictureApi
@@ -36,7 +37,7 @@ const parseExposure = (exposure: string) => {
 }
 export const PictureExposure: PictureMetadataComponent = props => (
   <Show when={props.picture.shotWithExposureTime}>
-    {exp => <span>{parseExposure(exp)}</span>}
+    {exp => <span>{parseExposure(exp())}</span>}
   </Show>
 )
 
@@ -49,7 +50,7 @@ export const PictureShotAt: PictureMetadataComponent = props => (
   <Show when={props.picture.shotAt}>
     {shotAt => (
       <span>
-        {shotAt.toLocaleString(window.navigator.language, {
+        {shotAt().toLocaleString(lang(), {
           dateStyle: "full",
           timeStyle: "short",
         })}

@@ -1,5 +1,5 @@
-import { Link } from "solid-app-router"
-import { For, Show } from "solid-js"
+import { A } from "@solidjs/router"
+import { For } from "solid-js"
 import { apiCreateAlbum, apiGetAlbums } from "../../api"
 import { useTrans } from "../../providers/I18n"
 import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
@@ -37,9 +37,9 @@ export default () => {
               <Stack dist="xs" a="baseline">
                 <T t="l" fgColor="g11">
                   {props => (
-                    <Link {...props} href={`/album/${album.id}`}>
+                    <A {...props} href={`/album/${album.id}`}>
                       {album.name}
-                    </Link>
+                    </A>
                   )}
                 </T>
                 <T t="s" fgColor="g10">

@@ -1,7 +1,7 @@
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
 import { UserApi } from "../types/user"
-import { makeCachedPaginatedApi, makePaginatedApi } from "./pagination"
+import { makeCachedPaginatedApi } from "./pagination"
 import {
   delete_http,
   get,

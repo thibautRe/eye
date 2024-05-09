@@ -1,12 +1,5 @@
-import { useParams } from "solid-app-router"
-import {
-  createResource,
-  For,
-  JSX,
-  ParentComponent,
-  Show,
-  VoidComponent,
-} from "solid-js"
+import { useParams } from "@solidjs/router"
+import { createResource, For, Show, VoidComponent } from "solid-js"
 import {
   apiAdminGetPicturePublicAccess,
   apiAdminGetUsersPictureAccess,
@@ -39,7 +32,7 @@ export default () => {
     <PageLayout
       adminToolbarItems={
         <Show when={pictureRes()}>
-          {picture => <PictureUserAccessActions pictureId={picture.id} />}
+          {picture => <PictureUserAccessActions pictureId={picture().id} />}
         </Show>
       }
     >
@@ -47,7 +40,7 @@ export default () => {
         <Show when={pictureRes()}>
           {picture => (
             <Stack d="v" dist="xl">
-              <PictureItem picture={picture} />
+              <PictureItem picture={picture()} />
             </Stack>
           )}
         </Show>
@@ -122,7 +115,7 @@ const PictureUserAccessActions: VoidComponent<{
       <Show when={userAccessRes()}>
         {users => (
           <Stack d="v" dist="xs">
-            <For each={users}>
+            <For each={users()}>
               {user => (
                 <Stack dist="xs" a="center">
                   <T t="xs">{user.name}</T>

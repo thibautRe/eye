@@ -1,11 +1,5 @@
-import { useNavigate, useParams } from "solid-app-router"
-import {
-  Accessor,
-  createResource,
-  createSignal,
-  Show,
-  VoidComponent,
-} from "solid-js"
+import { useNavigate, useParams } from "@solidjs/router"
+import { createResource, Show, VoidComponent } from "solid-js"
 import {
   apiAddAlbumPictures,
   apiAdminRemoveAlbumPublicAccess,
@@ -22,7 +16,7 @@ import {
   createPaginatedLoader,
   PaginatedLoader,
 } from "../../utils/hooks/createPaginatedLoader"
-import { AdminFenceOptional, adminOptionalValue } from "../AuthFence"
+import { adminOptionalValue } from "../AuthFence"
 import { PictureGridPaginated } from "../Picture/PictureGridPaginated"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
@@ -50,7 +44,7 @@ export default () => {
     <PageLayout
       adminToolbarItems={
         <Show when={albumRes()}>
-          {a => <AlbumAdminActions albumId={a.id} loader={picturesLoader} />}
+          {a => <AlbumAdminActions albumId={a().id} loader={picturesLoader} />}
         </Show>
       }
     >
@@ -67,7 +61,7 @@ export default () => {
               onDeletePicture={
                 showEditAlbum()
                   ? adminOptionalValue(async id => {
-                      await apiDeleteAlbumPictures(album.id, [id])
+                      await apiDeleteAlbumPictures(album().id, [id])
                       picturesLoader.onReload()
                     })
                   : undefined
