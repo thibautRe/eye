@@ -1,5 +1,11 @@
 // @generated automatically by Diesel CLI.
 
+pub mod sql_types {
+    #[derive(diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "post_include_target_kind"))]
+    pub struct PostIncludeTargetKind;
+}
+
 diesel::table! {
     albums (id) {
         id -> Int4,
@@ -82,6 +88,39 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::PostIncludeTargetKind;
+
+    post_includes (post_id, target_kind, target_id) {
+        post_id -> Int8,
+        target_kind -> PostIncludeTargetKind,
+        target_id -> Int8,
+    }
+}
+
+diesel::table! {
+    post_user_access (user_id, post_id) {
+        user_id -> Int4,
+        post_id -> Int8,
+    }
+}
+
+diesel::table! {
+    posts (id) {
+        id -> Int8,
+        slug -> Text,
+        title -> Text,
+        content -> Jsonb,
+        blurb -> Text,
+        access_type -> Text,
+        created_at -> Timestamptz,
+        created_by -> Int4,
+        updated_at -> Timestamptz,
+        updated_by -> Int4,
+    }
+}
+
+diesel::table! {
     tags (id) {
         id -> Int4,
         name -> Text,
@@ -110,6 +149,9 @@ diesel::joinable!(picture_user_access -> users (user_id));
 diesel::joinable!(pictures -> camera_bodies (shot_by_camera_body_id));
 diesel::joinable!(pictures -> camera_lenses (shot_by_camera_lens_id));
 diesel::joinable!(pictures -> users (shot_by_user_id));
+diesel::joinable!(post_includes -> posts (post_id));
+diesel::joinable!(post_user_access -> posts (post_id));
+diesel::joinable!(post_user_access -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     albums,
@@ -120,6 +162,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     picture_tags,
     picture_user_access,
     pictures,
+    post_includes,
+    post_user_access,
+    posts,
     tags,
     users,
 );
