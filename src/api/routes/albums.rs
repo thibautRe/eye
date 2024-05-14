@@ -15,7 +15,7 @@ use crate::{
     picture::update_pictures_access,
     picture_album::{delete_pictures_album, PictureAlbum, PictureAlbumInsert},
     picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
-    AccessType,
+    AccessTypeOld,
   },
 };
 
@@ -200,7 +200,7 @@ async fn album_public_access_create_handler(
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
   let picture_ids = PictureAlbum::get_picture_ids_for_album_id(path.0).load::<i32>(&mut db)?;
-  update_pictures_access(picture_ids, AccessType::Public, &mut db)?;
+  update_pictures_access(picture_ids, AccessTypeOld::Public, &mut db)?;
   Ok(HttpResponse::Ok().finish())
 }
 
@@ -214,7 +214,7 @@ async fn album_public_access_delete_handler(
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
   let picture_ids = PictureAlbum::get_picture_ids_for_album_id(path.0).load::<i32>(&mut db)?;
-  update_pictures_access(picture_ids, AccessType::Private, &mut db)?;
+  update_pictures_access(picture_ids, AccessTypeOld::Private, &mut db)?;
   Ok(HttpResponse::Ok().finish())
 }
 

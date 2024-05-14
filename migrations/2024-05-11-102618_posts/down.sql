@@ -3,3 +3,4 @@ DROP TABLE IF EXISTS post_user_access;
 DROP TABLE IF EXISTS posts;
 
 DROP TYPE IF EXISTS post_include_target_kind;
+DROP TYPE IF EXISTS access_type;

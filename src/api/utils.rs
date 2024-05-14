@@ -12,6 +12,7 @@ use crate::{
     camera_lenses::CameraLens,
     picture::{Picture, PictureApi},
     picture_size::PictureSize,
+    posts::{Post, PostApi},
   },
 };
 
@@ -78,5 +79,29 @@ pub fn complete_albums(
   albums
     .into_iter()
     .map(|a| complete_album(a, db, claims))
+    .collect()
+}
+
+pub fn complete_post(
+  post: Post,
+  db: &mut PooledConnection,
+  claims: Option<Claims>,
+) -> ServiceResult<PostApi> {
+  let included_pictures =
+    Picture::get_by_included_in_post_id(post.id, claims).load::<Picture>(db)?;
+  let included_pictures = complete_pictures(included_pictures, db)?;
+  Ok(post.into_api(included_pictures))
+}
+
+// TODO perf - this can be improved by querying everything upfront, similar to
+// how `complete_pictures` doesn't call `complete_picture`
+pub fn complete_posts(
+  posts: Vec<Post>,
+  db: &mut PooledConnection,
+  claims: Option<Claims>,
+) -> ServiceResult<Vec<PostApi>> {
+  posts
+    .into_iter()
+    .map(|p| complete_post(p, db, claims))
     .collect()
 }

@@ -14,7 +14,7 @@ use crate::{
     picture::{update_pictures_access, Picture},
     picture_user_access::{delete_pictures_user_access, insert_pictures_user_access},
     user::User,
-    AccessType,
+    AccessTypeOld,
   },
 };
 
@@ -141,7 +141,7 @@ async fn picture_public_access_handler(
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
   let picture = Picture::get_by_id(path.0).first::<Picture>(&mut db)?;
-  Ok(HttpResponse::Ok().json(picture.access_type == AccessType::Public))
+  Ok(HttpResponse::Ok().json(picture.access_type == AccessTypeOld::Public))
 }
 
 #[post("/{id}/public_access/")]
@@ -153,7 +153,7 @@ async fn picture_public_access_create_handler(
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
-  update_pictures_access(vec![path.0], AccessType::Public, &mut db)?;
+  update_pictures_access(vec![path.0], AccessTypeOld::Public, &mut db)?;
   Ok(HttpResponse::Ok().finish())
 }
 
@@ -166,7 +166,7 @@ async fn picture_public_access_delete_handler(
 ) -> RouteResult {
   Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
-  update_pictures_access(vec![path.0], AccessType::Private, &mut db)?;
+  update_pictures_access(vec![path.0], AccessTypeOld::Private, &mut db)?;
   Ok(HttpResponse::Ok().finish())
 }
 

@@ -2,6 +2,10 @@
 
 pub mod sql_types {
     #[derive(diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "access_type"))]
+    pub struct AccessType;
+
+    #[derive(diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "post_include_target_kind"))]
     pub struct PostIncludeTargetKind;
 }
@@ -92,31 +96,34 @@ diesel::table! {
     use super::sql_types::PostIncludeTargetKind;
 
     post_includes (post_id, target_kind, target_id) {
-        post_id -> Int8,
+        post_id -> Int4,
         target_kind -> PostIncludeTargetKind,
-        target_id -> Int8,
+        target_id -> Int4,
     }
 }
 
 diesel::table! {
     post_user_access (user_id, post_id) {
         user_id -> Int4,
-        post_id -> Int8,
+        post_id -> Int4,
     }
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::AccessType;
+
     posts (id) {
-        id -> Int8,
+        id -> Int4,
         slug -> Text,
-        title -> Text,
         content -> Jsonb,
-        blurb -> Text,
-        access_type -> Text,
+        access_type -> AccessType,
         created_at -> Timestamptz,
         created_by -> Int4,
         updated_at -> Timestamptz,
         updated_by -> Int4,
+        deleted_at -> Nullable<Timestamptz>,
+        deleted_by -> Nullable<Int4>,
     }
 }
 

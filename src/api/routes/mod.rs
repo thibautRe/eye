@@ -1,14 +1,14 @@
 use actix_web::{web, Scope};
 
-use self::{albums::album_routes, pictures::pictures_routes, users::user_routes};
-
 mod albums;
 mod pictures;
+mod posts;
 mod users;
 
 pub fn api_routes() -> Scope {
   web::scope("/api")
-    .service(album_routes())
-    .service(pictures_routes())
-    .service(user_routes())
+    .service(albums::album_routes())
+    .service(pictures::pictures_routes())
+    .service(posts::posts_routes())
+    .service(users::user_routes())
 }

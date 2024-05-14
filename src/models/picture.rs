@@ -6,7 +6,8 @@ use super::{
   picture_album::PictureAlbum,
   picture_size::{PictureSize, PictureSizeApi},
   picture_user_access::{GetPictureIdByUserId, PictureUserAccess},
-  AccessType,
+  post_includes::PostInclude,
+  AccessTypeOld,
 };
 use crate::{
   database::PooledConnection,
@@ -32,7 +33,7 @@ pub struct Picture {
   pub blurhash: String,
   pub original_file_path: String,
   pub alt: String,
-  pub access_type: AccessType,
+  pub access_type: AccessTypeOld,
   pub extract_version: i32,
 }
 
@@ -116,15 +117,17 @@ impl Picture {
         query.filter(pictures::id.ne_all(PictureAlbum::get_picture_ids_for_album_id(not_album_id)))
     }
 
-    query = match claims {
-      None => query.filter(Self::public()),
-      Some(claims) => match claims.role {
-        Role::Admin => query,
-        Role::User => query.filter(Self::shared(claims.user_id)),
-      },
-    };
+    Self::with_claims(claims, query)
+  }
 
-    query
+  pub fn get_by_included_in_post_id(
+    post_id: i32,
+    claims: Option<Claims>,
+  ) -> IntoBoxed<'static, pictures::table, Pg> {
+    let mut query = Self::all().into_boxed();
+    query = query.filter(pictures::id.eq_any(PostInclude::get_picture_ids_for_post_id(post_id)));
+
+    Self::with_claims(claims, query)
   }
 
   pub fn get_by_album_id(
@@ -134,7 +137,7 @@ impl Picture {
     let mut query = Self::all().into_boxed();
     query = query.filter(pictures::id.eq_any(PictureAlbum::get_picture_ids_for_album_id(id)));
     if claims.is_none() {
-      query = query.filter(pictures::access_type.eq(AccessType::Public.to_string()))
+      query = query.filter(pictures::access_type.eq(AccessTypeOld::Public.to_string()))
     }
 
     query
@@ -150,8 +153,21 @@ impl Picture {
       .select(pictures::id)
   }
 
+  fn with_claims<'a>(
+    claims: Option<Claims>,
+    query: IntoBoxed<'a, pictures::table, Pg>,
+  ) -> IntoBoxed<'a, pictures::table, Pg> {
+    match claims {
+      None => query.filter(Self::public()),
+      Some(claims) => match claims.role {
+        Role::Admin => query,
+        Role::User => query.filter(Self::shared(claims.user_id)),
+      },
+    }
+  }
+
   fn public() -> EqPublic {
-    pictures::access_type.eq(AccessType::Public.to_string())
+    pictures::access_type.eq(AccessTypeOld::Public.to_string())
   }
   fn shared(user_id: i32) -> EqShared {
     Self::public().or(pictures::id.eq_any(PictureUserAccess::get_picture_id_by_user_id(user_id)))
@@ -195,7 +211,7 @@ impl PictureInsert {
 
 pub fn update_pictures_access(
   picture_ids: Vec<i32>,
-  access_type: AccessType,
+  access_type: AccessTypeOld,
   db: &mut PooledConnection,
 ) -> Result<usize, diesel::result::Error> {
   diesel::update(pictures::table)
