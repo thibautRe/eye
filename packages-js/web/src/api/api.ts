@@ -1,5 +1,6 @@
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
+import { PostApi, parsePost } from "../types/post"
 import { UserApi } from "../types/user"
 import { makeCachedPaginatedApi } from "./pagination"
 import {
@@ -26,6 +27,9 @@ const routes = {
   albumPictures: (id: AlbumApi["id"]) => `/api/albums/${id}/pictures/`,
   albumUserAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/user_access/`,
   albumPublicAccess: (id: AlbumApi["id"]) => `/api/albums/${id}/public_access/`,
+
+  posts: `/api/posts/`,
+  postCreate: `/api/posts/`,
 
   users: `/api/users/`,
   userCreate: `/api/users/`,
@@ -111,3 +115,10 @@ export const apiDeleteAlbumPictures = async (
 ) => {
   await delete_http(routes.albumPictures(albumId), pictureIds)
 }
+
+export const apiGetPosts = makeCachedPaginatedApi<PostApi>(
+  routes.posts,
+  parsePost,
+)
+export const apiCreatePost = async (slug: string) =>
+  await post(routes.postCreate, { slug })

@@ -17,10 +17,10 @@ export const routes = {
   Post: "/p/:id",
 
   AdminRoot: "/admin",
-  AdminPost: "/admin/p/:id",
+  AdminPosts: "/admin/posts",
   AdminUsers: "/admin/users",
   AdminJwtGen: "/admin/jwt_gen",
-}
+} as const
 
 /** Creates a redirect component */
 const r = (href: string) => () => <Navigate href={href} />
@@ -58,7 +58,7 @@ export const AppRoutes = () => (
     <Route path={"/album/"} component={r(routes.Albums)} />
 
     <Route path={routes.AdminRoot} component={AdminRoot} />
-    <Route path={routes.AdminPost} component={AdminPost} />
+    <Route path={routes.AdminPosts} component={AdminPost} />
     <Route path={routes.AdminUsers} component={AdminUsers} />
     <Route path={routes.AdminJwtGen} component={AdminJwtGen} />
     <Route path="*" component={NotFoundRoute} />

@@ -1,7 +1,6 @@
 use super::{
   picture::PictureApi,
   post_user_access::{GetPostIdByUserId, PostUserAccess},
-  user::User,
   AccessType,
 };
 use crate::{
@@ -45,7 +44,7 @@ pub struct PostInsert {
 pub struct PostApi {
   pub id: i32,
   pub slug: String,
-  pub content: String,
+  pub content: PostContent,
 
   pub included_pictures: Vec<PictureApi>,
 
@@ -74,8 +73,19 @@ mod content {
   pub enum Descendant {
     Text(Text),
     Paragraph(Paragraph),
+    Picture(Picture),
+  }
+
+  impl Root {
+    pub fn empty() -> Self {
+      Self {
+        children: Vec::new(),
+      }
+    }
   }
 }
+
+pub type PostContent = content::Root;
 
 type Table = Order<Filter<posts::table, IsNull<posts::deleted_at>>, Desc<posts::created_at>>;
 type EqPublic = Eq<posts::access_type, AccessType>;
@@ -120,7 +130,7 @@ impl Post {
     PostApi {
       id: self.id,
       slug: self.slug,
-      content: self.content.to_string(),
+      content: serde_json::from_value(self.content).unwrap(),
       included_pictures,
       created_at: self.created_at,
       updated_at: self.updated_at,
@@ -129,16 +139,16 @@ impl Post {
 }
 
 impl PostInsert {
-  pub fn new(slug: String, content: serde_json::Value, by_user: User) -> Self {
+  pub fn new(slug: String, content: Option<PostContent>, by_user_id: i32) -> Self {
     let n = chrono::Local::now().naive_local();
     Self {
       slug,
-      content,
+      content: serde_json::to_value(content.unwrap_or(PostContent::empty())).expect("Invalid JSON"),
       access_type: AccessType::Private,
       created_at: n,
-      created_by: by_user.id,
+      created_by: by_user_id,
       updated_at: n,
-      updated_by: by_user.id,
+      updated_by: by_user_id,
     }
   }
 
