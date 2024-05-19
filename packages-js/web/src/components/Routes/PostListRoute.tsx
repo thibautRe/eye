@@ -1,10 +1,11 @@
 import { For } from "solid-js"
-import { apiCreatePost, apiGetPosts } from "../../../api"
-import { createPaginatedLoader } from "../../../utils/hooks/createPaginatedLoader"
-import { AdminContainer } from "../../Admin/Container"
-import { PageTitle } from "../../Admin/PageTitle"
-import { Button } from "../../Button"
-import { Stack } from "../../Stack/Stack"
+import { createPaginatedLoader } from "../../utils/hooks/createPaginatedLoader"
+import { apiCreatePost, apiGetPosts } from "../../api"
+import { Stack } from "../Stack/Stack"
+import { PageTitle } from "../Admin/PageTitle"
+import { Button } from "../Button"
+import { PageLayout } from "../Layout/PageLayout"
+import { A } from "@solidjs/router"
 
 export default () => {
   const postsPaginated = createPaginatedLoader({
@@ -12,9 +13,9 @@ export default () => {
     cacheKey: () => "posts",
   })
   return (
-    <AdminContainer>
+    <PageLayout>
       <Stack dist="m" a="center" j="space-around">
-        <PageTitle>Post</PageTitle>
+        <PageTitle>Posts</PageTitle>
         <Button
           onClick={async () => {
             const name = prompt("Post name")
@@ -31,11 +32,11 @@ export default () => {
         <For each={postsPaginated.data().items}>
           {post => (
             <Stack>
-              {post.id} ({post.slug})
+              {post.id} (<A href={`/p/${post.slug}`}>{post.slug}</A>)
             </Stack>
           )}
         </For>
       </Stack>
-    </AdminContainer>
+    </PageLayout>
   )
 }

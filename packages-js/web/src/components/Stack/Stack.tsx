@@ -1,11 +1,5 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import {
-  Component,
-  createContext,
-  mergeProps,
-  splitProps,
-  useContext,
-} from "solid-js"
+import { Component, mergeProps, splitProps } from "solid-js"
 import { mergeStyle } from "../../utils/mergeStyle"
 import { Box, BoxProps } from "../Box/Box"
 import { ThemeSpaceKey, vars } from "../Styles/theme.css"

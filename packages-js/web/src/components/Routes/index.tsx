@@ -14,10 +14,9 @@ export const routes = {
   Album: "/album/:id",
 
   Posts: "/p",
-  Post: "/p/:id",
+  Post: "/p/:slug",
 
   AdminRoot: "/admin",
-  AdminPosts: "/admin/posts",
   AdminUsers: "/admin/users",
   AdminJwtGen: "/admin/jwt_gen",
 } as const
@@ -38,9 +37,9 @@ const Pictures = lazy(() => import("./PictureListRoute"))
 const Picture = lazy(() => import("./PictureRoute"))
 const Albums = lazy(() => import("./AlbumListRoute"))
 const Album = lazy(() => import("./AlbumRoute"))
+const Posts = lazy(() => import("./PostListRoute"))
 const Post = lazy(() => import("./PostRoute"))
 const AdminRoot = withAdminFence(r(routes.AdminUsers))
-const AdminPost = withAdminFence(lazy(() => import("./Admin/AdminPostRoute")))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/UsersRoute")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGenRoute")))
 
@@ -50,6 +49,7 @@ export const AppRoutes = () => (
     <Route path={routes.Picture} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
+    <Route path={routes.Posts} component={Posts} />
     <Route path={routes.Post} component={Post} />
 
     {/* Convenience redirects */}
@@ -58,7 +58,6 @@ export const AppRoutes = () => (
     <Route path={"/album/"} component={r(routes.Albums)} />
 
     <Route path={routes.AdminRoot} component={AdminRoot} />
-    <Route path={routes.AdminPosts} component={AdminPost} />
     <Route path={routes.AdminUsers} component={AdminUsers} />
     <Route path={routes.AdminJwtGen} component={AdminJwtGen} />
     <Route path="*" component={NotFoundRoute} />

@@ -1,6 +1,6 @@
 import { AlbumApi, parseAlbum } from "../types/album"
 import { PictureApi, parsePicture } from "../types/picture"
-import { PostApi, parsePost } from "../types/post"
+import { PostApi, PostContent, parsePost } from "../types/post"
 import { UserApi } from "../types/user"
 import { makeCachedPaginatedApi } from "./pagination"
 import {
@@ -9,6 +9,7 @@ import {
   get_json,
   makeCachedGet,
   post,
+  put_json,
   withParams,
 } from "./utils"
 
@@ -30,6 +31,7 @@ const routes = {
 
   posts: `/api/posts/`,
   postCreate: `/api/posts/`,
+  post: (slug: PostApi["slug"]) => `/api/posts/${slug}/`,
 
   users: `/api/users/`,
   userCreate: `/api/users/`,
@@ -53,6 +55,14 @@ export const apiGetPicture = async (id: PictureApi["id"]) =>
 const [getAlbumCached] = makeCachedGet<AlbumApi>()
 export const apiGetAlbum = async (id: AlbumApi["id"]) =>
   parseAlbum(await getAlbumCached(routes.album(id)))
+
+const [getPostCached] = makeCachedGet<PostApi>()
+export const apiGetPost = async (slug: PostApi["slug"]) =>
+  parsePost(await getPostCached(routes.post(slug)))
+export const apiUpdatePost = async (
+  slug: PostApi["slug"],
+  update: { content: PostContent },
+) => parsePost(await put_json(routes.post(slug), update))
 
 export const apiAdminUsers = () => get_json<UserApi[]>(routes.users)
 export const apiAdminCreateUser = async (name: string) =>

@@ -18,17 +18,20 @@ export const parsePost = (post: PostApi): PostApi => ({
   includedPictures: post.includedPictures.map(parsePicture),
 })
 
-type PostContent = Root
-interface Root {
+export type PostContent = Root
+export interface Root {
   readonly children: readonly Descendant[]
 }
-interface Text {
+export interface Text {
+  readonly type: "text"
   readonly text: string
 }
-interface Paragraph {
+export interface Paragraph {
+  readonly type: "paragraph"
   readonly children: readonly Descendant[]
 }
-interface Picture {
+export interface Picture {
+  readonly type: "picture"
   readonly pictureId: Id<"picture">
 }
-type Descendant = Text | Paragraph | Picture
+export type Descendant = Text | Paragraph | Picture

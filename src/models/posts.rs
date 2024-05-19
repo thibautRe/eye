@@ -11,6 +11,9 @@ use crate::{
 use chrono::NaiveDateTime;
 use diesel::{dsl::*, pg::Pg, prelude::*};
 
+mod content;
+pub type PostContent = content::Root;
+
 #[derive(Debug, Queryable)]
 pub struct Post {
   pub id: i32,
@@ -52,41 +55,6 @@ pub struct PostApi {
   pub updated_at: NaiveDateTime,
 }
 
-mod content {
-  #[derive(Debug, Serialize, Deserialize)]
-  pub struct Root {
-    pub children: Vec<Descendant>,
-  }
-  #[derive(Debug, Serialize, Deserialize)]
-  pub struct Text {
-    pub text: String,
-  }
-  #[derive(Debug, Serialize, Deserialize)]
-  pub struct Paragraph {
-    pub children: Vec<Descendant>,
-  }
-  #[derive(Debug, Serialize, Deserialize)]
-  pub struct Picture {
-    pub picture_id: i32,
-  }
-  #[derive(Debug, Serialize, Deserialize)]
-  pub enum Descendant {
-    Text(Text),
-    Paragraph(Paragraph),
-    Picture(Picture),
-  }
-
-  impl Root {
-    pub fn empty() -> Self {
-      Self {
-        children: Vec::new(),
-      }
-    }
-  }
-}
-
-pub type PostContent = content::Root;
-
 type Table = Order<Filter<posts::table, IsNull<posts::deleted_at>>, Desc<posts::created_at>>;
 type EqPublic = Eq<posts::access_type, AccessType>;
 type EqShared = Or<EqPublic, EqAny<posts::id, GetPostIdByUserId>>;
@@ -117,6 +85,19 @@ impl Post {
     };
 
     query
+  }
+
+  pub fn update_content(
+    slug: String,
+    content: &PostContent,
+    db: &mut PooledConnection,
+  ) -> Result<Post, diesel::result::Error> {
+    update(posts::table.filter(posts::slug.eq(slug)))
+      .set((
+        posts::content.eq(serde_json::to_value(content).expect("Invalid JSON")),
+        posts::updated_at.eq(chrono::Local::now().naive_local()),
+      ))
+      .get_result::<Post>(db)
   }
 
   fn public() -> EqPublic {
