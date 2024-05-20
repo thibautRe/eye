@@ -88,7 +88,7 @@ impl Post {
   }
 
   pub fn update_content(
-    slug: String,
+    slug: &str,
     content: &PostContent,
     db: &mut PooledConnection,
   ) -> Result<Post, diesel::result::Error> {

@@ -5,11 +5,15 @@ use crate::{
     RouteResult,
   },
   database::{db_connection, Pool},
+  errors::ServiceError,
   jwt::{Claims, JwtKey},
-  models::posts::{Post, PostContent, PostInsert},
+  models::{
+    post_includes::{delete_post_include_pictures, PostIncludeInsert},
+    posts::{Post, PostContent, PostInsert},
+  },
 };
 use actix_web::{get, post, put, web, HttpRequest, HttpResponse, Scope};
-use diesel::RunQueryDsl;
+use diesel::{Connection, RunQueryDsl};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -85,9 +89,15 @@ async fn post_update_handler(
 ) -> RouteResult {
   let claims = Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
-  // TODO update DB
+  let picture_ids = data.content.extract_picture_ids();
+  let post = db.transaction::<_, ServiceError, _>(|db| {
+    let post = Post::update_content(&path.0, &data.content, db)?;
+    let inserts = PostIncludeInsert::from_picture_ids(post.id, picture_ids);
+    delete_post_include_pictures(post.id, db)?;
+    PostIncludeInsert::insert_mul(inserts, db)?;
+    Ok(post)
+  })?;
 
-  let post: Post = Post::update_content(path.0.clone(), &data.content, &mut db)?;
   Ok(HttpResponse::Ok().json(complete_post(post, &mut db, Some(claims))?))
 }
 
