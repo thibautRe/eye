@@ -1,4 +1,4 @@
-import { useParams } from "@solidjs/router"
+import { A, useParams } from "@solidjs/router"
 import { PageLayout } from "../Layout/PageLayout"
 import { Stack } from "../Stack/Stack"
 import { Component, For, Show, createResource } from "solid-js"
@@ -9,12 +9,15 @@ import { Descendant, PostApi, PostContent } from "../../types/post"
 import { Button } from "../Button"
 import { Box } from "../Box/Box"
 import { PictureApi } from "../../types/picture"
+import { routes } from "."
 
 export default () => {
   const params = useParams<{ slug: string }>()
   const [postRes, postResActions] = createResource(params.slug, apiGetPost)
   return (
-    <PageLayout>
+    <PageLayout
+      adminToolbarItems={<A href={routes.PostEdit(params.slug)}>Edit</A>}
+    >
       <Stack d="v" dist="m">
         <Button
           onClick={async () => {

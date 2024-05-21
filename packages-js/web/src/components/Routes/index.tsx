@@ -14,7 +14,8 @@ export const routes = {
   Album: "/album/:id",
 
   Posts: "/p",
-  Post: "/p/:slug",
+  Post: (slug: string) => `/p/${slug}`,
+  PostEdit: (slug: string) => `/p/${slug}/edit`,
 
   AdminRoot: "/admin",
   AdminUsers: "/admin/users",
@@ -39,6 +40,7 @@ const Albums = lazy(() => import("./AlbumListRoute"))
 const Album = lazy(() => import("./AlbumRoute"))
 const Posts = lazy(() => import("./PostListRoute"))
 const Post = lazy(() => import("./PostRoute"))
+const PostEdit = withAdminFence(lazy(() => import("./PostEditRoute")))
 const AdminRoot = withAdminFence(r(routes.AdminUsers))
 const AdminUsers = withAdminFence(lazy(() => import("./Admin/UsersRoute")))
 const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGenRoute")))
@@ -50,7 +52,8 @@ export const AppRoutes = () => (
     <Route path={routes.Albums} component={Albums} />
     <Route path={routes.Album} component={Album} />
     <Route path={routes.Posts} component={Posts} />
-    <Route path={routes.Post} component={Post} />
+    <Route path={routes.Post(":slug")} component={Post} />
+    <Route path={routes.PostEdit(":slug")} component={PostEdit} />
 
     {/* Convenience redirects */}
     <Route path={"/"} component={r(routes.Pictures)} />
