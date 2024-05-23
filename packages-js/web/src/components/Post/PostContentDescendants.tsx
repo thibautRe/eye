@@ -5,11 +5,13 @@ import {
   ParentComponent,
   VoidComponent,
 } from "solid-js"
+import { Dynamic } from "solid-js/web"
 import { Descendant, Header, Text } from "../../types/post"
 import { PictureApi } from "../../types/picture"
 import { AspectRatioPicture } from "../Picture/AspectRatio"
 import { Picture } from "../Picture"
-import { Dynamic } from "solid-js/web"
+import * as s from "./PostContentDescendants.css"
+import { T } from "../T/T"
 
 const PostContentDescendants: Component<{
   children: readonly Descendant[]
@@ -23,9 +25,9 @@ const PostContentDescendants: Component<{
             return <TextComponent text={item} />
           case "paragraph":
             return (
-              <p>
+              <ParagraphComponent>
                 <PostContentDescendants {...p} children={item.children} />
-              </p>
+              </ParagraphComponent>
             )
           case "picture": {
             const picture = p.includedPictureMap.get(item.pictureId)
@@ -61,8 +63,20 @@ const TextComponent: VoidComponent<{ text: Text }> = p => {
   return <>{content()}</>
 }
 
+const ParagraphComponent: ParentComponent = p => (
+  <T t="l" class={s.paragraph}>
+    {props => <p {...props}>{p.children}</p>}
+  </T>
+)
+
 const HeaderComponent: ParentComponent<{ header: Header }> = p => {
-  return <Dynamic component={`h${p.header.level}`} children={p.children} />
+  return (
+    <Dynamic
+      component={`h${p.header.level}`}
+      children={p.children}
+      class={s.header}
+    />
+  )
 }
 
 export default PostContentDescendants
