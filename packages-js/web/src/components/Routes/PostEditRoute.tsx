@@ -22,12 +22,13 @@ export default () => {
 
   let debouncedTimeout: number
 
-  const updateContent = (content: object) => {
+  const update = ({ title, content }: { title: string; content: object }) => {
     clearTimeout(debouncedTimeout)
     setSaveStatus({ state: "saving", startedAt: new Date() })
     debouncedTimeout = setTimeout(async () => {
       try {
         const post = await apiUpdatePost(params.slug, {
+          title,
           // @ts-expect-error content is object but cannot definitely be assigned to PostContent
           content,
         })
@@ -44,6 +45,17 @@ export default () => {
     }, 500)
   }
 
+  const updateContent = (content: object) => {
+    const currPost = postRes()
+    if (!currPost) throw new Error("Cannot find current post")
+    return update({ content, title: currPost.title })
+  }
+  const updateTitle = (title: string) => {
+    const currPost = postRes()
+    if (!currPost) throw new Error("Cannot find current post")
+    return update({ title, content: currPost.content })
+  }
+
   return (
     <PageLayout>
       <Show when={postRes()}>
@@ -52,7 +64,9 @@ export default () => {
             <Stack dist="m" j="stretch" style={{ width: "1200px" }}>
               <Stack d="v" dist="xs" style={{ flex: 1 }}>
                 <PostEdit
+                  title={post().title}
                   contentString={JSON.stringify(post().content, null, 2)}
+                  onUpdateTitle={updateTitle}
                   onUpdateContent={updateContent}
                 />
 

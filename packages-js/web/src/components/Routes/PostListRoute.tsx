@@ -13,20 +13,23 @@ export default () => {
     cacheKey: () => "posts",
   })
   return (
-    <PageLayout>
-      <Stack dist="m" a="center" j="space-around">
-        <PageTitle>Posts</PageTitle>
+    <PageLayout
+      adminToolbarItems={
         <Button
           onClick={async () => {
             const name = prompt("Post name")
             if (!name) return
             const slug = name.replaceAll(/[^a-z0-9]/gi, "-").toLocaleLowerCase()
-            await apiCreatePost(slug)
+            await apiCreatePost(slug, name)
             postsPaginated.onReload()
           }}
         >
           Add post
         </Button>
+      }
+    >
+      <Stack dist="m" a="center" j="space-around">
+        <PageTitle>Posts</PageTitle>
       </Stack>
       <Stack d="v">
         <For each={postsPaginated.data().items}>

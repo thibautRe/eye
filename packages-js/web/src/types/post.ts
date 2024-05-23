@@ -4,6 +4,7 @@ import { PictureApi, parsePicture } from "./picture"
 export interface PostApi {
   readonly id: Id<"post">
   readonly slug: string
+  readonly title: string
   readonly content: PostContent
 
   readonly includedPictures: readonly PictureApi[]

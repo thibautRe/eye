@@ -59,9 +59,15 @@ export const apiGetAlbum = async (id: AlbumApi["id"]) =>
 const [getPostCached] = makeCachedGet<PostApi>()
 export const apiGetPost = async (slug: PostApi["slug"]) =>
   parsePost(await getPostCached(routes.post(slug)))
+export const apiGetPosts = makeCachedPaginatedApi<PostApi>(
+  routes.posts,
+  parsePost,
+)
+export const apiCreatePost = async (slug: string, title: string) =>
+  await post(routes.postCreate, { slug, title })
 export const apiUpdatePost = async (
   slug: PostApi["slug"],
-  update: { content: PostContent },
+  update: { title: string; content: PostContent },
 ) => parsePost(await put_json(routes.post(slug), update))
 
 export const apiAdminUsers = () => get_json<UserApi[]>(routes.users)
@@ -125,10 +131,3 @@ export const apiDeleteAlbumPictures = async (
 ) => {
   await delete_http(routes.albumPictures(albumId), pictureIds)
 }
-
-export const apiGetPosts = makeCachedPaginatedApi<PostApi>(
-  routes.posts,
-  parsePost,
-)
-export const apiCreatePost = async (slug: string) =>
-  await post(routes.postCreate, { slug })

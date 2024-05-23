@@ -46,6 +46,7 @@ async fn posts_handler(
 #[derive(Deserialize)]
 struct PostCreate {
   slug: String,
+  title: String,
   content: Option<PostContent>,
 }
 #[post("/")]
@@ -57,7 +58,8 @@ async fn post_create_handler(
 ) -> RouteResult {
   let claims = Claims::from_request(&req, &jwt_key)?.assert_admin()?;
   let mut db = db_connection(&pool)?;
-  let post = PostInsert::new(data.0.slug, data.0.content, claims.user_id).insert(&mut db)?;
+  let post =
+    PostInsert::new(data.0.slug, data.0.title, data.0.content, claims.user_id).insert(&mut db)?;
   Ok(HttpResponse::Ok().json(complete_post(post, &mut db, Some(claims))?))
 }
 
@@ -77,6 +79,7 @@ async fn post_handler(
 
 #[derive(Deserialize)]
 struct PostUpdate {
+  title: String,
   content: PostContent,
 }
 #[put("/{slug}/")]
@@ -91,7 +94,7 @@ async fn post_update_handler(
   let mut db = db_connection(&pool)?;
   let picture_ids = data.content.extract_picture_ids();
   let post = db.transaction::<_, ServiceError, _>(|db| {
-    let post = Post::update_content(&path.0, &data.content, db)?;
+    let post = Post::update(&path.0, &data.title, &data.content, db)?;
     let inserts = PostIncludeInsert::from_picture_ids(post.id, picture_ids);
     delete_post_include_pictures(post.id, db)?;
     PostIncludeInsert::insert_mul(inserts, db)?;

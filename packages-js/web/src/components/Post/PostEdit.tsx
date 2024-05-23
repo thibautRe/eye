@@ -4,7 +4,9 @@ import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 
 const PostEdit: VoidComponent<{
+  title: string
   contentString: string
+  onUpdateTitle: (title: string) => void
   onUpdateContent: (parsedContent: object) => void
 }> = p => {
   // Local variable to make sure we're only calling onUpdateContentString with valid JSONs
@@ -21,6 +23,11 @@ const PostEdit: VoidComponent<{
 
   return (
     <Stack d="v" dist="xs">
+      <input
+        class={s.input}
+        value={p.title}
+        onchange={e => p.onUpdateTitle(e.target.value)}
+      />
       <textarea
         class={s.textarea}
         value={contentString()}

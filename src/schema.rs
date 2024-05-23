@@ -116,6 +116,7 @@ diesel::table! {
     posts (id) {
         id -> Int4,
         slug -> Text,
+        title -> Text,
         content -> Jsonb,
         access_type -> AccessType,
         created_at -> Timestamptz,

@@ -18,6 +18,7 @@ pub type PostContent = content::Root;
 pub struct Post {
   pub id: i32,
   pub slug: String,
+  pub title: String,
   pub content: serde_json::Value,
   pub access_type: AccessType,
 
@@ -33,6 +34,7 @@ pub struct Post {
 #[diesel(table_name = posts)]
 pub struct PostInsert {
   pub slug: String,
+  pub title: String,
   pub content: serde_json::Value,
   pub access_type: AccessType,
 
@@ -47,6 +49,7 @@ pub struct PostInsert {
 pub struct PostApi {
   pub id: i32,
   pub slug: String,
+  pub title: String,
   pub content: PostContent,
 
   pub included_pictures: Vec<PictureApi>,
@@ -87,13 +90,15 @@ impl Post {
     query
   }
 
-  pub fn update_content(
+  pub fn update(
     slug: &str,
+    title: &str,
     content: &PostContent,
     db: &mut PooledConnection,
   ) -> Result<Post, diesel::result::Error> {
     update(posts::table.filter(posts::slug.eq(slug)))
       .set((
+        posts::title.eq(title),
         posts::content.eq(serde_json::to_value(content).expect("Invalid JSON")),
         posts::updated_at.eq(chrono::Local::now().naive_local()),
       ))
@@ -111,6 +116,7 @@ impl Post {
     PostApi {
       id: self.id,
       slug: self.slug,
+      title: self.title,
       content: serde_json::from_value(self.content).unwrap(),
       included_pictures,
       created_at: self.created_at,
@@ -120,10 +126,11 @@ impl Post {
 }
 
 impl PostInsert {
-  pub fn new(slug: String, content: Option<PostContent>, by_user_id: i32) -> Self {
+  pub fn new(slug: String, title: String, content: Option<PostContent>, by_user_id: i32) -> Self {
     let n = chrono::Local::now().naive_local();
     Self {
       slug,
+      title,
       content: serde_json::to_value(content.unwrap_or(PostContent::empty())).expect("Invalid JSON"),
       access_type: AccessType::Private,
       created_at: n,

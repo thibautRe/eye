@@ -3,6 +3,7 @@ CREATE TYPE access_type AS ENUM('private', 'public', 'shared');
 CREATE TABLE posts (
     id SERIAL NOT NULL PRIMARY KEY,
     slug TEXT NOT NULL,
+    title TEXT NOT NULL,
     content JSONB NOT NULL,
     access_type access_type NOT NULL,
 
