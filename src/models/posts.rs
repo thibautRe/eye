@@ -105,6 +105,19 @@ impl Post {
       .get_result::<Post>(db)
   }
 
+  pub fn update_slug(
+    prev_slug: &str,
+    new_slug: &str,
+    db: &mut PooledConnection,
+  ) -> Result<Post, diesel::result::Error> {
+    update(posts::table.filter(posts::slug.eq(prev_slug)))
+      .set((
+        posts::slug.eq(new_slug),
+        posts::updated_at.eq(chrono::Local::now().naive_local()),
+      ))
+      .get_result::<Post>(db)
+  }
+
   fn public() -> EqPublic {
     posts::access_type.eq(AccessType::Public)
   }

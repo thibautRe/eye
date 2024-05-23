@@ -32,6 +32,7 @@ const routes = {
   posts: `/api/posts/`,
   postCreate: `/api/posts/`,
   post: (slug: PostApi["slug"]) => `/api/posts/${slug}/`,
+  postSlugUpdate: (slug: PostApi["slug"]) => `/api/posts/${slug}/slug/`,
 
   users: `/api/users/`,
   userCreate: `/api/users/`,
@@ -69,6 +70,10 @@ export const apiUpdatePost = async (
   slug: PostApi["slug"],
   update: { title: string; content: PostContent },
 ) => parsePost(await put_json(routes.post(slug), update))
+export const apiUpdatePostSlug = async (
+  prevSlug: PostApi["slug"],
+  newSlug: PostApi["slug"],
+) => parsePost(await put_json(routes.postSlugUpdate(prevSlug), newSlug))
 
 export const apiAdminUsers = () => get_json<UserApi[]>(routes.users)
 export const apiAdminCreateUser = async (name: string) =>

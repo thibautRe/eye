@@ -7,6 +7,7 @@ export const input = style({
   background: vars.color.g3,
   color: vars.color.g12,
   border: 0,
+  borderRadius: 6,
 })
 
 export const textarea = style({
@@ -16,6 +17,7 @@ export const textarea = style({
   background: vars.color.g3,
   color: vars.color.g12,
   border: 0,
+  borderRadius: 6,
 
   resize: "vertical",
 })

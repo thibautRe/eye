@@ -4,8 +4,10 @@ import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
 
 const PostEdit: VoidComponent<{
+  slug: string
   title: string
   contentString: string
+  onUpdateSlug: (slug: string) => void
   onUpdateTitle: (title: string) => void
   onUpdateContent: (parsedContent: object) => void
 }> = p => {
@@ -23,11 +25,23 @@ const PostEdit: VoidComponent<{
 
   return (
     <Stack d="v" dist="xs">
-      <input
-        class={s.input}
-        value={p.title}
-        onchange={e => p.onUpdateTitle(e.target.value)}
-      />
+      <Stack a="center" dist="m">
+        <T t="m">Slug:</T>
+        <input
+          class={s.input}
+          value={p.slug}
+          onchange={e => p.onUpdateSlug(e.target.value)}
+        />
+      </Stack>
+
+      <Stack a="center" dist="m">
+        <T t="m">Title:</T>
+        <input
+          class={s.input}
+          value={p.title}
+          onchange={e => p.onUpdateTitle(e.target.value)}
+        />
+      </Stack>
       <textarea
         class={s.textarea}
         value={contentString()}

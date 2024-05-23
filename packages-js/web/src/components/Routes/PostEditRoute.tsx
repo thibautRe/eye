@@ -1,11 +1,12 @@
-import { useParams } from "@solidjs/router"
+import { redirect, useNavigate, useParams } from "@solidjs/router"
 import { Match, Show, Switch, createResource, createSignal } from "solid-js"
-import { apiGetPost, apiUpdatePost } from "../../api"
+import { apiGetPost, apiUpdatePost, apiUpdatePostSlug } from "../../api"
 import { PageLayout } from "../Layout/PageLayout"
 import { Stack } from "../Stack/Stack"
 import PostEdit from "../Post/PostEdit"
 import { Box } from "../Box/Box"
 import Post from "../Post"
+import { routes } from "."
 
 type SaveStatus =
   | { state: "idle" }
@@ -15,7 +16,11 @@ type SaveStatus =
 
 export default () => {
   const params = useParams<{ slug: string }>()
-  const [postRes, postResActions] = createResource(params.slug, apiGetPost)
+  const navigate = useNavigate()
+  const [postRes, postResActions] = createResource(
+    () => params.slug,
+    apiGetPost,
+  )
   const [saveStatus, setSaveStatus] = createSignal<SaveStatus>({
     state: "idle",
   })
@@ -55,6 +60,12 @@ export default () => {
     if (!currPost) throw new Error("Cannot find current post")
     return update({ title, content: currPost.content })
   }
+  const updateSlug = async (newSlug: string) => {
+    const currPost = postRes()
+    if (!currPost) throw new Error("Cannot find current post")
+    const updated = await apiUpdatePostSlug(currPost.slug, newSlug)
+    navigate(routes.PostEdit(updated.slug), { replace: true })
+  }
 
   return (
     <PageLayout>
@@ -64,8 +75,10 @@ export default () => {
             <Stack dist="m" j="stretch" style={{ width: "1200px" }}>
               <Stack d="v" dist="xs" style={{ flex: 1 }}>
                 <PostEdit
+                  slug={post().slug}
                   title={post().title}
                   contentString={JSON.stringify(post().content, null, 2)}
+                  onUpdateSlug={updateSlug}
                   onUpdateTitle={updateTitle}
                   onUpdateContent={updateContent}
                 />

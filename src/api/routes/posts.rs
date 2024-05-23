@@ -104,10 +104,26 @@ async fn post_update_handler(
   Ok(HttpResponse::Ok().json(complete_post(post, &mut db, Some(claims))?))
 }
 
+#[put("/{slug}/slug/")]
+async fn post_slug_update_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  path: web::Path<(String,)>,
+  data: web::Json<String>,
+) -> RouteResult {
+  let claims = Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+
+  let mut db = db_connection(&pool)?;
+  let post = Post::update_slug(&path.0, &data.0, &mut db)?;
+  Ok(HttpResponse::Ok().json(complete_post(post, &mut db, Some(claims))?))
+}
+
 pub fn posts_routes() -> Scope {
   web::scope("/posts")
     .service(posts_handler)
     .service(post_create_handler)
     .service(post_handler)
     .service(post_update_handler)
+    .service(post_slug_update_handler)
 }
