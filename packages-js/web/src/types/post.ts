@@ -18,20 +18,27 @@ export const parsePost = (post: PostApi): PostApi => ({
   includedPictures: post.includedPictures.map(parsePicture),
 })
 
-export type PostContent = Root
-export interface Root {
+interface Node {
   readonly children: readonly Descendant[]
 }
+
+export type PostContent = Root
+export interface Root extends Node {}
 export interface Text {
   readonly type: "text"
   readonly text: string
+  readonly bold?: boolean | null
+  readonly italic?: boolean | null
 }
-export interface Paragraph {
+export interface Header extends Node {
+  readonly type: "header"
+  readonly level: number
+}
+export interface Paragraph extends Node {
   readonly type: "paragraph"
-  readonly children: readonly Descendant[]
 }
 export interface Picture {
   readonly type: "picture"
   readonly pictureId: Id<"picture">
 }
-export type Descendant = Text | Paragraph | Picture
+export type Descendant = Text | Paragraph | Picture | Header

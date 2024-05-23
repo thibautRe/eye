@@ -7,6 +7,16 @@ pub struct Root {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Text {
   pub text: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub bold: Option<bool>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub italic: Option<bool>,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Header {
+  /// Between 1 and 6 included
+  pub level: u8,
+  pub children: Vec<Descendant>,
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Paragraph {
@@ -21,6 +31,7 @@ pub struct Picture {
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum Descendant {
   Text(Text),
+  Header(Header),
   Paragraph(Paragraph),
   Picture(Picture),
 }
@@ -42,7 +53,8 @@ fn extract_picture_ids_descendants(descs: &Vec<Descendant>) -> HashSet<i32> {
     .iter()
     .flat_map(|child| match child {
       Descendant::Text(_text) => HashSet::new(),
-      Descendant::Paragraph(Paragraph { children }) => extract_picture_ids_descendants(children),
+      Descendant::Header(h) => extract_picture_ids_descendants(&h.children),
+      Descendant::Paragraph(p) => extract_picture_ids_descendants(&p.children),
       Descendant::Picture(Picture { picture_id }) => {
         let mut set = HashSet::new();
         set.insert(*picture_id);

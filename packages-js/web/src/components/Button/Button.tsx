@@ -1,5 +1,4 @@
 import { JSX, ParentComponent, splitProps } from "solid-js"
-import { Box } from "../Box/Box"
 import { Tsizes, Tweights } from "../T/T"
 import * as s from "./Button.css"
 
