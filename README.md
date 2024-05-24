@@ -66,3 +66,16 @@ node -p "require('crypto').randomBytes(100).toString('base64')"
 Put the result in the `JWT_SECRET` env variable in `.env`.
 Run the server with `cargo run serve --unsafe-no-jwt-checks`, and go to `http://localhost:5750/admin/jwt_gen#force-admin` to get a valid admin JWT and hit the "use" button.
 You can then restart the cargo server without the flag.
+
+## Troubleshooting
+
+### Postgres issues after Fedora major version update
+
+Updates on major versions can cause issues with postgres. Here are the steps that I followed:
+
+- If the database isn't up, restart with `sudo systemctl restart postgres.service`
+- If that fails, checks the logs with `journalctl -xeu postgres.service`
+- If the logs mention an update, run `sudo postgresql-setup --upgrade`
+
+If the database is up but the user postgres cannot be logged in as, edit the file `/var/lib/pgsql/data/pg_hba.conf` as root
+and change the 2 lines that mention localhost connections from `ident` to `md5`.

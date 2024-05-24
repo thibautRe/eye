@@ -5,29 +5,45 @@ const assert_status_200 = (res: Response) => {
   if (res.status !== 200) throw new HttpError(res)
   return res
 }
+const headersWithJson = {
+  ...apiClientHeaders,
+  "Content-Type": "application/json",
+}
 
 export const get = async (route: string) =>
   assert_status_200(await fetch(route, { headers: apiClientHeaders }))
-export const post = async <T>(route: string, data?: T) =>
+export const post = async <T,>(route: string, data?: T) =>
   assert_status_200(
     await fetch(route, {
-      headers: { ...apiClientHeaders, "Content-Type": "application/json" },
+      headers: headersWithJson,
       method: "POST",
       body: data && JSON.stringify(data),
     }),
   )
-export const delete_http = async <T>(route: string, data?: T) =>
+export const put = async <T,>(route: string, data?: T) =>
   assert_status_200(
     await fetch(route, {
-      headers: { ...apiClientHeaders, "Content-Type": "application/json" },
+      headers: headersWithJson,
+      method: "PUT",
+      body: data && JSON.stringify(data),
+    }),
+  )
+export const delete_http = async <T,>(route: string, data?: T) =>
+  assert_status_200(
+    await fetch(route, {
+      headers: headersWithJson,
       method: "DELETE",
       body: JSON.stringify(data),
     }),
   )
-export const get_json = async <T = unknown>(route: string): Promise<T> =>
+export const get_json = async <T = unknown,>(route: string): Promise<T> =>
   (await (await get(route)).json()) as T
+export const put_json = async <TData, T = unknown>(
+  route: string,
+  data?: TData,
+): Promise<T> => (await (await put(route, data)).json()) as T
 
-export const makeCachedGet = <T>() => {
+export const makeCachedGet = <T,>() => {
   const cache = new Map<string, T>()
   return [
     async (route: string) => {

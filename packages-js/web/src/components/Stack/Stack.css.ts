@@ -1,9 +1,4 @@
-import {
-  createVar,
-  globalStyle,
-  style,
-  styleVariants,
-} from "@vanilla-extract/css"
+import { createVar, style, styleVariants } from "@vanilla-extract/css"
 
 export const gapVar = createVar("gap")
 
@@ -25,6 +20,7 @@ export const stackJ = styleVariants({
   start: { justifyContent: "flex-start" },
   center: { justifyContent: "center" },
   end: { justifyContent: "flex-end" },
+  stretch: { justifyContent: "stretch" },
   "space-between": { justifyContent: "space-between" },
   "space-around": { justifyContent: "space-around" },
   "space-evenly": { justifyContent: "space-evenly" },
