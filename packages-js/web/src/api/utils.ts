@@ -15,9 +15,9 @@ export const get = async (route: string) =>
 export const post = async <T,>(route: string, data?: T) =>
   assert_status_200(
     await fetch(route, {
-      headers: headersWithJson,
+      headers: data instanceof FormData ? apiClientHeaders : headersWithJson,
       method: "POST",
-      body: data && JSON.stringify(data),
+      body: data instanceof FormData ? data : data && JSON.stringify(data),
     }),
   )
 export const put = async <T,>(route: string, data?: T) =>

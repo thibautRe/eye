@@ -9,7 +9,8 @@ use image::{imageops::FilterType, DynamicImage, GenericImageView, ImageError};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{
-  database::{self, Pool, PooledConnection},
+  cli_args::Opt,
+  database::PooledConnection,
   exif_helpers::*,
   models::{
     camera_lenses::CameraLens,
@@ -20,10 +21,8 @@ use crate::{
   CommandReturn,
 };
 
-pub fn extract_pictures(extract_from: String, cache_path: String, pool: Pool) -> CommandReturn {
-  let mut db = database::db_connection(&pool).unwrap();
-
-  let lenses = CameraLens::all().load::<CameraLens>(&mut db).unwrap();
+pub fn extract_pictures(opt: &Opt, db: &mut PooledConnection) -> CommandReturn {
+  let lenses = CameraLens::all().load::<CameraLens>(db).unwrap();
   let lenses_by_name: HashMap<String, CameraLens> = lenses
     .into_iter()
     .map(|lens| (lens.name.clone(), lens))
@@ -31,12 +30,12 @@ pub fn extract_pictures(extract_from: String, cache_path: String, pool: Pool) ->
 
   let all_pictures: Vec<(String, i32)> = Picture::all()
     .select((pictures::original_file_path, pictures::extract_version))
-    .load(&mut db)
+    .load(db)
     .unwrap();
   let all_pictures: HashSet<_> = all_pictures.into_iter().collect();
 
-  let cache_path = Path::new(&cache_path);
-  for entry in WalkDir::new(extract_from)
+  let cache_path = Path::new(&opt.cache_path);
+  for entry in WalkDir::new(opt.extract_from.clone())
     .follow_links(true)
     .into_iter()
     .filter_map(|e| e.ok())
@@ -46,7 +45,7 @@ pub fn extract_pictures(extract_from: String, cache_path: String, pool: Pool) ->
     if all_pictures.contains(&(String::from(file_path), 1)) {
       continue;
     }
-    process_picture(entry, &lenses_by_name, cache_path, &mut db)?;
+    process_picture(entry, &lenses_by_name, cache_path, db)?;
   }
   Ok(())
 }

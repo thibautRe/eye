@@ -1,5 +1,7 @@
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use actix_web::{delete, get, post, web, HttpRequest, HttpResponse, Scope};
 use diesel::RunQueryDsl;
+use std::path::Path;
 
 use crate::{
   api::{
@@ -7,8 +9,10 @@ use crate::{
     utils::{complete_picture, complete_pictures},
     RouteResult,
   },
+  cli_args::Opt,
   database::{db_connection, Pool},
   errors::ServiceError,
+  extract_pictures::extract_pictures,
   jwt::{Claims, JwtKey},
   models::{
     picture::{update_pictures_access, Picture},
@@ -81,6 +85,35 @@ async fn picture_original_handler(
     .await
     .unwrap();
   Ok(file.into_response(&req))
+}
+
+#[derive(Debug, MultipartForm)]
+struct PictureUploadForm {
+  files: Vec<TempFile>,
+}
+#[post("/upload/")]
+async fn picture_upload_handler(
+  jwt_key: web::Data<JwtKey>,
+  req: HttpRequest,
+  pool: web::Data<Pool>,
+  opt: web::Data<Opt>,
+  MultipartForm(form): MultipartForm<PictureUploadForm>,
+) -> RouteResult {
+  Claims::from_request(&req, &jwt_key)?.assert_admin()?;
+  let mut db = db_connection(&pool)?;
+  for f in form.files {
+    let file_name = format!(
+      "{}-{}",
+      rand::random::<u32>().to_string(),
+      f.file_name.unwrap_or("file.jpg".into())
+    );
+    let path = Path::new(&opt.extract_from).join(file_name);
+    f.file.persist(path).unwrap();
+  }
+  extract_pictures(opt.as_ref(), &mut db)
+    .map_err(|_| ServiceError::InternalServerError("Cannot extract pictures".to_string()))?;
+
+  Ok(HttpResponse::Ok().finish())
 }
 
 #[get("/{id}/user_access/")]
@@ -175,6 +208,7 @@ pub fn pictures_routes() -> Scope {
     .service(pictures_handler)
     .service(picture_handler)
     .service(picture_original_handler)
+    .service(picture_upload_handler)
     .service(picture_user_access_handler)
     .service(picture_user_access_create_handler)
     .service(picture_user_access_delete_handler)

@@ -16,6 +16,7 @@ import {
 const routes = {
   pictures: `/api/pictures/`,
   picture: (id: PictureApi["id"]) => `/api/pictures/${id}`,
+  pictureUpload: `/api/pictures/upload/`,
   pictureUserAccess: (id: PictureApi["id"]) =>
     `/api/pictures/${id}/user_access/`,
   picturePublicAccess: (id: PictureApi["id"]) =>
@@ -52,6 +53,13 @@ export const apiGetAlbums = makeCachedPaginatedApi<AlbumApi>(
 const [getPictureCached] = makeCachedGet<PictureApi>()
 export const apiGetPicture = async (id: PictureApi["id"]) =>
   parsePicture(await getPictureCached(routes.picture(id)))
+export const apiUploadPictures = async (fileList: FileList) => {
+  const formData = new FormData()
+  for (const file of fileList) {
+    formData.append("files", file)
+  }
+  await post(routes.pictureUpload, formData)
+}
 
 const [getAlbumCached] = makeCachedGet<AlbumApi>()
 export const apiGetAlbum = async (id: AlbumApi["id"]) =>

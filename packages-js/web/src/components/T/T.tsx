@@ -1,4 +1,4 @@
-import { Component, mergeProps, splitProps } from "solid-js"
+import { Component, splitProps } from "solid-js"
 import { classList } from "solid-js/web"
 import { Box, BoxProps } from "../Box/Box"
 import * as s from "./T.css"

@@ -7,7 +7,7 @@ import {
   Suspense,
   VoidComponent,
 } from "solid-js"
-import { apiAdminJwtGen, apiAdminUsers } from "../../../api"
+import { apiAdminJwtGen, apiAdminUsers, apiUploadPictures } from "../../../api"
 import { setLang } from "../../../providers/I18n"
 import {
   isAdmin,
@@ -25,6 +25,7 @@ import { Stack } from "../../Stack/Stack"
 import { T } from "../../T/T"
 import * as s from "./AdminToolbar.css"
 import { AdminToolbarSeparator } from "./AdminToolbarSeparator"
+import FileUploadButton from "../../Button/FileUploadButton"
 
 const AdminToolbarWrapper: ParentComponent = p => {
   const [isOpen, { toggle }] = createEscKeySignal(false)
@@ -103,6 +104,19 @@ const AdminToolbarUsers: VoidComponent = () => {
   )
 }
 
+const AdminToolbarUpload: VoidComponent = () => (
+  <FileUploadButton
+    multiple
+    accept=".jpg,.jpeg"
+    onchange={async e => {
+      if (!e.currentTarget.files) return
+      await apiUploadPictures(e.currentTarget.files)
+    }}
+  >
+    Upload picture
+  </FileUploadButton>
+)
+
 const AdminToolbarContent: VoidComponent = () => (
   <Stack d="v" dist="m">
     <Suspense>
@@ -124,6 +138,7 @@ const AdminToolbarContent: VoidComponent = () => (
       </details>
     </Suspense>
     <AdminToolbarLang />
+    <AdminToolbarUpload />
   </Stack>
 )
 

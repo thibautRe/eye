@@ -13,7 +13,6 @@ import { Picture } from "../Picture"
 import * as s from "./PostContentDescendants.css"
 import { T } from "../T/T"
 import { A } from "@solidjs/router"
-import { TextLink } from "../Button/TextLink"
 
 const PostContentDescendants: Component<{
   children: readonly Descendant[]
