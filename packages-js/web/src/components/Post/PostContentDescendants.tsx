@@ -12,6 +12,8 @@ import { AspectRatioPicture } from "../Picture/AspectRatio"
 import { Picture } from "../Picture"
 import * as s from "./PostContentDescendants.css"
 import { T } from "../T/T"
+import { A } from "@solidjs/router"
+import { TextLink } from "../Button/TextLink"
 
 const PostContentDescendants: Component<{
   children: readonly Descendant[]
@@ -44,6 +46,12 @@ const PostContentDescendants: Component<{
               <HeaderComponent header={item}>
                 <PostContentDescendants {...p} children={item.children} />
               </HeaderComponent>
+            )
+          case "link":
+            return (
+              <LinkComponent href={item.href}>
+                <PostContentDescendants {...p} children={item.children} />
+              </LinkComponent>
             )
           default:
             return item satisfies never
@@ -78,5 +86,15 @@ const HeaderComponent: ParentComponent<{ header: Header }> = p => {
     />
   )
 }
+
+const LinkComponent: ParentComponent<{ href: string }> = p => (
+  <T fgColor="p10">
+    {s => (
+      <A href={p.href} {...s}>
+        {p.children}
+      </A>
+    )}
+  </T>
+)
 
 export default PostContentDescendants

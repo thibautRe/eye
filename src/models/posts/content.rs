@@ -19,6 +19,12 @@ pub struct Header {
   pub children: Vec<Descendant>,
 }
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Link {
+  /// full href, including protocol
+  pub href: String,
+  pub children: Vec<Descendant>,
+}
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Paragraph {
   pub children: Vec<Descendant>,
 }
@@ -32,6 +38,7 @@ pub struct Picture {
 pub enum Descendant {
   Text(Text),
   Header(Header),
+  Link(Link),
   Paragraph(Paragraph),
   Picture(Picture),
 }
@@ -55,6 +62,7 @@ fn extract_picture_ids_descendants(descs: &Vec<Descendant>) -> HashSet<i32> {
       Descendant::Text(_text) => HashSet::new(),
       Descendant::Header(h) => extract_picture_ids_descendants(&h.children),
       Descendant::Paragraph(p) => extract_picture_ids_descendants(&p.children),
+      Descendant::Link(l) => extract_picture_ids_descendants(&l.children),
       Descendant::Picture(Picture { picture_id }) => {
         let mut set = HashSet::new();
         set.insert(*picture_id);

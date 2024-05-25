@@ -35,6 +35,10 @@ export interface Header extends Node {
   readonly type: "header"
   readonly level: number
 }
+export interface Link extends Node {
+  readonly type: "link"
+  readonly href: string
+}
 export interface Paragraph extends Node {
   readonly type: "paragraph"
 }
@@ -42,4 +46,4 @@ export interface Picture {
   readonly type: "picture"
   readonly pictureId: Id<"picture">
 }
-export type Descendant = Text | Paragraph | Picture | Header
+export type Descendant = Text | Paragraph | Picture | Header | Link
