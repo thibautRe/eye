@@ -26,3 +26,9 @@ shrinkwraprs = "0.2"
 thiserror = "1.0"
 time = "0.2"
 walkdir = "2"
+
+[workspace.metadata.cross.target.armv7-unknown-linux-gnueabihf]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libpq-dev:$CROSS_DEB_ARCH"
+]
