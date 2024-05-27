@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Setup Rust Toolchain
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal --no-modify-path -y
           # the target comes from running `rustup target list` on the Olimex board
           rustup target add armv7-unknown-linux-gnueabihf
       - name: Build
