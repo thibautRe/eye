@@ -32,7 +32,14 @@ pub struct Paragraph {
 #[serde(rename_all = "camelCase")]
 pub struct Picture {
   pub picture_id: i32,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub metadata: Option<bool>,
+
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub label: Option<Vec<Text>>,
 }
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum Descendant {
@@ -63,9 +70,9 @@ fn extract_picture_ids_descendants(descs: &Vec<Descendant>) -> HashSet<i32> {
       Descendant::Header(h) => extract_picture_ids_descendants(&h.children),
       Descendant::Paragraph(p) => extract_picture_ids_descendants(&p.children),
       Descendant::Link(l) => extract_picture_ids_descendants(&l.children),
-      Descendant::Picture(Picture { picture_id }) => {
+      Descendant::Picture(p) => {
         let mut set = HashSet::new();
-        set.insert(*picture_id);
+        set.insert(p.picture_id);
         set
       }
     })

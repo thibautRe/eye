@@ -45,5 +45,7 @@ export interface Paragraph extends Node {
 export interface Picture {
   readonly type: "picture"
   readonly pictureId: Id<"picture">
+  readonly metadata?: boolean | null
+  readonly label?: readonly Text[] | null
 }
 export type Descendant = Text | Paragraph | Picture | Header | Link

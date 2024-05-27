@@ -8,6 +8,7 @@ import { Stack } from "../Stack/Stack"
 import { breakpoints } from "../Styles/theme.css"
 import { AspectRatio } from "./AspectRatio"
 import { Picture } from "./PictureComponent"
+import { routes } from "../Routes"
 
 export interface PictureGridProps extends GridProps {
   pictures: readonly PictureApi[]
@@ -49,7 +50,7 @@ export const PictureGrid: VoidComponent<PictureGridProps> = p => {
                 style={{ display: "block", width: "100%", height: "100%" }}
               >
                 {p => (
-                  <A {...p} href={`/picture/${picture.id}`}>
+                  <A {...p} href={routes.Picture(picture.id)}>
                     <Picture picture={picture} sizes={local.sizes} />
                   </A>
                 )}

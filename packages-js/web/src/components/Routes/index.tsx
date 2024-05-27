@@ -5,13 +5,15 @@ import { withAdminFence } from "../AuthFence"
 import { PageLayout } from "../Layout/PageLayout"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
+import { PictureApi } from "../../types/picture"
+import { AlbumApi } from "../../types/album"
 
 export const routes = {
   Pictures: "/pictures",
-  Picture: "/picture/:id",
+  Picture: (id: PictureApi["id"] | ":id") => `/picture/${id}`,
 
   Albums: "/albums",
-  Album: "/album/:id",
+  Album: (id: AlbumApi["id"] | ":id") => `/album/${id}`,
 
   Posts: "/p",
   Post: (slug: string) => `/p/${slug}`,
@@ -48,9 +50,9 @@ const AdminJwtGen = withAdminFence(lazy(() => import("./Admin/JwtGenRoute")))
 export const AppRoutes = () => (
   <Router>
     <Route path={routes.Pictures} component={Pictures} />
-    <Route path={routes.Picture} component={Picture} />
+    <Route path={routes.Picture(":id")} component={Picture} />
     <Route path={routes.Albums} component={Albums} />
-    <Route path={routes.Album} component={Album} />
+    <Route path={routes.Album(":id")} component={Album} />
     <Route path={routes.Posts} component={Posts} />
     <Route path={routes.Post(":slug")} component={Post} />
     <Route path={routes.PostEdit(":slug")} component={PostEdit} />

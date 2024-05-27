@@ -1,4 +1,4 @@
-import { redirect, useNavigate, useParams } from "@solidjs/router"
+import { useNavigate, useParams } from "@solidjs/router"
 import { Match, Show, Switch, createResource, createSignal } from "solid-js"
 import { apiGetPost, apiUpdatePost, apiUpdatePostSlug } from "../../api"
 import { PageLayout } from "../Layout/PageLayout"
@@ -72,7 +72,7 @@ export default () => {
       <Show when={postRes()}>
         {post => (
           <Stack d="v" a="center" p="xl">
-            <Stack dist="m" j="stretch" style={{ width: "1200px" }}>
+            <Stack dist="xl" j="stretch" style={{ width: "1200px" }}>
               <Stack d="v" dist="xs" style={{ flex: 1 }}>
                 <PostEdit
                   slug={post().slug}

@@ -8,6 +8,7 @@ import { PageLayout } from "../Layout/PageLayout"
 import { PictureGrid } from "../Picture/PictureGrid"
 import { Stack } from "../Stack/Stack"
 import { T } from "../T/T"
+import { routes } from "."
 
 export default () => {
   const t = useTrans()
@@ -37,7 +38,7 @@ export default () => {
               <Stack dist="xs" a="baseline">
                 <T t="l" fgColor="g11">
                   {props => (
-                    <A {...props} href={`/album/${album.id}`}>
+                    <A {...props} href={routes.Album(album.id)}>
                       {album.name}
                     </A>
                   )}

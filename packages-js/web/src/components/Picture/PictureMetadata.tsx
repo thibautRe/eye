@@ -77,3 +77,13 @@ export const PictureMetadata: PictureMetadataComponent = props => (
     <PictureCameraLens picture={props.picture} />
   </Stack>
 )
+
+export const PictureMetadataInline: PictureMetadataComponent = props => (
+  <Stack dist="m">
+    <PictureAperture picture={props.picture} />
+    <PictureFocalLength picture={props.picture} />
+    <PictureExposure picture={props.picture} />
+    <PictureIso picture={props.picture} />
+    <PictureCameraLens picture={props.picture} />
+  </Stack>
+)
